@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — AutoTech Pro</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=3">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+	    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+	    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+	    <script>
+	        (function () {
+	            const theme = localStorage.getItem('autotech-theme') || 'dark';
+	            document.documentElement.setAttribute('data-theme', theme);
+	        })();
+	    </script>
 
-    <link href="{{ asset('css/login.css') }}?v=1" rel="stylesheet">
+	    <link href="{{ asset('css/login.css') }}?v=3" rel="stylesheet">
 </head>
 <body>
 
@@ -49,8 +55,12 @@
             <div class="panel-version">AutoTech Pro</div>
         </div>
 
-        <div class="panel-right">
-            <div class="login-heading">Bem-vindo</div>
+	        <div class="panel-right">
+	            <button type="button" class="login-theme-toggle" id="theme-toggle" title="Alternar modo claro/escuro">
+	                <i class="bi bi-sun theme-dark-icon"></i>
+	                <i class="bi bi-moon-stars theme-light-icon"></i>
+	            </button>
+	            <div class="login-heading">Bem-vindo</div>
             <div class="login-sub">Acesse sua conta para continuar</div>
 
             @if($errors->any())
@@ -128,6 +138,16 @@
 </div>
 
 <script>
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('autotech-theme', theme);
+}
+
+document.getElementById('theme-toggle')?.addEventListener('click', function () {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    setTheme(current === 'dark' ? 'light' : 'dark');
+});
+
 (function () {
     const canvas = document.getElementById('particles-canvas');
     const ctx    = canvas.getContext('2d');

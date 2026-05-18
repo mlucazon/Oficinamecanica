@@ -13,6 +13,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $cliente = $user->isCliente() ? $user->cliente : null;
+        $mecanico = $user->isMecanico() ? $user->mecanico : null;
 
         $ordensQuery = OrdemServico::query();
 
@@ -20,10 +21,18 @@ class DashboardController extends Controller
             $ordensQuery->where('cliente_id', $cliente?->id);
         }
 
+        if ($user->isMecanico()) {
+            $ordensQuery->where('mecanico_id', $mecanico?->id);
+        }
+
         $recentesQuery = OrdemServico::with(['cliente','veiculo','mecanico']);
 
         if ($user->isCliente()) {
             $recentesQuery->where('cliente_id', $cliente?->id);
+        }
+
+        if ($user->isMecanico()) {
+            $recentesQuery->where('mecanico_id', $mecanico?->id);
         }
 
         $stats = [
@@ -41,8 +50,10 @@ class DashboardController extends Controller
 
         $os_recentes = $recentesQuery->latest()->limit(8)->get();
 
-        $pecas_criticas = Peca::whereColumn('estoque', '<=', 'estoque_minimo')
-            ->orderBy('estoque')->limit(6)->get();
+        $pecas_criticas = $user->isMecanico()
+            ? collect()
+            : Peca::whereColumn('estoque', '<=', 'estoque_minimo')
+                ->orderBy('estoque')->limit(6)->get();
 
         return view('dashboard.index', compact('stats', 'os_recentes', 'pecas_criticas'));
     }

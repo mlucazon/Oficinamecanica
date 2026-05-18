@@ -25,31 +25,13 @@
                             <span class="badge bg-success">Ativa</span>
                         @endif
                     </td>
-                    <td>
-                        @if($g->ativa())
-                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal-{{ $g->id }}">
-                            <i class="bi bi-lightning me-1"></i>Acionar
-                        </button>
-                        <!-- Modal -->
-                        <div class="modal fade" id="modal-{{ $g->id }}" tabindex="-1">
-                            <div class="modal-dialog"><div class="modal-content">
-                                <div class="modal-header"><h5 class="modal-title">Acionar Garantia</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                <form method="POST" action="{{ route('garantias.acionar',$g) }}">
-                                    @csrf @method('PATCH')
-                                    <div class="modal-body">
-                                        <label class="form-label">Descreva o motivo *</label>
-                                        <textarea name="observacao" class="form-control" rows="3" required></textarea>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-warning">Confirmar Acionamento</button>
-                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    </div>
-                                </form>
-                            </div></div>
-                        </div>
-                        @endif
-                    </td>
+	                    <td>
+	                        @if($g->ativa())
+	                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal-{{ $g->id }}">
+	                            <i class="bi bi-lightning me-1"></i>Acionar
+	                        </button>
+	                        @endif
+	                    </td>
                 </tr>
                 @empty
                 <tr><td colspan="6" class="text-center text-muted py-4">Nenhuma garantia registrada.</td></tr>
@@ -57,6 +39,33 @@
             </tbody>
         </table>
     </div>
-    <div class="card-footer">{{ $garantias->links() }}</div>
-</div>
-@endsection
+	    <div class="card-footer">{{ $garantias->links() }}</div>
+	</div>
+
+	@foreach($garantias as $g)
+	    @if($g->ativa())
+	        <div class="modal fade" id="modal-{{ $g->id }}" tabindex="-1" aria-labelledby="modal-title-{{ $g->id }}" aria-hidden="true">
+	            <div class="modal-dialog modal-dialog-centered">
+	                <div class="modal-content">
+	                    <div class="modal-header">
+	                        <h5 class="modal-title" id="modal-title-{{ $g->id }}">Acionar Garantia</h5>
+	                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+	                    </div>
+	                    <form method="POST" action="{{ route('garantias.acionar',$g) }}">
+	                        @csrf
+	                        @method('PATCH')
+	                        <div class="modal-body">
+	                            <label class="form-label">Descreva o motivo *</label>
+	                            <textarea name="observacao" class="form-control" rows="4" required></textarea>
+	                        </div>
+	                        <div class="modal-footer">
+	                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+	                            <button class="btn btn-warning">Confirmar Acionamento</button>
+	                        </div>
+	                    </form>
+	                </div>
+	            </div>
+	        </div>
+	    @endif
+	@endforeach
+	@endsection

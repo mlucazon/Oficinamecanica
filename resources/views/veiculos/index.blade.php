@@ -29,10 +29,15 @@
                     <td>{{ $v->marca }} {{ $v->modelo }}</td>
                     <td>{{ $v->ano }}</td>
                     <td>{{ $v->cor ?? '—' }}</td>
-                    <td>{{ $v->cliente?->nome ?? '—' }}</td>
-                    <td class="text-end">
-                        <a href="{{ route('veiculos.edit',$v->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                        <form method="POST" action="{{ route('veiculos.destroy',$v->id) }}" class="d-inline" onsubmit="return confirm('Excluir veículo?')">
+	                    <td>{{ $v->cliente?->nome ?? '—' }}</td>
+	                    <td class="text-end">
+	                        @if($v->ordens->first())
+	                            <a href="{{ route('os.show', $v->ordens->first()->id) }}" class="btn btn-sm btn-primary">
+	                                <i class="bi bi-arrow-right-circle me-1"></i>Ir para OS
+	                            </a>
+	                        @endif
+	                        <a href="{{ route('veiculos.edit',$v->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+	                        <form method="POST" action="{{ route('veiculos.destroy',$v->id) }}" class="d-inline" onsubmit="return confirm('Excluir veículo?')">
                             @csrf @method('DELETE')
                             <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                         </form>

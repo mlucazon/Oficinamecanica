@@ -26,7 +26,6 @@ class UserSeeder extends Seeder
                 'email' => 'mecanico@autotech.com',
                 'name'  => 'Carlos Mecânico',
                 'role'  => 'mecanico',
-                'password' => '1',
                 'cpf'   => '000.000.000-01',
                 'telefone' => '(00) 00000-0001',
             ],
@@ -34,7 +33,6 @@ class UserSeeder extends Seeder
                 'email' => 'jose@autotech.com',
                 'name'  => 'José Mecânico',
                 'role'  => 'mecanico',
-                'password' => '2',
                 'cpf'   => '000.000.000-02',
                 'telefone' => '(00) 00000-0002',
             ],
@@ -73,8 +71,8 @@ class UserSeeder extends Seeder
         $this->command->line('Credenciais de acesso:');
         $this->command->line('  Atendente: joao@autotech.com / 12345678');
         $this->command->line('  Gerente:   antonio@autotech.com / 12345678');
-        $this->command->line('  Mecânico:  mecanico@autotech.com / 1');
-        $this->command->line('  Mecânico:  jose@autotech.com / 2');
+        $this->command->line('  Mecânico:  mecanico@autotech.com / 12345678');
+        $this->command->line('  Mecânico:  jose@autotech.com / 12345678');
         $this->command->line('  Cliente:   cliente@autotech.com / 12345678');
     }
 }

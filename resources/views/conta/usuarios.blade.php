@@ -93,25 +93,23 @@
                                             @foreach($groups[$roleKey] as $user)
                                                 <tr>
                                                     <td>
-                                                        @if($user->isCliente())
-                                                            <div class="client-name-stack">
-                                                                <span class="client-avatar" title="{{ $user->isOnline() ? 'Online' : 'Offline' }}">
-                                                                    @if($user->profilePhotoUrl())
-                                                                        <img src="{{ $user->profilePhotoUrl() }}" alt="{{ $user->name }}">
-                                                                    @else
+                                                        <div class="client-name-stack">
+                                                            <span class="client-avatar" title="{{ $user->isOnline() ? 'Online' : 'Offline' }}">
+                                                                @if($user->profilePhotoUrl())
+                                                                    <img src="{{ $user->profilePhotoUrl() }}" alt="{{ $user->name }}">
+                                                                @else
+                                                                    <span class="client-avatar-initials">
                                                                         {{ strtoupper(substr($user->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', $user->name)[1] ?? 'X', 0, 1)) }}
-                                                                    @endif
-                                                                    <span class="status-dot {{ $user->isOnline() ? 'online' : 'offline' }}"></span>
-                                                                </span>
-                                                                <span>
-                                                                    <span class="fw-semibold">{{ $user->name }}</span>
-                                                                    <br>
-                                                                    <span class="small text-muted">{{ $user->isOnline() ? 'Online agora' : 'Offline' }}</span>
-                                                                </span>
-                                                            </div>
-                                                        @else
-                                                            {{ $user->name }}
-                                                        @endif
+                                                                    </span>
+                                                                @endif
+                                                                <span class="status-dot {{ $user->isOnline() ? 'online' : 'offline' }}"></span>
+                                                            </span>
+                                                            <span>
+                                                                <span class="fw-semibold">{{ $user->name }}</span>
+                                                                <br>
+                                                                <span class="small text-muted">{{ $user->isOnline() ? 'Online agora' : 'Offline' }}</span>
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                     <td>{{ $user->email }}</td>
                                                     <td class="text-end">

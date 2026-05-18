@@ -9,9 +9,6 @@
 
 <div class="col-md-3">
     <label class="form-label">Marca *</label>
-    <div class="mb-2">
-        <input type="search" id="marca-search" class="form-control" placeholder="Buscar marca..." autocomplete="off">
-    </div>
     <select name="marca" id="sel-marca" class="form-select @error('marca') is-invalid @enderror" required>
         <option value="" @selected(old('marca') === null || old('marca') === '')>Selecione...</option>
         @foreach($marcas as $m)
@@ -87,25 +84,8 @@
         carregarModelos(marcaIdInicial, true);
     }
 
-    const searchInput = document.getElementById('marca-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', function () {
-            const text = this.value.toLowerCase().trim();
-            for (const option of selMarca.options) {
-                if (!option.value) {
-                    option.hidden = false;
-                    option.style.display = '';
-                    continue;
-                }
-                const matches = option.value.toLowerCase().includes(text);
-                option.hidden = !matches;
-                option.style.display = matches ? '' : 'none';
-            }
-        });
-    }
 })();
 </script>
 @endpush
-
 
 

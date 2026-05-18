@@ -38,6 +38,10 @@ class OrdemServicoController extends Controller
             $query->whereHas('cliente', fn($q) => $q->where('user_id', Auth::id()));
         }
 
+        if (Auth::user()->isMecanico()) {
+            $query->where('mecanico_id', Auth::user()->mecanico?->id);
+        }
+
         $ordens    = $query->paginate(20)->withQueryString();
         $mecanicos = Mecanico::where('ativo', true)->orderBy('nome')->get();
 
@@ -115,6 +119,14 @@ class OrdemServicoController extends Controller
     public function show($id)
     {
         $ordemServico = OrdemServico::findOrFail($id);
+        if (Auth::user()->isMecanico() && $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
+            abort(403);
+        }
+
+        if (Auth::user()->isCliente() && $ordemServico->cliente?->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $ordemServico->load([
             'cliente','veiculo','mecanico.user',
             'itens.servico','itens.peca',
@@ -138,6 +150,30 @@ class OrdemServicoController extends Controller
     public function update(Request $request, $id)
     {
         $ordemServico = OrdemServico::findOrFail($id);
+
+        if (Auth::user()->isCliente()) {
+            if ($ordemServico->cliente?->user_id !== Auth::id()) {
+                abort(403);
+            }
+
+            $data = $request->validate([
+                'sintomas' => 'required|string|max:2000',
+            ]);
+
+            $ordemServico->update($data);
+
+            return redirect()->route('os.show', $ordemServico->id)
+                   ->with('success', 'Sintomas atualizados!');
+        }
+
+        if ($request->has('sintomas')) {
+            abort(403);
+        }
+
+        if (Auth::user()->isMecanico() && $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'mecanico_id'   => 'nullable|exists:mecanicos,id',
             'diagnostico'   => 'nullable|string|max:5000',
@@ -153,9 +189,176 @@ class OrdemServicoController extends Controller
                ->with('success', 'OS atualizada!');
     }
 
+    public function enviarOrcamentoAtendente($id)
+    {
+        $ordemServico = OrdemServico::with(['cliente', 'mecanico.user'])->findOrFail($id);
+
+        if (!Auth::user()->isMecanico() || $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
+            abort(403);
+        }
+
+        if (!$ordemServico->diagnostico || $ordemServico->itens()->count() === 0) {
+            return back()->with('error', 'Informe o diagnostico e adicione pelo menos um item ao orcamento.');
+        }
+
+        $ordemServico->update(['status' => 'orcamento_enviado_atendente']);
+
+        Notificacao::where('user_id', Auth::id())
+            ->where('os_id', $ordemServico->id)
+            ->where('status', 'pendente')
+            ->update([
+                'status' => 'aceita',
+                'lida' => true,
+            ]);
+
+        User::whereIn('role', ['atendente', 'gerente'])->get()->each(function (User $user) use ($ordemServico) {
+            Notificacao::create([
+                'user_id' => $user->id,
+                'os_id' => $ordemServico->id,
+                'tipo' => 'atualizacao',
+                'status' => 'pendente',
+                'mensagem' => 'O mecanico ' . $ordemServico->mecanico->nome . ' enviou o orcamento da OS ' . $ordemServico->numero . ' para o cliente ' . $ordemServico->cliente->nome . '.',
+            ]);
+        });
+
+        return back()->with('success', 'Orcamento enviado para o atendente.');
+    }
+
+    public function enviarOrcamentoCliente($id)
+    {
+        $ordemServico = OrdemServico::with(['cliente.user'])->findOrFail($id);
+
+        if (!Auth::user()->isAtendente() && !Auth::user()->isGerente()) {
+            abort(403);
+        }
+
+        $ordemServico->update(['status' => 'aguardando_aprovacao']);
+
+        if ($ordemServico->cliente?->user_id) {
+            Notificacao::create([
+                'user_id' => $ordemServico->cliente->user_id,
+                'os_id' => $ordemServico->id,
+                'tipo' => 'atualizacao',
+                'status' => 'pendente',
+                'mensagem' => 'Seu orcamento da OS ' . $ordemServico->numero . ' esta pronto. Aprove para prosseguir ou recuse o servico.',
+            ]);
+        }
+
+        return back()->with('success', 'Orcamento enviado para o cliente decidir.');
+    }
+
+    public function clienteAprovar($id)
+    {
+        $ordemServico = OrdemServico::with(['cliente', 'mecanico.user'])->findOrFail($id);
+
+        if (!Auth::user()->isCliente() || $ordemServico->cliente?->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $ordemServico->update([
+            'aprovado_cliente' => true,
+            'data_aprovacao' => now(),
+            'status' => 'em_execucao',
+        ]);
+
+        Notificacao::where('user_id', Auth::id())
+            ->where('os_id', $ordemServico->id)
+            ->where('status', 'pendente')
+            ->update([
+                'status' => 'aceita',
+                'lida' => true,
+            ]);
+
+        User::whereIn('role', ['atendente', 'gerente'])->get()->each(function (User $user) use ($ordemServico) {
+            Notificacao::create([
+                'user_id' => $user->id,
+                'os_id' => $ordemServico->id,
+                'tipo' => 'atualizacao',
+                'status' => 'pendente',
+                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' aprovou prosseguir com a OS ' . $ordemServico->numero . '.',
+            ]);
+        });
+
+        if ($ordemServico->mecanico?->user_id) {
+            Notificacao::create([
+                'user_id' => $ordemServico->mecanico->user_id,
+                'os_id' => $ordemServico->id,
+                'tipo' => 'atualizacao',
+                'status' => 'pendente',
+                'mensagem' => 'O cliente aprovou a OS ' . $ordemServico->numero . '. Voce pode prosseguir com o servico.',
+            ]);
+        }
+
+        return back()->with('success', 'Orcamento aprovado. A oficina foi avisada.');
+    }
+
+    public function clienteRecusar(Request $request, $id)
+    {
+        $ordemServico = OrdemServico::with(['cliente', 'mecanico.user'])->findOrFail($id);
+
+        if (!Auth::user()->isCliente() || $ordemServico->cliente?->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'motivo_recusa' => ['nullable', 'string', 'max:120'],
+            'detalhes_recusa' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $ordemServico->update([
+            'status' => 'cancelada',
+            'motivo_recusa' => $data['motivo_recusa'] ?? 'Cliente recusou o orcamento',
+            'detalhes_recusa' => $data['detalhes_recusa'] ?? null,
+        ]);
+
+        Notificacao::where('user_id', Auth::id())
+            ->where('os_id', $ordemServico->id)
+            ->where('status', 'pendente')
+            ->update([
+                'status' => 'recusada',
+                'lida' => true,
+            ]);
+
+        User::whereIn('role', ['atendente', 'gerente'])->get()->each(function (User $user) use ($ordemServico) {
+            Notificacao::create([
+                'user_id' => $user->id,
+                'os_id' => $ordemServico->id,
+                'tipo' => 'atualizacao',
+                'status' => 'pendente',
+                'mensagem' => 'O cliente recusou prosseguir com a OS ' . $ordemServico->numero . '.',
+            ]);
+        });
+
+        if ($ordemServico->mecanico?->user_id) {
+            Notificacao::create([
+                'user_id' => $ordemServico->mecanico->user_id,
+                'os_id' => $ordemServico->id,
+                'tipo' => 'atualizacao',
+                'status' => 'pendente',
+                'mensagem' => 'O cliente recusou a OS ' . $ordemServico->numero . '.',
+            ]);
+        }
+
+        return back()->with('success', 'Orcamento recusado. A oficina foi avisada.');
+    }
+
     public function destroy($id)
     {
         $ordemServico = OrdemServico::findOrFail($id);
+
+        if (Auth::user()->isCliente()) {
+            if ($ordemServico->cliente?->user_id !== Auth::id()) {
+                abort(403);
+            }
+
+            if ($ordemServico->status !== 'finalizada') {
+                return back()->with('error', 'Você só pode apagar OS finalizadas.');
+            }
+
+            $ordemServico->delete();
+            return redirect()->route('conta.os')->with('success', 'OS finalizada apagada do seu histórico.');
+        }
+
         if ($ordemServico->aprovado_cliente) {
             return back()->with('error', 'Não é possível excluir uma OS já aprovada.');
         }
@@ -171,16 +374,25 @@ class OrdemServicoController extends Controller
             'status' => 'required|in:aberta,em_diagnostico,aguardando_aprovacao,aprovada,em_execucao,aguardando_pecas,finalizada,cancelada',
         ]);
 
+        if ($request->status === 'finalizada' && ! $ordemServico->aprovado_cliente) {
+            return back()->with('error', 'A OS só pode ser finalizada depois que o cliente aceitar fazer o serviço.');
+        }
+
         $ordemServico->update(['status' => $request->status]);
 
         // RN001 — ao finalizar, cria garantia de 90 dias automaticamente
         if ($request->status === 'finalizada') {
             $ordemServico->update(['data_conclusao' => now()]);
-            $ordemServico->garantias()->create([
-                'descricao'   => 'Garantia padrão de mão de obra (90 dias)',
-                'data_inicio' => today(),
-                'data_fim'    => today()->addDays(90),
-            ]);
+            if ($ordemServico->mecanico?->user_id) {
+                Notificacao::where('user_id', $ordemServico->mecanico->user_id)
+                    ->where('os_id', $ordemServico->id)
+                    ->where('status', 'pendente')
+                    ->update([
+                        'status' => 'aceita',
+                        'lida' => true,
+                    ]);
+            }
+            $this->criarOfertaGarantia($ordemServico);
         }
 
         return back()->with('success', 'Status atualizado para: ' . $ordemServico->statusLabel());
@@ -202,13 +414,69 @@ class OrdemServicoController extends Controller
     // UC009 — Fechar OS
     public function fechar($id)
     {
+        abort_if(auth()->user()->isCliente(), 403);
+
         $ordemServico = OrdemServico::findOrFail($id);
+
+        if (! $ordemServico->aprovado_cliente) {
+            return back()->with('error', 'A OS só pode ser finalizada depois que o cliente aceitar fazer o serviço.');
+        }
+
         $ordemServico->update([
             'status'         => 'finalizada',
             'data_conclusao' => now(),
         ]);
 
+        if ($ordemServico->mecanico?->user_id) {
+            Notificacao::where('user_id', $ordemServico->mecanico->user_id)
+                ->where('os_id', $ordemServico->id)
+                ->where('status', 'pendente')
+                ->update([
+                    'status' => 'aceita',
+                    'lida' => true,
+                ]);
+        }
+
+        $this->criarOfertaGarantia($ordemServico);
+
         return back()->with('success', 'Ordem de serviço finalizada com sucesso!');
+    }
+
+    private function criarOfertaGarantia(OrdemServico $ordemServico): void
+    {
+        $ordemServico->loadMissing(['cliente.user', 'itens', 'garantias']);
+
+        if ($ordemServico->garantias()
+            ->whereIn('status', ['pendente', 'aceita'])
+            ->exists()) {
+            return;
+        }
+
+        $base = (float) $ordemServico->valor_total;
+        if ($base <= 0) {
+            $base = (float) $ordemServico->itens->sum('valor_total');
+        }
+
+        $valorGarantia = round(min(450, max(60, $base * 0.12)), 2);
+
+        $garantia = $ordemServico->garantias()->create([
+            'descricao' => 'Oferta de garantia adicional de 60 dias para serviços e peças desta OS.',
+            'valor' => $valorGarantia,
+            'status' => 'pendente',
+            'data_inicio' => today(),
+            'data_fim' => today()->addDays(60),
+            'observacao' => 'Aguardando decisão do cliente.',
+        ]);
+
+        if ($ordemServico->cliente?->user_id) {
+            Notificacao::create([
+                'user_id' => $ordemServico->cliente->user_id,
+                'os_id' => $ordemServico->id,
+                'tipo' => 'atualizacao',
+                'status' => 'pendente',
+                'mensagem' => 'Sua OS ' . $ordemServico->numero . ' foi finalizada. Voce pode adicionar 60 dias de garantia por R$ ' . number_format($garantia->valor, 2, ',', '.') . ' ou recusar sem custo.',
+            ]);
+        }
     }
 
     // Autorização do cliente via link/token (RF004)

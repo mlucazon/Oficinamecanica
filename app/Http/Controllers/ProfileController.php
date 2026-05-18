@@ -15,8 +15,17 @@ class ProfileController extends Controller
     {
         $user = auth()->user()->load(['cliente', 'mecanico']);
         $estados = Estado::with('cidades')->orderBy('nome')->get();
+        $ordensMecanico = collect();
 
-        return view('perfil.edit', compact('user', 'estados'));
+        if ($user->isMecanico() && $user->mecanico) {
+            $ordensMecanico = \App\Models\OrdemServico::with(['cliente', 'veiculo'])
+                ->where('mecanico_id', $user->mecanico->id)
+                ->latest()
+                ->limit(6)
+                ->get();
+        }
+
+        return view('perfil.edit', compact('user', 'estados', 'ordensMecanico'));
     }
 
     public function update(Request $request)

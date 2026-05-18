@@ -31,11 +31,16 @@
                             <td class="font-mono fw-500">{{ $v->placa }}</td>
                             <td>{{ $v->marca }}</td>
                             <td>{{ $v->modelo }}</td>
-                            <td>{{ $v->ano }}</td>
-                            <td>{{ $v->cor ?? '—' }}</td>
-                            <td class="text-end">
-                                <a href="{{ route('veiculos.show', $v->id) }}" class="btn btn-sm btn-outline-secondary" title="Visualizar">
-                                    <i class="bi bi-eye"></i>
+	                            <td>{{ $v->ano }}</td>
+	                            <td>{{ $v->cor ?? '—' }}</td>
+	                            <td class="text-end">
+	                                @if($v->ordens->first())
+	                                    <a href="{{ route('os.show', $v->ordens->first()->id) }}" class="btn btn-sm btn-primary">
+	                                        <i class="bi bi-arrow-right-circle me-1"></i>Ir para OS
+	                                    </a>
+	                                @endif
+	                                <a href="{{ route('veiculos.show', $v->id) }}" class="btn btn-sm btn-outline-secondary" title="Visualizar">
+	                                    <i class="bi bi-eye"></i>
                                 </a>
                             </td>
                         </tr>
@@ -52,4 +57,3 @@
     </div>
 </div>
 @endsection
-

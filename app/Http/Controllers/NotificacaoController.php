@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Mecanico;
 use App\Models\Notificacao;
 use App\Models\OrdemServico;
+use App\Models\Peca;
 use Illuminate\Http\Request;
 
 class NotificacaoController extends Controller
@@ -12,9 +13,22 @@ class NotificacaoController extends Controller
     // Mostrar notificações para assistente/gerente
     public function index()
     {
+        $this->sincronizarPendentesDoUsuario();
+
         $notificacoes_pendentes = Notificacao::where('user_id', auth()->id())
             ->where('status', 'pendente')
             ->with(['os.cliente', 'os.veiculo'])
+            ->when(auth()->user()->isAtendente() || auth()->user()->isGerente(), function ($query) {
+                $query->where(function ($q) {
+                    $q->where(function ($sub) {
+                        $sub->where('tipo', 'solicitacao_os')
+                            ->whereHas('os', fn($os) => $os->where('status', 'aguardando_aceitacao'));
+                    })->orWhereHas('os', fn($os) => $os->whereIn('status', [
+                        'orcamento_enviado_atendente',
+                        'aguardando_aprovacao',
+                    ]));
+                });
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -25,19 +39,61 @@ class NotificacaoController extends Controller
             ->limit(10)
             ->get();
 
-        return view('notificacoes.index', compact('notificacoes_pendentes', 'notificacoes_respondidas'));
+        $mecanicos = Mecanico::where('ativo', true)->orderBy('nome')->get();
+        $pecas_criticas = auth()->user()->isMecanico()
+            ? Peca::whereColumn('estoque', '<=', 'estoque_minimo')->orderBy('estoque')->get()
+            : collect();
+
+        return view('notificacoes.index', compact('notificacoes_pendentes', 'notificacoes_respondidas', 'mecanicos', 'pecas_criticas'));
+    }
+
+    private function sincronizarPendentesDoUsuario(): void
+    {
+        if (!auth()->user()->isAtendente() && !auth()->user()->isGerente()) {
+            return;
+        }
+
+        Notificacao::where('user_id', auth()->id())
+            ->where('status', 'pendente')
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('tipo', 'solicitacao_os')
+                        ->whereHas('os', fn($os) => $os->where('status', '!=', 'aguardando_aceitacao'));
+                })->orWhere(function ($q) {
+                    $q->where('tipo', 'atualizacao')
+                        ->whereHas('os', fn($os) => $os->whereNotIn('status', [
+                            'orcamento_enviado_atendente',
+                            'aguardando_aprovacao',
+                        ]));
+                });
+            })
+            ->update([
+                'status' => 'aceita',
+                'lida' => true,
+            ]);
     }
 
     // Aceitar OS
-    public function aceitar(Notificacao $notificacao)
+    public function aceitar(Notificacao $notificacao, Request $request)
     {
+        if (!auth()->user()->isAtendente() && !auth()->user()->isGerente()) {
+            abort(403);
+        }
+
         if ($notificacao->user_id !== auth()->id()) {
             return redirect()->back()->with('error', 'Sem permissão');
         }
 
+        $data = $request->validate([
+            'mecanico_id' => ['required', 'exists:mecanicos,id'],
+        ], [
+            'mecanico_id.required' => 'Selecione o mecânico responsável.',
+            'mecanico_id.exists' => 'O mecânico selecionado não foi encontrado.',
+        ]);
+
         $notificacao->update(['status' => 'aceita', 'lida' => true]);
 
-        $mecanico = auth()->user()->mecanico;
+        $mecanico = Mecanico::findOrFail($data['mecanico_id']);
 
         if (!$mecanico) {
             $defaultEmail = env('OS_DEFAULT_MECANICO_EMAIL', 'jose@autotech.com');
@@ -53,6 +109,16 @@ class NotificacaoController extends Controller
             'mecanico_id' => $mecanico->id,
         ]);
 
+        if ($mecanico->user_id) {
+            Notificacao::create([
+                'user_id' => $mecanico->user_id,
+                'os_id' => $notificacao->os->id,
+                'tipo' => 'atualizacao',
+                'status' => 'pendente',
+                'mensagem' => 'O atendente encaminhou para voce a OS ' . $notificacao->os->numero . ' do cliente ' . $notificacao->os->cliente->nome . '. Faca o diagnostico e monte o orcamento.',
+            ]);
+        }
+
         return redirect()->route('os.show', $notificacao->os)
             ->with('success', 'OS aceita! Encaminhada para o mecânico ' . $mecanico->nome . '.');
     }
@@ -60,6 +126,10 @@ class NotificacaoController extends Controller
     // Recusar OS
     public function recusar(Notificacao $notificacao, Request $request)
     {
+        if (!auth()->user()->isAtendente() && !auth()->user()->isGerente()) {
+            abort(403);
+        }
+
         if ($notificacao->user_id !== auth()->id()) {
             return redirect()->back()->with('error', 'Sem permissão');
         }
@@ -88,6 +158,16 @@ class NotificacaoController extends Controller
         $notificacao->update(['lida' => true]);
 
         return response()->json(['success' => true]);
+    }
+
+    public function limpar()
+    {
+        Notificacao::where('user_id', auth()->id())
+            ->whereIn('status', ['aceita', 'recusada'])
+            ->delete();
+
+        return redirect()->route('notificacoes.index')
+            ->with('success', 'Histórico de notificações limpo.');
     }
 
     // Contar não lidas (para badge)

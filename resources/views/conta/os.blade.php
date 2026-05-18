@@ -6,9 +6,12 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <i class="bi bi-clipboard2-check me-2"></i>Ordens de Serviço
-            </div>
+	            <div class="card-header d-flex align-items-center justify-content-between gap-2 flex-wrap">
+	                <span><i class="bi bi-clipboard2-check me-2"></i>Ordens de Serviço</span>
+	                <a href="{{ route('os.create') }}" class="btn btn-sm btn-primary">
+	                    <i class="bi bi-plus-lg me-1"></i>Nova OS
+	                </a>
+	            </div>
             <div class="card-body p-0">
                 @if($ordens->count() > 0)
                 <table class="table table-hover mb-0">
@@ -33,18 +36,24 @@
                             <td>
                                 <span class="badge bg-{{ $os->statusCor() }}">{{ $os->statusLabel() }}</span>
                             </td>
-                            <td class="font-mono">R$ {{ number_format($os->valor_total, 2, ',', '.') }}</td>
+	                            <td class="font-mono">
+	                                @if(in_array($os->status, ['aguardando_aceitacao', 'solicitacao_aceita', 'em_diagnostico', 'orcamento_enviado_atendente']) || (float) $os->valor_total <= 0)
+	                                    <span class="text-light">Aguardando orçamento</span>
+	                                @else
+	                                    R$ {{ number_format($os->valor_total, 2, ',', '.') }}
+	                                @endif
+	                            </td>
                             <td class="small text-muted">{{ $os->created_at->format('d/m/Y H:i') }}</td>
                             <td class="text-end">
-                                <a href="{{ route('os.show', $os->id) }}" class="btn btn-sm btn-outline-secondary" title="Visualizar">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                @if(!$os->aprovado_cliente || $os->status === 'cancelada')
-                                <form method="POST" action="{{ route('os.destroy', $os->id) }}" class="d-inline" 
-                                      onsubmit="return confirm('Tem certeza que deseja excluir esta OS? Esta ação não pode ser desfeita.')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger" title="Excluir OS">
-                                        <i class="bi bi-trash"></i>
+	                                <a href="{{ route('os.show', $os->id) }}" class="btn btn-sm btn-outline-secondary" title="Visualizar OS">
+	                                    <i class="bi bi-eye"></i>
+	                                </a>
+	                                @if($os->status === 'finalizada')
+	                                <form method="POST" action="{{ route('os.destroy', $os->id) }}" class="d-inline" 
+	                                      onsubmit="return confirm('Tem certeza que deseja apagar esta OS finalizada do seu histórico? Esta ação não pode ser desfeita.')">
+	                                    @csrf @method('DELETE')
+	                                    <button class="btn btn-sm btn-outline-danger" title="Excluir OS">
+	                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                                 @endif

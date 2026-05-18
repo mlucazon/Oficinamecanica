@@ -1207,7 +1207,7 @@
 
         .estoque-critico { color: var(--danger-text); font-weight: 600; }
 
-        .home-hero {
+	        .home-hero {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
             gap: 18px;
@@ -1221,12 +1221,13 @@
                 linear-gradient(0deg, rgba(2,5,12,.78), rgba(2,5,12,.08) 42%),
                 url('/img/workshop-hero.jpg'),
                 var(--surface);
-            background-size: cover;
-            background-position: center 42%;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 30px 80px rgba(0,0,0,.28);
-        }
+	            background-size: 100% 100%, 100% 100%, 112% auto, auto;
+	            background-position: center, center, center 42%, center;
+	            animation: homeHeroImageDrift 18s ease-in-out infinite;
+	            position: relative;
+	            overflow: hidden;
+	            box-shadow: 0 30px 80px rgba(0,0,0,.28);
+	        }
 
         :root[data-theme="light"] .home-hero {
             background:
@@ -1234,10 +1235,25 @@
                 linear-gradient(0deg, rgba(255,255,255,.82), rgba(255,255,255,.10) 42%),
                 url('/img/workshop-hero.jpg'),
                 var(--surface);
-            background-size: cover;
-            background-position: center 42%;
-            box-shadow: 0 30px 80px rgba(66,45,25,.14);
-        }
+	            background-size: 100% 100%, 100% 100%, 112% auto, auto;
+	            background-position: center, center, center 42%, center;
+	            box-shadow: 0 30px 80px rgba(66,45,25,.14);
+	        }
+
+	        @keyframes homeHeroImageDrift {
+	            0%, 100% {
+	                background-size: 100% 100%, 100% 100%, 112% auto, auto;
+	                background-position: center, center, center 42%, center;
+	            }
+	            45% {
+	                background-size: 100% 100%, 100% 100%, 118% auto, auto;
+	                background-position: center, center, 58% 36%, center;
+	            }
+	            72% {
+	                background-size: 100% 100%, 100% 100%, 115% auto, auto;
+	                background-position: center, center, 43% 50%, center;
+	            }
+	        }
 
         .home-hero::before {
             content: '';
@@ -1250,7 +1266,7 @@
             pointer-events: none;
         }
 
-        .home-hero::after {
+	        .home-hero::after {
             content: '';
             position: absolute;
             inset: 0;
@@ -1259,9 +1275,22 @@
                 linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
             background-size: 42px 42px;
             mask-image: linear-gradient(90deg, #000, transparent 74%);
-            opacity: .45;
-            pointer-events: none;
-        }
+	            opacity: .45;
+	            pointer-events: none;
+	            animation: homeHeroGridPulse 9s ease-in-out infinite;
+	        }
+
+	        @keyframes homeHeroGridPulse {
+	            0%, 100% { opacity: .32; transform: translateX(0); }
+	            50% { opacity: .52; transform: translateX(18px); }
+	        }
+
+	        @media (prefers-reduced-motion: reduce) {
+	            .home-hero,
+	            .home-hero::after {
+	                animation: none !important;
+	            }
+	        }
 
         .home-hero-copy,
         .home-hero-panel {
@@ -1270,7 +1299,7 @@
         }
 
         .home-hero-copy {
-            max-width: 860px;
+            max-width: 760px;
         }
 
         .home-kicker {
@@ -1305,12 +1334,12 @@
 
         .home-hero h1 {
             font-family: 'Syne', sans-serif;
-            font-size: clamp(42px, 6.8vw, 92px);
-            line-height: .9;
+            font-size: clamp(38px, 5.6vw, 74px);
+            line-height: .96;
             margin: 0;
             color: #fff;
             font-weight: 800;
-            max-width: 900px;
+            max-width: 780px;
             text-transform: uppercase;
             text-shadow: 0 14px 42px rgba(0,0,0,.55);
         }
@@ -1479,12 +1508,12 @@
         .home-location {
             min-height: 520px;
             margin: 18px -1.8rem;
-            padding: 96px 6vw;
+            padding: 86px 5vw;
             display: grid;
-            grid-template-columns: minmax(280px, 420px) minmax(340px, 640px);
+            grid-template-columns: minmax(250px, 350px) minmax(520px, 820px);
             align-items: center;
             justify-content: space-between;
-            gap: clamp(28px, 5vw, 82px);
+            gap: clamp(24px, 4vw, 58px);
             background:
                 linear-gradient(90deg, rgba(2,5,12,.92), rgba(2,5,12,.72) 42%, rgba(2,5,12,.30)),
                 linear-gradient(0deg, rgba(2,5,12,.86), rgba(2,5,12,.22)),
@@ -1514,20 +1543,21 @@
 
         .home-location h2 {
             font-family: 'Syne', sans-serif;
-            font-size: clamp(34px, 5vw, 68px);
-            line-height: .92;
+            font-size: clamp(30px, 3.9vw, 50px);
+            line-height: .98;
             font-weight: 800;
             color: #fff;
             margin: 0;
             text-transform: uppercase;
-            max-width: 520px;
+            max-width: 420px;
         }
 
         .home-location p {
             color: rgba(255,255,255,.78);
             margin: 20px 0 0;
             line-height: 1.55;
-            max-width: 520px;
+            max-width: 410px;
+            font-size: 15px;
         }
 
         .home-location-actions {
@@ -1539,8 +1569,8 @@
 
         .home-map-card {
             width: 100%;
-            max-width: 640px;
-            min-height: 250px;
+            max-width: 680px;
+            min-height: 320px;
             justify-self: end;
             border-radius: 14px;
             overflow: hidden;
@@ -1552,7 +1582,7 @@
         .home-map-card iframe {
             width: 100%;
             height: 100%;
-            min-height: 250px;
+            min-height: 320px;
             border: 0;
             display: block;
             filter: saturate(.95) contrast(.95);
@@ -2035,7 +2065,7 @@
                 grid-template-columns: 1fr;
                 margin-left: -1rem;
                 margin-right: -1rem;
-                padding: 72px 24px;
+                padding: 60px 24px;
             }
             .home-map-card {
                 justify-self: stretch;
@@ -2059,7 +2089,7 @@
                 min-height: 640px;
             }
             .home-hero h1 {
-                font-size: 42px;
+                font-size: 36px;
             }
             .home-main-number {
                 font-size: 54px;
@@ -2071,14 +2101,14 @@
                 grid-template-columns: 1fr;
             }
             .home-location {
-                padding: 58px 22px;
+                padding: 52px 22px;
             }
             .home-location h2 {
-                font-size: 42px;
+                font-size: 34px;
             }
             .home-map-card,
             .home-map-card iframe {
-                min-height: 230px;
+                min-height: 280px;
             }
             .home-hero-actions .btn {
                 width: 100%;

@@ -97,6 +97,25 @@ class RoleAccountController extends Controller
         return back()->with('success', 'Solicitação de troca de senha enviada ao gerente.');
     }
 
+    public function cancelarTrocaSenha(Request $request)
+    {
+        $user = auth()->user();
+
+        if (! $user->isCliente()) {
+            abort(403);
+        }
+
+        if (! $user->password_change_requested_at) {
+            return back()->with('error', 'Não existe solicitação de troca de senha para cancelar.');
+        }
+
+        $user->update([
+            'password_change_requested_at' => null,
+        ]);
+
+        return back()->with('success', 'Solicitação de troca de senha cancelada.');
+    }
+
     public function autorizar(Request $request)
     {
         if (! auth()->user()->isGerente()) {

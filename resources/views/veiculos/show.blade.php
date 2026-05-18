@@ -138,7 +138,7 @@
                     <td class="text-muted small">{{ $os->created_at->format('d/m/Y') }}</td>
                     <td class="text-end">
                         <a href="{{ route('os.show', $os->id) }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-eye"></i>
+                            <i class="bi bi-arrow-right-circle me-1"></i>Ir para OS
                         </a>
                     </td>
                 </tr>

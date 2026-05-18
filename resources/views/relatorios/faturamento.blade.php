@@ -14,7 +14,7 @@
         <table class="table mb-0">
             <thead class="table-light"><tr><th>Mês</th><th>OS Finalizadas</th><th>Faturamento</th></tr></thead>
             <tbody>
-                @php $meses = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; @endphp
+                @php $meses = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; @endphp
                 @forelse($dados as $d)
                 <tr>
                     <td>{{ $meses[$d->mes] }}</td>

@@ -19,7 +19,7 @@ class VeiculoController extends Controller
         $isClient = $user && $user->isCliente();
 
 
-        $query = Veiculo::query()->with('cliente');
+        $query = Veiculo::query()->with(['cliente', 'ordens' => fn($q) => $q->latest()]);
 
         if ($isClient) {
             $cliente = auth()->user()->cliente;
@@ -184,4 +184,3 @@ class VeiculoController extends Controller
         );
     }
 }
-

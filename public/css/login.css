@@ -1,27 +1,49 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        :root {
-            --red:       #C40000;
-            --red-h:     #E50000;
-            --red-dim:   rgba(196,0,0,.12);
-            --red-glow:  rgba(196,0,0,.22);
-            --bg:        #060606;
-            --surface:   #0E0E0E;
-            --surface2:  #161616;
-            --border:    rgba(255,255,255,.07);
-            --border2:   rgba(255,255,255,.12);
-            --text:      #F0F0F0;
-            --text2:     #BBBBBB;
-            --text3:     #666;
-        }
+	        :root {
+	            --red:       #C40000;
+	            --red-h:     #E50000;
+	            --red-dim:   rgba(196,0,0,.12);
+	            --red-glow:  rgba(196,0,0,.22);
+	            --bg:        #060606;
+	            --surface:   #0E0E0E;
+	            --surface2:  #161616;
+	            --border:    rgba(255,255,255,.07);
+	            --border2:   rgba(255,255,255,.12);
+	            --text:      #F0F0F0;
+	            --text2:     #BBBBBB;
+	            --text3:     #666;
+	        }
 
-        html, body {
+	        :root[data-theme="light"] {
+	            --red:       #B00000;
+	            --red-h:     #D00000;
+	            --red-dim:   rgba(176,0,0,.10);
+	            --red-glow:  rgba(176,0,0,.16);
+	            --bg:        #F4F1EC;
+	            --surface:   #FFFFFF;
+	            --surface2:  #F7F3EE;
+	            --border:    rgba(31,25,20,.10);
+	            --border2:   rgba(31,25,20,.16);
+	            --text:      #181512;
+	            --text2:     #4F4840;
+	            --text3:     #7D7469;
+	        }
+
+	        html, body {
             min-height: 100vh;
             font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
-            overflow: hidden;
-        }
+	            overflow: hidden;
+	        }
+
+	        :root[data-theme="light"] body {
+	            background:
+	                radial-gradient(circle at 78% -10%, rgba(176,0,0,.12), transparent 34%),
+	                radial-gradient(circle at 12% 10%, rgba(255,255,255,.85), transparent 28%),
+	                linear-gradient(135deg, #F8F5EF 0%, #EFE9E1 58%, #F6F1EA 100%);
+	        }
 
         #particles-canvas {
             position: fixed;
@@ -30,7 +52,7 @@
             pointer-events: none;
         }
 
-        .bg-grid {
+	        .bg-grid {
             position: fixed;
             inset: 0;
             z-index: 0;
@@ -40,7 +62,13 @@
             background-size: 52px 52px;
             mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
             pointer-events: none;
-        }
+	        }
+
+	        :root[data-theme="light"] .bg-grid {
+	            background-image:
+	                linear-gradient(rgba(31,25,20,.045) 1px, transparent 1px),
+	                linear-gradient(90deg, rgba(31,25,20,.045) 1px, transparent 1px);
+	        }
 
         .bg-glow {
             position: fixed;
@@ -206,20 +234,49 @@
             margin-top: 2rem;
         }
 
-        .panel-right {
-            flex: 1;
-            background: var(--surface);
-            padding: 2.8rem 2.4rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+	        .panel-right {
+	            flex: 1;
+	            background: var(--surface);
+	            padding: 2.8rem 2.4rem;
+	            display: flex;
+	            flex-direction: column;
+	            justify-content: center;
+	            position: relative;
+	        }
 
-        .login-heading {
+	        .login-theme-toggle {
+	            position: absolute;
+	            top: 18px;
+	            right: 18px;
+	            width: 36px;
+	            height: 36px;
+	            border: 1px solid var(--border2);
+	            border-radius: 10px;
+	            background: var(--surface2);
+	            color: var(--text2);
+	            display: flex;
+	            align-items: center;
+	            justify-content: center;
+	            cursor: pointer;
+	            transition: background .2s, color .2s, border-color .2s, transform .15s;
+	        }
+
+	        .login-theme-toggle:hover {
+	            background: var(--red-dim);
+	            color: var(--red-h);
+	            border-color: rgba(196,0,0,.28);
+	            transform: translateY(-1px);
+	        }
+
+	        .login-theme-toggle .theme-light-icon { display: none; }
+	        :root[data-theme="light"] .login-theme-toggle .theme-dark-icon { display: none; }
+	        :root[data-theme="light"] .login-theme-toggle .theme-light-icon { display: inline-block; }
+
+	        .login-heading {
             font-family: 'Syne', sans-serif;
             font-size: 22px;
             font-weight: 800;
-            color: #fff;
+	            color: var(--text);
             margin-bottom: 4px;
         }
         .login-sub {
@@ -271,10 +328,10 @@
             pointer-events: none;
             transition: color .2s;
         }
-        .field-input {
+	        .field-input {
             width: 100%;
             background: var(--surface2);
-            border: 1px solid rgba(255,255,255,.08);
+	            border: 1px solid var(--border2);
             border-radius: 10px;
             padding: 11px 14px 11px 40px;
             color: var(--text);
@@ -283,8 +340,8 @@
             outline: none;
             transition: border-color .2s, box-shadow .2s;
             -webkit-appearance: none;
-        }
-        .field-input::placeholder { color: #3a3a3a; }
+	        }
+	        .field-input::placeholder { color: var(--text3); }
         .field-input:focus {
             border-color: var(--red);
             box-shadow: 0 0 0 3px rgba(196,0,0,.14);
@@ -319,11 +376,11 @@
             gap: 8px;
             cursor: pointer;
         }
-        .check-wrap input[type="checkbox"] {
+	        .check-wrap input[type="checkbox"] {
             width: 16px; height: 16px;
             border-radius: 4px;
             background: var(--surface2);
-            border: 1px solid rgba(255,255,255,.15);
+	            border: 1px solid var(--border2);
             accent-color: var(--red);
             cursor: pointer;
         }
@@ -409,9 +466,85 @@
             letter-spacing: .06em;
         }
 
-        @media (max-width: 640px) {
-            .panel-left { display: none; }
-            .login-split { max-width: 400px; }
-            .panel-right { padding: 2rem 1.6rem; }
-            html, body { overflow: auto; }
-        }
+	        @media (max-width: 760px) {
+	            html, body {
+	                min-height: 100dvh;
+	                overflow: auto;
+	            }
+
+	            .page-wrap {
+	                min-height: 100dvh;
+	                align-items: stretch;
+	                padding: 14px;
+	            }
+
+	            .login-split {
+	                max-width: 460px;
+	                min-height: auto;
+	                margin: auto;
+	                flex-direction: column;
+	                border-radius: 14px;
+	            }
+
+	            .panel-left {
+	                display: flex;
+	                width: 100%;
+	                min-height: auto;
+	                padding: 1.1rem 1.2rem;
+	            }
+
+	            .panel-left-inner {
+	                gap: .8rem;
+	            }
+
+	            .brand-mark {
+	                margin-bottom: 0;
+	            }
+
+	            .panel-headline,
+	            .panel-features,
+	            .panel-version {
+	                display: none;
+	            }
+
+	            .panel-right {
+	                padding: 3.4rem 1.2rem 1.35rem;
+	            }
+
+	            .login-theme-toggle {
+	                top: 12px;
+	                right: 12px;
+	            }
+
+	            .login-heading {
+	                font-size: 20px;
+	            }
+
+	            .login-sub {
+	                margin-bottom: 1.25rem;
+	            }
+
+	            .field-group {
+	                margin-bottom: .9rem;
+	            }
+
+	            .field-input,
+	            .btn-entrar {
+	                min-height: 46px;
+	            }
+
+	            .row-bottom {
+	                margin-bottom: 1rem;
+	            }
+	        }
+
+	        @media (max-width: 380px) {
+	            .page-wrap {
+	                padding: 8px;
+	            }
+
+	            .panel-right {
+	                padding-left: 1rem;
+	                padding-right: 1rem;
+	            }
+	        }

@@ -96,7 +96,10 @@ class ClienteController extends Controller
             return view('conta.veiculos', ['veiculos' => collect()]);
         }
 
-        $veiculos = $cliente->veiculos()->latest()->get();
+        $veiculos = $cliente->veiculos()
+            ->with(['ordens' => fn($q) => $q->latest()])
+            ->latest()
+            ->get();
         return view('conta.veiculos', compact('veiculos'));
     }
 

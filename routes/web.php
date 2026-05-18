@@ -82,6 +82,10 @@ Route::middleware(['auth'])->group(function () {
     
     Route::patch('/ordens-servico/{id}/status',  [OrdemServicoController::class, 'atualizarStatus'])->name('os.status');
     Route::patch('/ordens-servico/{id}/aprovar', [OrdemServicoController::class, 'aprovar'])->name('os.aprovar');
+    Route::patch('/ordens-servico/{id}/enviar-orcamento-atendente', [OrdemServicoController::class, 'enviarOrcamentoAtendente'])->name('os.orcamento.atendente');
+    Route::patch('/ordens-servico/{id}/enviar-orcamento-cliente', [OrdemServicoController::class, 'enviarOrcamentoCliente'])->name('os.orcamento.cliente');
+    Route::patch('/ordens-servico/{id}/cliente-aprovar', [OrdemServicoController::class, 'clienteAprovar'])->name('os.cliente.aprovar');
+    Route::patch('/ordens-servico/{id}/cliente-recusar', [OrdemServicoController::class, 'clienteRecusar'])->name('os.cliente.recusar');
     Route::patch('/ordens-servico/{id}/fechar',  [OrdemServicoController::class, 'fechar'])->name('os.fechar');
     Route::get  ('/ordens-servico/{id}/print',   [OrdemServicoController::class, 'imprimir'])->name('os.print');
     Route::post ('/ordens-servico/{id}/fotos',   [OrdemServicoController::class, 'uploadFotos'])->name('os.fotos.store');
@@ -93,17 +97,21 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/ordens-servico/{id}/itens/{item}', [ItemOsController::class, 'destroy'])->name('os.itens.destroy');
 
     // Notificações (Sistema de Comunicação) - Apenas para Atendentes e Gerentes
-    Route::middleware('role:atendente,gerente')->prefix('notificacoes')->name('notificacoes.')->group(function () {
+    Route::middleware('role:atendente,gerente,mecanico,cliente')->prefix('notificacoes')->name('notificacoes.')->group(function () {
         Route::get('/', [NotificacaoController::class, 'index'])->name('index');
         Route::post('/{notificacao}/aceitar', [NotificacaoController::class, 'aceitar'])->name('aceitar');
-        Route::post('/{notificacao}/recusar', [NotificacaoController::class, 'recusar'])->name('recusar');
-        Route::post('/{notificacao}/lida', [NotificacaoController::class, 'marcarLida'])->name('lida');
-        Route::get('/contar/nao-lidas', [NotificacaoController::class, 'contarNaoLidas'])->name('contar');
-    });
+	    Route::post('/{notificacao}/recusar', [NotificacaoController::class, 'recusar'])->name('recusar');
+	    Route::post('/{notificacao}/lida', [NotificacaoController::class, 'marcarLida'])->name('lida');
+	    Route::delete('/limpar/todas', [NotificacaoController::class, 'limpar'])->name('limpar');
+	    Route::get('/contar/nao-lidas', [NotificacaoController::class, 'contarNaoLidas'])->name('contar');
+	});
 
     // Garantias
     Route::resource('garantias', GarantiaController::class)->only(['index','show','edit','update']);
     Route::patch('/garantias/{garantia}/acionar', [GarantiaController::class, 'acionar'])->name('garantias.acionar');
+    Route::patch('/garantias/{garantia}/aceitar-oferta', [GarantiaController::class, 'aceitarOferta'])->name('garantias.aceitar-oferta');
+    Route::patch('/garantias/{garantia}/recusar-oferta', [GarantiaController::class, 'recusarOferta'])->name('garantias.recusar-oferta');
+    Route::patch('/garantias/{garantia}/pagar-oferta', [GarantiaController::class, 'pagarOferta'])->name('garantias.pagar-oferta');
 
     // FIPE (UC011)
     Route::prefix('fipe')->name('fipe.')->group(function () {
@@ -131,10 +139,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/os',       [ClienteController::class, 'minhasOs'])->name('os');
         Route::get('/veiculos', [ClienteController::class, 'meusVeiculos'])->name('veiculos');
         Route::post('/senha/solicitar', [RoleAccountController::class, 'solicitarTrocaSenha'])->name('senha.solicitar');
+        Route::delete('/senha/solicitar', [RoleAccountController::class, 'cancelarTrocaSenha'])->name('senha.cancelar');
     });
 
     // Área do atendente - Cadastros
-    Route::middleware('role:atendente')->prefix('minha-conta')->name('conta.')->group(function () {
+    Route::middleware('role:atendente,mecanico')->prefix('minha-conta')->name('conta.')->group(function () {
         Route::get('/clientes', [ClienteController::class, 'clientesLogados'])->name('clientes');
     });
 

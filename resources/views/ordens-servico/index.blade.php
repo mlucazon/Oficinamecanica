@@ -6,9 +6,11 @@
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
         <span><i class="bi bi-clipboard2-check me-2"></i>Ordens de Serviço</span>
-        <a href="{{ route('os.create') }}" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus-lg me-1"></i>Abrir OS
-        </a>
+        @if(!auth()->user()->isMecanico())
+            <a href="{{ route('os.create') }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Abrir OS
+            </a>
+        @endif
     </div>
 
     {{-- Filtros --}}
@@ -68,7 +70,7 @@
                             {{ $os->veiculo->marca }} {{ $os->veiculo->modelo }}
                             <br><span class="badge bg-light text-dark font-mono" style="font-size:.7rem">{{ $os->veiculo->placa }}</span>
                         </td>
-                        <td>{{ $os->mecanico->nome ?? '—' }}<br><small class="text-muted">{{ optional($os->mecanico->user)->email ?? '—' }}</small></td>
+	                        <td>{{ $os->mecanico?->nome ?? '—' }}<br><small class="text-muted">{{ $os->mecanico?->user?->email ?? '—' }}</small></td>
                         <td><span class="badge badge-{{ $os->status }}">{{ $os->statusLabel() }}</span></td>
                         <td class="small text-muted">{{ $os->created_at->format('d/m/Y') }}</td>
                         <td class="text-end">
