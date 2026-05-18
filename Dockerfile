@@ -42,9 +42,16 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
+COPY docker/laravel-init.sh /usr/local/bin/laravel-init
+COPY docker/start-nginx.sh /usr/local/bin/start-nginx
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 80
+RUN chmod +x /usr/local/bin/laravel-init /usr/local/bin/start-nginx
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -fsS "http://127.0.0.1:${PORT:-80}/health" || exit 1
+
+EXPOSE 8080
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

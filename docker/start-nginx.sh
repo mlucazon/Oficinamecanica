@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+PORT="${PORT:-80}"
+
+echo "Starting Nginx on port ${PORT}..."
+
+sed -i "s/listen 80;/listen ${PORT};/" /etc/nginx/nginx.conf
+
+exec nginx -g "daemon off;"
