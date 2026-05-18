@@ -50,7 +50,7 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod +x /usr/local/bin/laravel-init /usr/local/bin/start-nginx
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl -fsS "http://127.0.0.1:${PORT:-80}/health" || exit 1
+    CMD curl -fsS "http://127.0.0.1:${PORT:-8080}/health" || exit 1
 
 EXPOSE 8080
 

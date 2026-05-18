@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-PORT="${PORT:-80}"
+PORT="${PORT:-8080}"
 
 echo "Starting Nginx on port ${PORT}..."
 
