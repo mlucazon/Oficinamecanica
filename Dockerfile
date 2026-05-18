@@ -28,6 +28,11 @@ RUN composer install --no-dev --optimize-autoloader
 # Configura as permissões para o Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
+# Instala o Node.js e NPM para compilar o CSS/JS
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs
+RUN npm install
+RUN npm run build
+
 EXPOSE 80
 
 CMD php artisan serve --host=0.0.0.0 --port=80
