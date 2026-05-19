@@ -4,18 +4,18 @@
 
 @push('styles')
 <style>
-    .profile-photo-card .card-body {
-        min-height: 340px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-    }
+	    .profile-photo-card .card-body {
+	        min-height: 260px;
+	        display: flex;
+	        flex-direction: column;
+	        align-items: center;
+	        justify-content: center;
+	        gap: .75rem;
+	    }
 
-    .profile-avatar-wrap {
-        width: 156px;
-        height: 156px;
+	    .profile-avatar-wrap {
+	        width: 128px;
+	        height: 128px;
         border-radius: 50%;
         position: relative;
         padding: 5px;
@@ -58,12 +58,12 @@
         border-width: 3px;
     }
 
-    .profile-photo-action {
-        position: absolute;
-        right: 3px;
-        bottom: 20px;
-        width: 38px;
-        height: 38px;
+	    .profile-photo-action {
+	        position: absolute;
+	        right: 3px;
+	        bottom: 14px;
+	        width: 34px;
+	        height: 34px;
         border-radius: 50%;
         padding: 0;
         display: flex;
@@ -95,15 +95,115 @@
         font-size: 13px;
     }
 
-    .profile-pretty-form .form-control,
-    .profile-pretty-form .form-select {
-        min-height: 48px;
+	    .profile-pretty-form .form-control,
+	    .profile-pretty-form .form-select {
+	        min-height: 42px;
         background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
         border: 1px solid rgba(255,255,255,.12);
         box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
-        padding: .75rem .95rem;
-        font-size: 15px;
-    }
+	        padding: .58rem .85rem;
+	        font-size: 14px;
+	    }
+
+	    .profile-page-grid {
+	        --bs-gutter-x: 1.6rem;
+	        --bs-gutter-y: 1.35rem;
+	    }
+
+	    .profile-page-grid .card {
+	        max-width: 100%;
+	    }
+
+	    .profile-page-grid .card-header {
+	        padding-top: .85rem;
+	        padding-bottom: .85rem;
+	    }
+
+	    .profile-page-grid .card-body {
+	        padding: 1rem 1.15rem;
+	    }
+
+	    .profile-main-col {
+	        display: flex;
+	        flex-direction: column;
+	        gap: 1.25rem;
+	    }
+
+	    .profile-main-col > .card.mt-3 {
+	        margin-top: 0 !important;
+	    }
+
+	    @media (min-width: 992px) {
+	        .profile-photo-col {
+	            flex: 0 0 31%;
+	            max-width: 31%;
+	        }
+
+	        .profile-main-col {
+	            flex: 0 0 67%;
+	            max-width: 67%;
+	        }
+	    }
+
+	    @media (max-width: 576px) {
+	        .profile-page-grid {
+	            --bs-gutter-y: .95rem;
+	        }
+
+	        .profile-photo-card .card-body {
+	            min-height: 210px;
+	            padding-block: 1rem !important;
+	        }
+
+	        .profile-avatar-wrap {
+	            width: 112px;
+	            height: 112px;
+	        }
+
+	        .profile-photo-action {
+	            width: 32px;
+	            height: 32px;
+	            bottom: 10px;
+	        }
+
+	        .profile-pretty-form {
+	            --bs-gutter-y: .8rem;
+	        }
+
+	        .profile-pretty-form .form-label {
+	            font-size: 11.5px;
+	            margin-bottom: .35rem;
+	        }
+
+	        .profile-pretty-form .form-control,
+	        .profile-pretty-form .form-select {
+	            min-height: 40px;
+	            padding: .54rem .75rem;
+	        }
+
+	        #btn-editar-perfil,
+	        #perfil-actions .btn,
+	        #btn-trocar-senha-manual {
+	            width: 100%;
+	        }
+
+	        .profile-main-col .card-header {
+	            align-items: stretch !important;
+	        }
+
+	        .profile-main-col .card-header > span {
+	            width: 100%;
+	        }
+
+	        .profile-main-col .card-body.d-flex {
+	            align-items: stretch !important;
+	        }
+
+	        .profile-main-col .card-body.d-flex > div,
+	        .profile-main-col .card-body.d-flex .text-end {
+	            width: 100%;
+	        }
+	    }
 
     .profile-pretty-form .form-control[readonly],
     .profile-pretty-form .form-select[aria-disabled="true"] {
@@ -181,8 +281,8 @@
 @endpush
 
 @section('content')
-<div class="row g-3">
-    <div class="col-lg-4">
+<div class="row profile-page-grid">
+    <div class="col-lg-4 profile-photo-col">
         <div class="card h-100 profile-photo-card">
             <div class="card-header">Foto de perfil</div>
             <div class="card-body text-center">
@@ -206,7 +306,7 @@
         </div>
     </div>
 
-    <div class="col-lg-8">
+    <div class="col-lg-8 profile-main-col">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between gap-2 flex-wrap">
                 <span>Informações da conta</span>

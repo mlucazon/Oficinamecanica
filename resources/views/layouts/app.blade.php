@@ -1934,9 +1934,72 @@
 	        }
 
 	        @media (max-width: 576px) {
+	            html,
+	            body {
+	                max-width: 100%;
+	                overflow-x: hidden !important;
+	            }
+
+	            :root {
+	                --topbar-h: 58px;
+	            }
+
+	            #topbar {
+	                min-height: var(--topbar-h) !important;
+	                padding: 7px 10px !important;
+	            }
+
+	            .topbar-right {
+	                gap: 5px !important;
+	            }
+
+	            .sidebar-toggle,
+	            .topbar-btn,
+	            .btn-logout {
+	                width: 36px !important;
+	                height: 36px !important;
+	                flex: 0 0 36px !important;
+	            }
+
+	            .user-avatar {
+	                width: 36px !important;
+	                height: 36px !important;
+	            }
+
+	            #content {
+	                padding: 12px 10px 22px !important;
+	            }
+
+	            .card {
+	                border-radius: 9px !important;
+	                margin-bottom: .85rem;
+	            }
+
+	            .card-header {
+	                min-height: auto !important;
+	                padding: .78rem .9rem !important;
+	                font-size: .95rem !important;
+	            }
+
+	            .card-body {
+	                padding: .9rem !important;
+	            }
+
+	            .card-body.p-0 {
+	                padding: 0 !important;
+	            }
+
+	            .row {
+	                --bs-gutter-x: .7rem !important;
+	                --bs-gutter-y: .85rem !important;
+	            }
+
 	            .btn {
 	                width: auto;
 	                white-space: normal;
+	                min-height: 38px !important;
+	                padding: .5rem .7rem !important;
+	                font-size: .9rem !important;
 	            }
 
 	            .d-flex.justify-content-end,
@@ -1944,10 +2007,44 @@
 	                text-align: left !important;
 	            }
 
-	            .d-flex.justify-content-end .btn,
-	            .text-end .btn,
+	            .d-flex.justify-content-end > .btn,
+	            .d-flex.justify-content-end > form,
+	            .text-end > .btn,
+	            .text-end > form,
 	            form.text-end .btn {
 	                width: 100% !important;
+	            }
+
+	            .text-end > form .btn,
+	            .d-flex.justify-content-end > form .btn {
+	                width: 100% !important;
+	            }
+
+	            .form-control,
+	            .form-select {
+	                min-height: 40px !important;
+	                font-size: 16px !important;
+	            }
+
+	            .table-responsive {
+	                margin: 0;
+	                border-radius: 9px !important;
+	            }
+
+	            .table {
+	                min-width: 560px !important;
+	                font-size: .9rem !important;
+	            }
+
+	            .table th,
+	            .table td {
+	                padding: .72rem .75rem !important;
+	                vertical-align: middle !important;
+	            }
+
+	            .badge {
+	                white-space: normal;
+	                line-height: 1.2;
 	            }
 
 	            .home-grid,
@@ -1957,6 +2054,15 @@
 
 	            .font-mono {
 	                font-size: .78rem !important;
+	            }
+
+	            .modal-dialog {
+	                margin: .6rem !important;
+	            }
+
+	            .modal-content {
+	                max-height: calc(100dvh - 1.2rem);
+	                overflow: auto;
 	            }
 	        }
 	    </style>

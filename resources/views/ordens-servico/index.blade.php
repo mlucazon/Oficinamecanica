@@ -70,15 +70,18 @@
                             {{ $os->veiculo->marca }} {{ $os->veiculo->modelo }}
                             <br><span class="badge bg-light text-dark font-mono" style="font-size:.7rem">{{ $os->veiculo->placa }}</span>
                         </td>
-	                        <td>{{ $os->mecanico?->nome ?? '—' }}<br><small class="text-muted">{{ $os->mecanico?->user?->email ?? '—' }}</small></td>
+		                        <td>
+		                            {{ $os->mecanico?->nome ?? '—' }}
+		                            <br><small style="color: var(--text2);">{{ $os->mecanico?->user?->email ?? '—' }}</small>
+		                        </td>
                         <td><span class="badge badge-{{ $os->status }}">{{ $os->statusLabel() }}</span></td>
-                        <td class="small text-muted">{{ $os->created_at->format('d/m/Y') }}</td>
+	                        <td class="small" style="color: var(--text2);">{{ $os->created_at->format('d/m/Y') }}</td>
                         <td class="text-end">
                             <a href="{{ route('os.show',$os->id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="8" class="text-center text-muted py-4">Nenhuma ordem de serviço encontrada.</td></tr>
+	                    <tr><td colspan="8" class="text-center py-4" style="color: var(--text2);">Nenhuma ordem de serviço encontrada.</td></tr>
                     @endforelse
                 </tbody>
             </table>
