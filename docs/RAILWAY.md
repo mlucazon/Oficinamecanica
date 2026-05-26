@@ -38,7 +38,7 @@ O healthcheck esta configurado em `/health`, com rota publica explicita em `back
 
 ## Observacoes
 
-- O container escuta a porta definida por `PORT`, variavel injetada pelo Railway.
+- O container escuta diretamente a porta definida por `PORT`, variavel injetada pelo Railway.
 - O Vite compila o frontend para `backend/public/build` durante o build Docker.
 - As views Blade ficam em `frontend/resources/views` e sao copiadas para `/var/frontend/resources` na imagem.
 - Uploads em disco local sao efemeros no Railway. Para persistir anexos/fotos, use volume ou storage externo.
