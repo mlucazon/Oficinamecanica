@@ -35,6 +35,6 @@ class User extends Authenticatable
 
     public function profilePhotoUrl(): ?string
     {
-        return $this->profile_photo_path ? asset('storage/' . $this->profile_photo_path) : null;
+        return $this->profile_photo_path ? route('media.public', ['path' => $this->profile_photo_path]) : null;
     }
 }

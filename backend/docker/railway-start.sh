@@ -9,13 +9,14 @@ mkdir -p storage/framework/cache storage/framework/sessions storage/framework/vi
 chmod -R 775 storage bootstrap/cache
 
 php artisan config:clear --no-interaction || true
+php artisan route:clear --no-interaction || true
 php artisan view:clear --no-interaction || true
 
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     php artisan migrate --force --no-interaction
 fi
 
-php artisan storage:link --no-interaction || true
+php artisan storage:link --force --no-interaction || true
 
 echo "Starting Laravel on 0.0.0.0:${PORT}..."
 exec php artisan serve --host=0.0.0.0 --port="${PORT}"

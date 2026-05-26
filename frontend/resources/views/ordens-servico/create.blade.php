@@ -61,7 +61,7 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Vídeo do defeito (Opcional)  </label>
-                    <input type="file" name="video_defeito" id="video_defeito" class="form-control @error('video_defeito') is-invalid @enderror" accept="video/*">
+                    <input type="file" name="video_defeito" id="video_defeito" class="form-control @error('video_defeito') is-invalid @enderror" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-m4v,video/3gpp,.mp4,.mov,.m4v,.webm,.ogg,.avi,.3gp">
                     @error('video_defeito')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     <div class="form-text">Se o defeito for perceptível/audível, envie vídeo também.</div>
 
@@ -170,4 +170,3 @@
 })();
 </script>
 @endpush
-

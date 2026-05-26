@@ -260,6 +260,16 @@
             justify-content: center;
             overflow: hidden;
             box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+            position: relative;
+        }
+
+        .avatar-fallback-initials {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
         }
 
         .user-avatar img,
@@ -268,6 +278,8 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            position: relative;
+            z-index: 1;
         }
 
         .status-dot {
@@ -2727,10 +2739,12 @@
 	            <button type="button" class="topbar-user" title="Meu perfil" onclick="toggleProfileMenu()">
 	                <div class="user-avatar" title="{{ auth()->user()->name }}">
 	                    <div class="user-avatar-inner">
+                            @php
+                                $userInitials = strtoupper(substr(auth()->user()->name, 0, 1)) . strtoupper(substr(explode(' ', auth()->user()->name)[1] ?? 'X', 0, 1));
+                            @endphp
+                            <span class="avatar-fallback-initials">{{ $userInitials }}</span>
 	                        @if(auth()->user()->profilePhotoUrl())
-	                            <img src="{{ auth()->user()->profilePhotoUrl() }}" alt="{{ auth()->user()->name }}">
-	                        @else
-	                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', auth()->user()->name)[1] ?? 'X', 0, 1)) }}
+	                            <img src="{{ auth()->user()->profilePhotoUrl() }}" alt="{{ auth()->user()->name }}" onerror="this.style.display='none';">
 	                        @endif
 	                    </div>
 	                    <span class="status-dot {{ auth()->user()->isOnline() ? 'online' : 'offline' }}" title="{{ auth()->user()->isOnline() ? 'Online' : 'Offline' }}"></span>

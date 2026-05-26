@@ -17,10 +17,17 @@ use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\RoleAccountController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AvaliacaoOsController;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/health', function () {
     return response()->json(['status' => 'ok']);
 });
+
+Route::get('/media/{path}', function (string $path) {
+    abort_unless(Storage::disk('public')->exists($path), 404);
+
+    return Storage::disk('public')->response($path);
+})->where('path', '.*')->name('media.public');
 
 // ── Rotas públicas ───────────────────────────────────────────────────────────
 Route::get('/', function () {

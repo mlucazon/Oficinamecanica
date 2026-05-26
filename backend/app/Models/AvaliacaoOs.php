@@ -41,11 +41,11 @@ class AvaliacaoOs extends Model
 
     public function fotoAntesUrl(): ?string
     {
-        return $this->foto_antes_path ? asset('storage/' . $this->foto_antes_path) : null;
+        return $this->foto_antes_path ? route('media.public', ['path' => $this->foto_antes_path]) : null;
     }
 
     public function fotoDepoisUrl(): ?string
     {
-        return $this->foto_depois_path ? asset('storage/' . $this->foto_depois_path) : null;
+        return $this->foto_depois_path ? route('media.public', ['path' => $this->foto_depois_path]) : null;
     }
 }

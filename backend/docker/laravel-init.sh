@@ -21,12 +21,13 @@ mkdir -p storage/framework/cache storage/framework/sessions storage/framework/vi
 chown -R www-data:www-data storage bootstrap/cache
 
 php artisan config:clear --no-interaction || true
+php artisan route:clear --no-interaction || true
 php artisan view:clear --no-interaction || true
 
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     php artisan migrate --force --no-interaction
 fi
 
-php artisan storage:link --no-interaction || true
+php artisan storage:link --force --no-interaction || true
 
 echo "Laravel init completed."

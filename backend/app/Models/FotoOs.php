@@ -10,5 +10,5 @@ class FotoOs extends Model
     protected $fillable = ['os_id','path','tipo','lado'];
 
     public function ordemServico() { return $this->belongsTo(OrdemServico::class, 'os_id'); }
-    public function url(): string  { return asset('storage/' . $this->path); }
+    public function url(): string  { return route('media.public', ['path' => $this->path]); }
 }

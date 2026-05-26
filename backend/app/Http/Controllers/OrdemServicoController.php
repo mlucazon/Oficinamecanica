@@ -67,7 +67,10 @@ class OrdemServicoController extends Controller
             'km_entrada'  => 'nullable|integer|min:0',
             // Mídia enviada na abertura da OS (UC003)
             'foto_defeito' => 'required|image|mimes:jpeg,png,webp|max:5120',
-            'video_defeito' => 'nullable|file|mimes:mp4,webm,ogg,mov,avi|max:20480',
+            'video_defeito' => 'nullable|file|mimes:mp4,webm,ogg,mov,avi,m4v,3gp|max:51200',
+        ], [
+            'video_defeito.mimes' => 'Envie um video em MP4, MOV, M4V, WEBM, OGG, AVI ou 3GP.',
+            'video_defeito.max' => 'O video deve ter no maximo 50 MB.',
         ]);
 
         $data['numero'] = OrdemServico::gerarNumero();

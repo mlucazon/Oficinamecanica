@@ -179,8 +179,9 @@
                     @forelse($ordemServico->fotos as $foto)
                         @php
                             $url = $foto->url();
-                            $ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
-                            $isVideo = in_array($ext, ['mp4','webm','ogg','mov','avi']);
+                            $urlPath = parse_url($url, PHP_URL_PATH) ?: $url;
+                            $ext = strtolower(pathinfo($urlPath, PATHINFO_EXTENSION));
+                            $isVideo = in_array($ext, ['mp4','webm','ogg','mov','avi','m4v','3gp']);
                         @endphp
                         <div class="col-6 col-md-3 col-xl-2">
                             <div class="position-relative">
