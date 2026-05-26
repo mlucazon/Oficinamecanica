@@ -30,6 +30,15 @@
         </form>
         @endif
 	        @if(auth()->user()->isCliente() && $ordemServico->status === 'finalizada' && $ordemServico->cliente?->user_id === auth()->id())
+            @if(!$ordemServico->avaliacao)
+                <a href="{{ route('avaliacoes.create', $ordemServico) }}" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-star me-1"></i>Avaliar OS
+                </a>
+            @else
+                <a href="{{ route('avaliacoes.index') }}" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-star-fill me-1"></i>Ver avaliacao
+                </a>
+            @endif
 	        <form method="POST" action="{{ route('os.destroy', $ordemServico->id) }}" style="display:inline;">
 	            @csrf @method('DELETE')
 	            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja apagar esta OS finalizada do seu histórico? Esta ação não pode ser desfeita.')">
@@ -55,6 +64,24 @@
 </div>
 
 <div class="row g-3">
+
+    @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id() && $ordemServico->aprovado_cliente && in_array($ordemServico->status, ['em_execucao', 'aprovada']))
+        <div class="col-12">
+            <div class="alert alert-warning d-flex align-items-start justify-content-between gap-3 flex-wrap mb-0">
+                <div>
+                    <div class="fw-semibold">
+                        <i class="bi bi-geo-alt-fill me-1"></i>Compareca a oficina com o veiculo
+                    </div>
+                    <div class="small">
+                        O mecanico solicitou sua presenca com o veiculo na oficina para prosseguir com o servico aprovado.
+                    </div>
+                </div>
+                <a href="{{ route('localizacao') }}" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-map me-1"></i>Ver localizacao
+                </a>
+            </div>
+        </div>
+    @endif
 
     {{-- Info geral --}}
     <div class="col-md-4">
@@ -177,6 +204,22 @@
 
 
     {{-- Orçamento e diagnóstico do mecânico --}}
+    @php
+        $mostrarOrcamentoDiagnostico =
+            $ordemServico->diagnostico ||
+            $ordemServico->itens->count() > 0 ||
+            in_array($ordemServico->status, [
+                'em_diagnostico',
+                'orcamento_enviado_atendente',
+                'aguardando_aprovacao',
+                'aprovada',
+                'em_execucao',
+                'aguardando_pecas',
+                'finalizada',
+            ]);
+    @endphp
+
+    @if($mostrarOrcamentoDiagnostico)
 	    <div class="col-12">
 	        <div class="card">
 	            <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -305,6 +348,7 @@
             </div>
 	        </div>
 	    </div>
+    @endif
 
 	    @php
 	        $garantiaPendente = $ordemServico->garantias->firstWhere('status', 'pendente');

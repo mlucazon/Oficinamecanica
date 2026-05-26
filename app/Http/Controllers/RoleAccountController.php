@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContaAcessoSolicitacao;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -10,72 +11,117 @@ class RoleAccountController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+        $solicitacoesPendentes = ContaAcessoSolicitacao::with('solicitante')
+            ->where('status', 'pendente')
+            ->latest()
+            ->get();
 
         if ($user->isGerente()) {
             $accessGranted = $request->session()->get('conta_usuarios_acesso', false);
 
             if (! $accessGranted) {
                 return view('conta.usuarios', [
-                    'gerente'        => true,
-                    'accessGranted'  => false,
-                    'accessError'    => session('access_error'),
+                    'gerente' => true,
+                    'accessGranted' => false,
+                    'accessError' => session('access_error'),
+                    'solicitacoesPendentes' => $solicitacoesPendentes,
                 ]);
             }
 
-            $query = User::with(['cliente', 'mecanico'])
-                ->whereIn('role', ['gerente', 'atendente', 'mecanico', 'cliente']);
-
-            if ($request->filled('role') && in_array($request->role, ['gerente', 'atendente', 'mecanico', 'cliente'])) {
-                $query->where('role', $request->role);
-            }
-
-            if ($request->filled('search')) {
-                $search = $request->search;
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
-            }
-
-            $users = $query
-                ->orderByRaw("FIELD(role, 'gerente', 'atendente', 'mecanico', 'cliente')")
-                ->orderBy('name')
-                ->get();
-
             return view('conta.usuarios', [
-                'gerente'       => true,
+                'gerente' => true,
                 'accessGranted' => true,
-                'users'         => $users,
-                'filterRole'    => $request->role,
-                'filterSearch'  => $request->search,
-                'accessError'   => session('access_error'),
+                'users' => $this->buscarUsuarios($request),
+                'filterRole' => $request->role,
+                'filterSearch' => $request->search,
+                'accessError' => session('access_error'),
+                'solicitacoesPendentes' => $solicitacoesPendentes,
             ]);
         }
 
-        // Assistente
-        $solicitado = $request->session()->get('conta_usuarios_solicitado', false);
+        $solicitacao = ContaAcessoSolicitacao::where('solicitante_id', $user->id)
+            ->latest()
+            ->first();
+
+        if ($solicitacao?->status === 'aprovada') {
+            return view('conta.usuarios', [
+                'gerente' => false,
+                'accessGranted' => true,
+                'users' => $this->buscarUsuarios($request),
+                'filterRole' => $request->role,
+                'filterSearch' => $request->search,
+                'solicitacao' => $solicitacao,
+            ]);
+        }
 
         return view('conta.usuarios', [
-            'gerente'   => false,
-            'solicitado'=> $solicitado,
+            'gerente' => false,
+            'accessGranted' => false,
+            'solicitado' => $solicitacao?->status === 'pendente',
+            'solicitacao' => $solicitacao,
         ]);
     }
 
-    public function solicitar(Request $request)
+    public function solicitar()
     {
         if (! auth()->user()->isAtendente()) {
             abort(403);
         }
 
-        if ($request->session()->get('conta_usuarios_solicitado', false)) {
+        $solicitacaoAberta = ContaAcessoSolicitacao::where('solicitante_id', auth()->id())
+            ->whereIn('status', ['pendente', 'aprovada'])
+            ->latest()
+            ->first();
+
+        if ($solicitacaoAberta?->status === 'pendente') {
             return redirect()->route('conta.usuarios')
-                ->with('error', 'A autorização já foi solicitada. Aguarde o gerente liberar o acesso.');
+                ->with('error', 'A autorizacao ja foi solicitada. Aguarde o gerente liberar o acesso.');
         }
 
-        $request->session()->put('conta_usuarios_solicitado', true);
+        if ($solicitacaoAberta?->status === 'aprovada') {
+            return redirect()->route('conta.usuarios')
+                ->with('success', 'Seu acesso ja foi autorizado pelo gerente.');
+        }
+
+        ContaAcessoSolicitacao::create([
+            'solicitante_id' => auth()->id(),
+            'status' => 'pendente',
+        ]);
 
         return redirect()->route('conta.usuarios')
-            ->with('success', 'Solicitação de autorização enviada ao gerente.');
+            ->with('success', 'Solicitacao de autorizacao enviada ao gerente.');
+    }
+
+    public function aprovarSolicitacao(ContaAcessoSolicitacao $solicitacao)
+    {
+        if (! auth()->user()->isGerente()) {
+            abort(403);
+        }
+
+        $solicitacao->update([
+            'status' => 'aprovada',
+            'gerente_id' => auth()->id(),
+            'respondido_em' => now(),
+        ]);
+
+        return redirect()->route('conta.usuarios')
+            ->with('success', 'Acesso autorizado para ' . $solicitacao->solicitante->name . '.');
+    }
+
+    public function recusarSolicitacao(ContaAcessoSolicitacao $solicitacao)
+    {
+        if (! auth()->user()->isGerente()) {
+            abort(403);
+        }
+
+        $solicitacao->update([
+            'status' => 'recusada',
+            'gerente_id' => auth()->id(),
+            'respondido_em' => now(),
+        ]);
+
+        return redirect()->route('conta.usuarios')
+            ->with('success', 'Solicitacao recusada.');
     }
 
     public function solicitarTrocaSenha(Request $request)
@@ -87,14 +133,14 @@ class RoleAccountController extends Controller
         }
 
         if ($user->password_change_requested_at) {
-            return back()->with('error', 'Você já solicitou a troca de senha. Aguarde o gerente alterar.');
+            return back()->with('error', 'Voce ja solicitou a troca de senha. Aguarde o gerente alterar.');
         }
 
         $user->update([
             'password_change_requested_at' => now(),
         ]);
 
-        return back()->with('success', 'Solicitação de troca de senha enviada ao gerente.');
+        return back()->with('success', 'Solicitacao de troca de senha enviada ao gerente.');
     }
 
     public function cancelarTrocaSenha(Request $request)
@@ -106,14 +152,14 @@ class RoleAccountController extends Controller
         }
 
         if (! $user->password_change_requested_at) {
-            return back()->with('error', 'Não existe solicitação de troca de senha para cancelar.');
+            return back()->with('error', 'Nao existe solicitacao de troca de senha para cancelar.');
         }
 
         $user->update([
             'password_change_requested_at' => null,
         ]);
 
-        return back()->with('success', 'Solicitação de troca de senha cancelada.');
+        return back()->with('success', 'Solicitacao de troca de senha cancelada.');
     }
 
     public function autorizar(Request $request)
@@ -150,7 +196,7 @@ class RoleAccountController extends Controller
 
     public function detalhes(Request $request, User $user)
     {
-        if (! auth()->user()->isGerente() || ! $request->session()->get('conta_usuarios_acesso', false)) {
+        if (! $this->podeAcessarContas($request)) {
             abort(403);
         }
 
@@ -176,13 +222,13 @@ class RoleAccountController extends Controller
         if ($user->isCliente() && ! $user->password_change_requested_at) {
             return redirect()
                 ->route('conta.usuarios.detalhes', $user)
-                ->with('error', 'Este cliente ainda não solicitou troca de senha.');
+                ->with('error', 'Este cliente ainda nao solicitou troca de senha.');
         }
 
         $validated = $request->validate([
             'password' => 'required|string|min:8|confirmed',
         ], [
-            'password.confirmed' => 'A confirmação da senha não confere.',
+            'password.confirmed' => 'A confirmacao da senha nao confere.',
             'password.min' => 'A senha precisa ter pelo menos 8 caracteres.',
         ]);
 
@@ -194,5 +240,45 @@ class RoleAccountController extends Controller
         return redirect()
             ->route('conta.usuarios.detalhes', $user)
             ->with('success', 'Senha atualizada com sucesso.');
+    }
+
+    private function buscarUsuarios(Request $request)
+    {
+        $query = User::with(['cliente', 'mecanico'])
+            ->whereIn('role', ['gerente', 'atendente', 'mecanico', 'cliente']);
+
+        if ($request->filled('role') && in_array($request->role, ['gerente', 'atendente', 'mecanico', 'cliente'])) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query
+            ->orderByRaw("FIELD(role, 'gerente', 'atendente', 'mecanico', 'cliente')")
+            ->orderBy('name')
+            ->get();
+    }
+
+    private function podeAcessarContas(Request $request): bool
+    {
+        $user = auth()->user();
+
+        if ($user->isGerente()) {
+            return $request->session()->get('conta_usuarios_acesso', false);
+        }
+
+        if ($user->isAtendente()) {
+            return ContaAcessoSolicitacao::where('solicitante_id', $user->id)
+                ->where('status', 'aprovada')
+                ->exists();
+        }
+
+        return false;
     }
 }

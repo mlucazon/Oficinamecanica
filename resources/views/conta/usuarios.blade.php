@@ -17,6 +17,34 @@
             <div class="mb-4">
                 <h5 class="mb-3">Autorizacao do Gerente</h5>
 
+                @if(($solicitacoesPendentes ?? collect())->isNotEmpty())
+                    <div class="alert alert-warning">
+                        <div class="fw-semibold mb-2">Solicitacoes de atendentes</div>
+                        <div class="d-grid gap-2">
+                            @foreach($solicitacoesPendentes as $solicitacao)
+                                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                    <span>
+                                        <strong>{{ $solicitacao->solicitante->name }}</strong>
+                                        <span class="text-muted small">pediu acesso em {{ $solicitacao->created_at->format('d/m/Y H:i') }}</span>
+                                    </span>
+                                    <span class="d-flex gap-2">
+                                        <form method="POST" action="{{ route('conta.usuarios.solicitacoes.aprovar', $solicitacao) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button class="btn btn-sm btn-success">Aprovar</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('conta.usuarios.solicitacoes.recusar', $solicitacao) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button class="btn btn-sm btn-outline-danger">Recusar</button>
+                                        </form>
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 @if(! $accessGranted)
                     <p>Para acessar a lista de cargos, o gerente deve informar a senha de acesso.</p>
 
@@ -135,6 +163,63 @@
                 </div>
             @endif
         @else
+            @if($accessGranted ?? false)
+                <div class="alert alert-success">
+                    Acesso autorizado pelo gerente. Voce pode consultar as contas abaixo.
+                </div>
+
+                <div>
+                    <h5 class="mb-3">Contas</h5>
+
+                    <form method="GET" action="{{ route('conta.usuarios') }}" class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Filtrar cargo</label>
+                            <select name="role" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="gerente" @selected(old('role', $filterRole ?? '') === 'gerente')>Gerente</option>
+                                <option value="atendente" @selected(old('role', $filterRole ?? '') === 'atendente')>Atendente</option>
+                                <option value="mecanico" @selected(old('role', $filterRole ?? '') === 'mecanico')>Mecanico</option>
+                                <option value="cliente" @selected(old('role', $filterRole ?? '') === 'cliente')>Cliente</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Pesquisar nome ou email</label>
+                            <input type="text" name="search" value="{{ old('search', $filterSearch ?? '') }}" class="form-control" placeholder="Buscar...">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end gap-2">
+                            <button class="btn btn-primary">Filtrar</button>
+                            <a href="{{ route('conta.usuarios') }}" class="btn btn-outline-secondary">Limpar</a>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Cargo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($users as $user)
+                                    <tr>
+                                        <td>{{ $user->name }}</td>
+                                        <td>{{ $user->email }}</td>
+                                        <td>{{ ucfirst($user->role) }}</td>
+                                        <td class="text-end">
+                                            <a class="btn btn-sm btn-outline-primary" href="{{ route('conta.usuarios.detalhes', $user) }}">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @else
             <div class="mb-4">
                 <h5 class="mb-3">Solicitacao de Acesso</h5>
                 <p>O assistente necessita de autorizacao do gerente para acessar a gestao de cargos.</p>
@@ -150,6 +235,7 @@
                 <div class="alert alert-info">
                     Solicitacao enviada. Aguarde a autorizacao do gerente para acessar esta area.
                 </div>
+            @endif
             @endif
         @endif
     </div>

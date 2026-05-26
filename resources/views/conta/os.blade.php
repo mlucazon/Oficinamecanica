@@ -49,6 +49,15 @@
 	                                    <i class="bi bi-eye"></i>
 	                                </a>
 	                                @if($os->status === 'finalizada')
+                                    @if(!$os->avaliacao)
+                                        <a href="{{ route('avaliacoes.create', $os) }}" class="btn btn-sm btn-outline-warning" title="Avaliar OS">
+                                            <i class="bi bi-star"></i>
+                                        </a>
+                                    @else
+                                        <a href="{{ route('avaliacoes.index') }}" class="btn btn-sm btn-outline-success" title="Ver avaliacao">
+                                            <i class="bi bi-star-fill"></i>
+                                        </a>
+                                    @endif
 	                                <form method="POST" action="{{ route('os.destroy', $os->id) }}" class="d-inline" 
 	                                      onsubmit="return confirm('Tem certeza que deseja apagar esta OS finalizada do seu histórico? Esta ação não pode ser desfeita.')">
 	                                    @csrf @method('DELETE')

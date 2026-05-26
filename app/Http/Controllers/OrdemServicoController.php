@@ -130,7 +130,7 @@ class OrdemServicoController extends Controller
         $ordemServico->load([
             'cliente','veiculo','mecanico.user',
             'itens.servico','itens.peca',
-            'fotos','garantias',
+            'fotos','garantias','avaliacao',
         ]);
 
         $servicos  = \App\Models\Servico::where('ativo', true)->orderBy('nome')->get();
@@ -289,7 +289,7 @@ class OrdemServicoController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Orcamento aprovado. A oficina foi avisada.');
+        return back()->with('success', 'Orcamento aprovado. O mecanico solicitou sua presenca com o veiculo na oficina. Veja a localizacao para combinar a entrega.');
     }
 
     public function clienteRecusar(Request $request, $id)

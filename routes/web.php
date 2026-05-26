@@ -16,6 +16,7 @@ use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\RoleAccountController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AvaliacaoOsController;
 
 // ── Rotas públicas ───────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -42,6 +43,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [ProfileController::class, 'update'])->name('perfil.update');
     Route::patch('/perfil/senha', [ProfileController::class, 'updatePassword'])->name('perfil.password');
+    Route::get('/avaliacoes', [AvaliacaoOsController::class, 'index'])->name('avaliacoes.index');
+    Route::middleware('role:cliente')->group(function () {
+        Route::get('/avaliacoes/os/{ordemServico}/criar', [AvaliacaoOsController::class, 'create'])->name('avaliacoes.create');
+        Route::post('/avaliacoes/os/{ordemServico}', [AvaliacaoOsController::class, 'store'])->name('avaliacoes.store');
+    });
+    Route::patch('/avaliacoes/{avaliacao}/responder', [AvaliacaoOsController::class, 'responder'])->name('avaliacoes.responder');
 
     // Clientes
     Route::resource('clientes', ClienteController::class);
@@ -153,6 +160,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/usuarios/{user}/detalhes', [RoleAccountController::class, 'detalhes'])->name('usuarios.detalhes');
         Route::post('/usuarios/solicitar', [RoleAccountController::class, 'solicitar'])->name('usuarios.solicitar');
         Route::post('/usuarios/autorizar', [RoleAccountController::class, 'autorizar'])->name('usuarios.autorizar');
+        Route::patch('/usuarios/solicitacoes/{solicitacao}/aprovar', [RoleAccountController::class, 'aprovarSolicitacao'])->name('usuarios.solicitacoes.aprovar');
+        Route::patch('/usuarios/solicitacoes/{solicitacao}/recusar', [RoleAccountController::class, 'recusarSolicitacao'])->name('usuarios.solicitacoes.recusar');
+        Route::patch('/usuarios/{user}/senha', [RoleAccountController::class, 'atualizarSenha'])->name('usuarios.senha');
         Route::post('/usuarios/fechar', [RoleAccountController::class, 'fechar'])->name('usuarios.fechar');
     });
 

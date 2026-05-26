@@ -75,10 +75,25 @@
 
     .profile-photo-hint {
         max-width: 290px;
-        color: var(--text3);
+        color: rgba(255,255,255,.72);
         font-size: 12px;
         line-height: 1.5;
         text-align: center;
+    }
+
+    .profile-page-grid .text-muted,
+    .profile-photo-card .text-muted,
+    .profile-crop-modal .text-muted {
+        color: rgba(255,255,255,.68) !important;
+    }
+
+    .profile-page-grid .small.text-muted {
+        color: rgba(255,255,255,.62) !important;
+    }
+
+    .profile-page-grid .fw-500 {
+        color: rgba(255,255,255,.94);
+        font-weight: 700;
     }
 
     .profile-pretty-form .form-label {
@@ -216,6 +231,10 @@
         color: #3b332b;
     }
 
+    :root[data-theme="light"] .profile-page-grid .fw-500 {
+        color: #211a15;
+    }
+
     :root[data-theme="light"] .profile-pretty-form .form-label i {
         color: var(--red-h);
     }
@@ -223,16 +242,16 @@
     :root[data-theme="light"] .profile-pretty-form .form-control,
     :root[data-theme="light"] .profile-pretty-form .form-select {
         color: #17130f;
-        background: #ffffff;
-        border-color: rgba(31,25,20,.16);
-        box-shadow: inset 0 1px 0 rgba(31,25,20,.04);
+        background: #fffdf9;
+        border-color: rgba(31,25,20,.22);
+        box-shadow: inset 0 1px 0 rgba(31,25,20,.06);
     }
 
     :root[data-theme="light"] .profile-pretty-form .form-control[readonly],
     :root[data-theme="light"] .profile-pretty-form .form-select[aria-disabled="true"] {
         color: #17130f;
-        background: #f6f2eb;
-        border-color: rgba(31,25,20,.14);
+        background: #eee3d9;
+        border-color: rgba(31,25,20,.20);
         -webkit-text-fill-color: #17130f;
         opacity: 1;
     }
@@ -250,7 +269,16 @@
     :root[data-theme="light"] .profile-photo-hint,
     :root[data-theme="light"] .profile-photo-card .text-muted,
     :root[data-theme="light"] .card .text-muted {
-        color: #6b6258 !important;
+        color: #4f4238 !important;
+    }
+
+    :root[data-theme="light"] .profile-avatar-frame {
+        background: radial-gradient(circle at 35% 25%, #ffffff 0%, #f1e7de 62%, #d8c7b7 100%);
+        border-color: rgba(31,25,20,.18);
+    }
+
+    :root[data-theme="light"] .profile-avatar-initial {
+        color: #211a15;
     }
 
     .profile-crop-modal .modal-content {

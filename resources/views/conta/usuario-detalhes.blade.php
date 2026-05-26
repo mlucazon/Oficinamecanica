@@ -12,7 +12,7 @@
     $totalCliente = $ordensCliente->sum('valor_total');
     $totalMecanico = $ordensMecanico->sum('valor_total');
     $precisaSolicitacaoSenha = $user->isCliente();
-    $podeAlterarSenha = ! $precisaSolicitacaoSenha || $user->password_change_requested_at;
+    $podeAlterarSenha = auth()->user()->isGerente() && (! $precisaSolicitacaoSenha || $user->password_change_requested_at);
 @endphp
 
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">

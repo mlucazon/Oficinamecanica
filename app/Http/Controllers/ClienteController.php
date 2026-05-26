@@ -83,7 +83,7 @@ class ClienteController extends Controller
             return view('conta.os', ['ordens' => collect()]);
         }
 
-        $ordens = $cliente->ordens()->with(['veiculo'])->latest()->paginate(10);
+        $ordens = $cliente->ordens()->with(['veiculo', 'avaliacao'])->latest()->paginate(10);
         return view('conta.os', compact('ordens'));
     }
 

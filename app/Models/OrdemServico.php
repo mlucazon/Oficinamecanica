@@ -31,6 +31,7 @@ class OrdemServico extends Model
     public function itens()    { return $this->hasMany(ItemOs::class, 'os_id'); }
     public function fotos()    { return $this->hasMany(FotoOs::class, 'os_id'); }
     public function garantias(){ return $this->hasMany(Garantia::class, 'os_id'); }
+    public function avaliacao(){ return $this->hasOne(AvaliacaoOs::class, 'os_id'); }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
     public function recalcularTotais(): void
