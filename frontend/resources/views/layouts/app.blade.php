@@ -1865,6 +1865,33 @@
 	                margin-left: 0 !important;
 	                padding: 14px 12px 24px !important;
 	                min-height: calc(100dvh - var(--topbar-h)) !important;
+	                max-width: 100vw !important;
+	            }
+
+	            html,
+	            body {
+	                max-width: 100%;
+	                overflow-x: hidden;
+	            }
+
+	            #content,
+	            #content *,
+	            #topbar,
+	            #topbar * {
+	                min-width: 0;
+	            }
+
+	            #content :where(p, span, small, strong, em, label, dd, dt, td, th, a, .card, .card-body, .card-header, .alert, .badge, .btn, .form-text, .form-control, .form-select) {
+	                overflow-wrap: anywhere;
+	                word-break: break-word;
+	            }
+
+	            #content :where(.btn, .badge, .form-text) {
+	                white-space: normal;
+	            }
+
+	            #content :where(.card, .alert, .row, [class*="col-"], img, video, iframe) {
+	                max-width: 100%;
 	            }
 
 	            .home-hero {
@@ -2657,7 +2684,7 @@
             <i class="bi bi-car-front"></i> <span>Veículos</span>
         </a>
         @endif
-        @if(auth()->user()->isGerente() || auth()->user()->isAtendente() || auth()->user()->isMecanico() || auth()->user()->isCliente())
+        @if(auth()->user()->isGerente() || auth()->user()->isAtendente() || auth()->user()->isMecanico())
         <a href="{{ route('mecanicos.index') }}" class="nav-link {{ request()->routeIs('mecanicos.*') ? 'active' : '' }}">
             <i class="bi bi-person-gear"></i> <span>Mecânicos</span>
         </a>
