@@ -1,6 +1,9 @@
 # Oficina Mecanica
 
-Sistema Laravel para gestao de oficina mecanica.
+Sistema Laravel para gestao de oficina mecanica, organizado em duas partes:
+
+- `backend/`: aplicacao Laravel, rotas, controllers, models, banco, Docker, testes e `public/`.
+- `frontend/`: views Blade e fontes de CSS/JavaScript usados pela interface.
 
 ## Stack
 
@@ -12,40 +15,47 @@ Sistema Laravel para gestao de oficina mecanica.
 - Tailwind CSS
 - Docker/Nginx/Supervisor para deploy
 
-## Estrutura Principal
+## Desenvolvimento
 
-- `app/`: controllers, models, middlewares e providers.
-- `bootstrap/`: inicializacao do Laravel.
-- `config/`: configuracoes da aplicacao.
-- `database/`: migrations, seeders e scripts SQL auxiliares.
-- `database/sql/`: scripts SQL manuais ou de apoio.
-- `docker/`: configuracoes usadas pela imagem Docker.
-- `docs/`: anotacoes, pendencias e documentacao do projeto.
-- `public/`: ponto de entrada web e assets publicos.
-- `resources/`: views Blade, CSS e JavaScript fonte.
-- `routes/`: rotas da aplicacao.
-- `storage/`: arquivos gerados pela aplicacao.
-- `tests/`: testes automatizados.
-
-## Comandos Uteis
+Instale as dependencias do backend:
 
 ```bash
+cd backend
 composer install
-npm install
-php artisan key:generate
-php artisan migrate --seed
-npm run build
-composer test
 ```
 
-Para desenvolvimento local:
+Instale as dependencias do frontend:
+
+```bash
+cd ../frontend
+npm install
+```
+
+Prepare a aplicacao:
+
+```bash
+cd ../backend
+php artisan key:generate
+php artisan migrate --seed
+```
+
+Rode tudo em modo desenvolvimento:
 
 ```bash
 composer run dev
 ```
 
+Compile os assets:
+
+```bash
+cd ../frontend
+npm run build
+```
+
 ## Observacoes
 
-- `vendor/` e `node_modules/` sao dependencias locais e nao devem ser versionadas.
-- Arquivos gerados, como cache do PHPUnit e saidas de ferramentas, devem ficar fora da raiz ou no `.gitignore`.
+- `backend/vendor/` e `frontend/node_modules/` sao dependencias locais e nao devem ser versionadas.
+- O Laravel busca os templates Blade em `frontend/resources/views`.
+- O Vite publica o build em `backend/public/build`.
+- As instrucoes de deploy no Railway estao em `docs/RAILWAY.md`.
 - Pendencias tecnicas estao em `docs/TODO.md`.

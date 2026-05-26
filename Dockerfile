@@ -3,11 +3,12 @@ FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-COPY . .
-RUN npm run build
+COPY backend ./backend
+COPY frontend ./frontend
+RUN cd frontend && npm run build
 
 # Stage 2: production server
 FROM php:8.2-fpm-alpine
@@ -34,23 +35,24 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-COPY . .
-COPY --from=frontend-builder /app/public/build ./public/build
+COPY backend .
+COPY frontend/resources /var/frontend/resources
+COPY --from=frontend-builder /app/backend/public/build ./public/build
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && mkdir -p /run/nginx storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
     && chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
-COPY docker/laravel-init.sh /usr/local/bin/laravel-init
-COPY docker/start-nginx.sh /usr/local/bin/start-nginx
-COPY docker/nginx.conf /etc/nginx/nginx.conf
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY backend/docker/laravel-init.sh /usr/local/bin/laravel-init
+COPY backend/docker/start-nginx.sh /usr/local/bin/start-nginx
+COPY backend/docker/nginx.conf /etc/nginx/nginx.conf
+COPY backend/docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN chmod +x /usr/local/bin/laravel-init /usr/local/bin/start-nginx
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl -fsS "http://127.0.0.1:${PORT:-8080}/health" || exit 1
+    CMD curl -fsS "http://127.0.0.1:${PORT:-8080}/up" || exit 1
 
 EXPOSE 8080
 

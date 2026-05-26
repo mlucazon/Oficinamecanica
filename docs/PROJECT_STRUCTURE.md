@@ -1,36 +1,38 @@
 # Organizacao do Projeto
 
-Este projeto segue a estrutura padrao de uma aplicacao Laravel. As pastas principais devem permanecer na raiz porque o framework, o Composer, o Vite e o Docker esperam esses caminhos.
+O projeto agora esta dividido em duas partes principais: `backend/` e `frontend/`.
 
-## Ficam na raiz
+## Raiz do repositorio
 
-- `artisan`
-- `composer.json` e `composer.lock`
-- `package.json` e `package-lock.json`
-- `phpunit.xml`
-- `vite.config.js`
-- `Dockerfile`
-- arquivos de ambiente e configuracao, como `.env.example`, `.gitignore`, `.editorconfig`
-
-## Pastas da aplicacao
-
-- `app/`: codigo PHP da aplicacao.
-- `config/`: configuracoes do Laravel.
-- `database/`: migrations, seeders e SQL de apoio.
-- `public/`: entrada publica da aplicacao.
-- `resources/`: Blade, CSS e JavaScript.
-- `routes/`: definicao de rotas.
-- `storage/`: arquivos gerados em runtime.
-- `tests/`: testes.
-
-## Pastas de apoio
-
+- `backend/`: aplicacao Laravel.
+- `frontend/`: camada de interface.
+- `Dockerfile`: build de producao usando as duas partes.
+- `.dockerignore`, `.gitignore`, `.editorconfig`, `.gitattributes`: configuracoes do repositorio.
 - `docs/`: documentacao e tarefas internas.
-- `database/sql/`: scripts SQL manuais.
-- `docker/`: arquivos usados pela imagem Docker.
 
-## Artefatos removidos da raiz
+## Backend
 
-- `repomix-output.xml`: saida gerada por ferramenta.
-- `test`: arquivo solto sem uso no projeto.
-- `.phpunit.result.cache`: cache gerado pelos testes.
+- `backend/app/`: codigo PHP da aplicacao.
+- `backend/routes/`: rotas Laravel.
+- `backend/config/`: configuracoes Laravel.
+- `backend/database/`: migrations, seeders e SQL de apoio.
+- `backend/public/`: entrada publica, assets servidos e build do Vite.
+- `backend/storage/`: arquivos gerados em runtime.
+- `backend/tests/`: testes.
+- `backend/docker/`: arquivos usados pela imagem Docker.
+- `backend/composer.json`: dependencias e scripts do Laravel.
+
+## Frontend
+
+- `frontend/resources/views/`: templates Blade.
+- `frontend/resources/css/`: CSS de entrada do Vite.
+- `frontend/resources/js/`: JavaScript de entrada do Vite.
+- `frontend/package.json`: dependencias e scripts do Vite.
+- `frontend/vite.config.js`: compila assets para `backend/public/build`.
+
+## Conexoes entre frontend e backend
+
+- O Laravel le as views em `frontend/resources/views` por meio de `backend/config/view.php`.
+- O Vite roda a partir de `frontend/` e publica o build em `backend/public/build`.
+- Os assets estaticos servidos diretamente continuam em `backend/public`.
+- O script `composer run dev`, executado em `backend/`, sobe Laravel, fila, logs e Vite.

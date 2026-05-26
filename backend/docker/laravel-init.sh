@@ -24,7 +24,7 @@ php artisan config:clear --no-interaction || true
 php artisan view:clear --no-interaction || true
 
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
-    php artisan migrate --force --no-interaction || true
+    php artisan migrate --force --no-interaction
 fi
 
 php artisan storage:link --no-interaction || true

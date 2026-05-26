@@ -5,14 +5,25 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
     plugins: [
         laravel({
+            publicDirectory: '../backend/public',
             input: ['resources/css/app.css', 'resources/js/app.js'],
-            refresh: true,
+            refresh: [
+                'resources/views/**/*.blade.php',
+                '../backend/app/**/*.php',
+                '../backend/routes/**/*.php',
+            ],
         }),
         tailwindcss(),
     ],
     server: {
+        fs: {
+            allow: ['.', '../backend/public'],
+        },
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
+    },
+    build: {
+        emptyOutDir: true,
     },
 });
