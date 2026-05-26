@@ -2278,6 +2278,60 @@
                     width: 100% !important;
                     min-width: 0 !important;
                 }
+
+                body {
+                    font-size: 16px !important;
+                    line-height: 1.55 !important;
+                    -webkit-text-size-adjust: 100%;
+                }
+
+                .card,
+                .alert,
+                .form-control,
+                .form-select,
+                .btn,
+                .table,
+                .profile-dropdown-item {
+                    font-size: 15px !important;
+                    line-height: 1.45 !important;
+                }
+
+                .nav-link {
+                    min-height: 46px !important;
+                    font-size: 15px !important;
+                    padding: 10px 1rem !important;
+                }
+
+                .nav-link i {
+                    font-size: 18px !important;
+                    width: 22px !important;
+                }
+
+                .card-body,
+                .card-header,
+                .card-footer {
+                    padding-left: 14px !important;
+                    padding-right: 14px !important;
+                }
+
+                .btn {
+                    min-height: 42px !important;
+                    white-space: normal !important;
+                }
+
+                .table {
+                    min-width: 640px;
+                }
+
+                .page-header h1,
+                .page-header h2,
+                h1 {
+                    font-size: 1.55rem !important;
+                    line-height: 1.2 !important;
+                }
+
+                h2 { font-size: 1.35rem !important; }
+                h3 { font-size: 1.2rem !important; }
             }
 
             @media (max-width: 576px) {
@@ -2595,9 +2649,11 @@
         <a href="{{ route('mecanicos.index') }}" class="nav-link {{ request()->routeIs('mecanicos.*') ? 'active' : '' }}">
             <i class="bi bi-person-gear"></i> <span>Mecânicos</span>
         </a>
-        <a href="{{ route('conta.usuarios') }}" class="nav-link {{ request()->routeIs('conta.usuarios') ? 'active' : '' }}">
-            <i class="bi bi-person-badge"></i> <span>Contas</span>
-        </a>
+        @endif
+        @if(auth()->user()->isGerente() || auth()->user()->isAtendente())
+            <a href="{{ route('conta.usuarios') }}" class="nav-link {{ request()->routeIs('conta.usuarios') ? 'active' : '' }}">
+                <i class="bi bi-person-badge"></i> <span>Contas</span>
+            </a>
         @endif
 
         <div class="nav-label">Oficina</div>
