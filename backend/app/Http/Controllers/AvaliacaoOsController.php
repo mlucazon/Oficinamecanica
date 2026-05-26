@@ -44,7 +44,14 @@ class AvaliacaoOsController extends Controller
 
         $ordemServico->load(['veiculo', 'cliente']);
 
-        return view('avaliacoes.create', compact('ordemServico'));
+        $ordensPendentes = Auth::user()->cliente->ordens()
+            ->with('veiculo')
+            ->where('status', 'finalizada')
+            ->whereDoesntHave('avaliacao')
+            ->latest('data_conclusao')
+            ->get();
+
+        return view('avaliacoes.create', compact('ordemServico', 'ordensPendentes'));
     }
 
     public function store(Request $request, OrdemServico $ordemServico)

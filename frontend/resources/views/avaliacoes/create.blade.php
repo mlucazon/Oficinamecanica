@@ -32,13 +32,25 @@
     }
 
     .review-help {
-        color: var(--text2);
+        color: #d2d2d2;
         font-size: 13px;
+    }
+
+    .reviews-page .text-muted,
+    .reviews-page .review-muted {
+        color: #d2d2d2 !important;
+    }
+
+    :root[data-theme="light"] .reviews-page .text-muted,
+    :root[data-theme="light"] .reviews-page .review-muted,
+    :root[data-theme="light"] .review-help {
+        color: #5f554b !important;
     }
 </style>
 @endpush
 
 @section('content')
+<div class="reviews-page">
 <div class="row justify-content-center">
     <div class="col-xl-8">
         <div class="card">
@@ -46,6 +58,19 @@
                 <i class="bi bi-star me-2 text-warning"></i>Avaliar {{ $ordemServico->numero }}
             </div>
             <div class="card-body">
+                @if(isset($ordensPendentes) && $ordensPendentes->count() > 1)
+                    <div class="mb-3">
+                        <label for="review-os-switch" class="form-label">Escolha qual OS deseja avaliar</label>
+                        <select id="review-os-switch" class="form-select" data-base-url="{{ url('/avaliacoes/os') }}">
+                            @foreach($ordensPendentes as $os)
+                                <option value="{{ $os->id }}" @selected($os->id === $ordemServico->id)>
+                                    {{ $os->numero }} - {{ $os->veiculo->marca }} {{ $os->veiculo->modelo }} - {{ $os->veiculo->placa }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
                 <div class="mb-3 p-3 rounded" style="background: var(--surface2); border: 1px solid var(--border);">
                     <div class="fw-500">{{ $ordemServico->veiculo->marca }} {{ $ordemServico->veiculo->modelo }}</div>
                     <div class="small text-muted">
@@ -102,4 +127,15 @@
         </div>
     </div>
 </div>
+</div>
+
+@push('scripts')
+<script>
+document.getElementById('review-os-switch')?.addEventListener('change', function () {
+    if (!this.value) return;
+
+    window.location.href = `${this.dataset.baseUrl}/${this.value}/criar`;
+});
+</script>
+@endpush
 @endsection

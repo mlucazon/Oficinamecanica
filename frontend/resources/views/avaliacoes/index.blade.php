@@ -27,34 +27,59 @@
         padding: .85rem 1rem;
     }
 
+    .reviews-page .text-muted,
+    .reviews-page .review-muted {
+        color: #d2d2d2 !important;
+    }
+
+    .review-choice {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: .75rem;
+        align-items: end;
+    }
+
     :root[data-theme="light"] .review-reply {
         background: rgba(176,0,0,.08);
+    }
+
+    :root[data-theme="light"] .reviews-page .text-muted,
+    :root[data-theme="light"] .reviews-page .review-muted {
+        color: #5f554b !important;
+    }
+
+    @media (max-width: 576px) {
+        .review-choice {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 @endpush
 
 @section('content')
+<div class="reviews-page">
 @if(auth()->user()->isCliente() && $ordensPendentes->count() > 0)
     <div class="card mb-3">
         <div class="card-header">
             <i class="bi bi-star me-2 text-warning"></i>OS finalizadas para avaliar
         </div>
         <div class="card-body">
-            <div class="row g-2">
-                @foreach($ordensPendentes as $os)
-                    <div class="col-md-6 col-xl-4">
-                        <div class="border rounded p-3 h-100" style="border-color: var(--border2) !important;">
-                            <div class="font-mono fw-500">{{ $os->numero }}</div>
-                            <div class="small text-muted mb-2">
-                                {{ $os->veiculo->marca }} {{ $os->veiculo->modelo }} - {{ $os->veiculo->placa }}
-                            </div>
-                            <a href="{{ route('avaliacoes.create', $os) }}" class="btn btn-sm btn-primary">
-                                <i class="bi bi-star-fill me-1"></i>Avaliar OS
-                            </a>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
+            <form class="review-choice" id="review-os-form" data-base-url="{{ url('/avaliacoes/os') }}">
+                <div>
+                    <label for="review-os-select" class="form-label">Escolha qual OS deseja avaliar</label>
+                    <select id="review-os-select" class="form-select" required>
+                        <option value="">Selecione uma OS finalizada...</option>
+                        @foreach($ordensPendentes as $os)
+                            <option value="{{ $os->id }}">
+                                {{ $os->numero }} - {{ $os->veiculo->marca }} {{ $os->veiculo->modelo }} - {{ $os->veiculo->placa }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-star-fill me-1"></i>Avaliar OS
+                </button>
+            </form>
         </div>
     </div>
 @endif
@@ -140,4 +165,18 @@
         </div>
     @endif
 </div>
+</div>
+
+@push('scripts')
+<script>
+document.getElementById('review-os-form')?.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const select = document.getElementById('review-os-select');
+    if (!select?.value) return;
+
+    window.location.href = `${this.dataset.baseUrl}/${select.value}/criar`;
+});
+</script>
+@endpush
 @endsection
