@@ -34,7 +34,7 @@ RUN_MIGRATIONS=true
 
 ## Healthcheck
 
-O healthcheck esta configurado em `/up`, que e a rota nativa do Laravel definida em `backend/bootstrap/app.php`.
+O healthcheck esta configurado em `/health`, que e a rota nativa do Laravel definida em `backend/bootstrap/app.php`.
 
 ## Observacoes
 
