@@ -18,6 +18,10 @@ use App\Http\Controllers\RoleAccountController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AvaliacaoOsController;
 
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 // ── Rotas públicas ───────────────────────────────────────────────────────────
 Route::get('/', function () {
     return auth()->check()

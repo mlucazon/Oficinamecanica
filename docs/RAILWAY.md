@@ -27,14 +27,14 @@ QUEUE_CONNECTION=sync
 CACHE_DRIVER=file
 SESSION_DRIVER=file
 FILESYSTEM_DISK=local
-RUN_MIGRATIONS=true
+RUN_MIGRATIONS=false
 ```
 
 `APP_URL` pode ficar vazio se o servico tiver um dominio publico no Railway, pois o Laravel usa `RAILWAY_PUBLIC_DOMAIN` como fallback.
 
 ## Healthcheck
 
-O healthcheck esta configurado em `/health`, que e a rota nativa do Laravel definida em `backend/bootstrap/app.php`.
+O healthcheck esta configurado em `/health`, com rota publica explicita em `backend/routes/web.php`.
 
 ## Observacoes
 
