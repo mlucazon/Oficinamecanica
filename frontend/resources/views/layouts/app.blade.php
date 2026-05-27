@@ -1637,8 +1637,9 @@
 
 	    <style>
 	        :root[data-theme="light"] #sidebar {
-	            background: linear-gradient(180deg, #050914, #0A0D16) !important;
-	            border-right-color: rgba(255,255,255,.10) !important;
+	            background: #fffaf5 !important;
+	            border-right-color: rgba(31,25,20,.18) !important;
+                box-shadow: 18px 0 48px rgba(66,45,25,.16) !important;
 	        }
 
 	        :root[data-theme="light"] #sidebar .brand-name,
@@ -1646,36 +1647,36 @@
 	        :root[data-theme="light"] #sidebar .nav-label,
 	        :root[data-theme="light"] #sidebar .nav-link,
 	        :root[data-theme="light"] #sidebar .nav-link span {
-	            color: rgba(255,255,255,.72) !important;
+	            color: #2c241e !important;
 	        }
 
 	        :root[data-theme="light"] #sidebar .nav-label {
-	            color: rgba(255,255,255,.54) !important;
+	            color: #6c5d50 !important;
 	        }
 
 	        :root[data-theme="light"] #sidebar .nav-link i {
-	            color: rgba(255,255,255,.58) !important;
+	            color: #6c5d50 !important;
 	        }
 
 	        :root[data-theme="light"] #sidebar .nav-link:hover {
-	            background: rgba(255,255,255,.08) !important;
-	            color: #fff !important;
+	            background: rgba(176,0,0,.08) !important;
+	            color: #17130f !important;
 	        }
 
 	        :root[data-theme="light"] #sidebar .nav-link:hover i,
 	        :root[data-theme="light"] #sidebar .nav-link:hover span {
-	            color: #fff !important;
+	            color: #17130f !important;
 	        }
 
 	        :root[data-theme="light"] #sidebar .nav-link.active {
-	            background: rgba(176,0,0,.22) !important;
+	            background: rgba(176,0,0,.12) !important;
 	            border-left-color: var(--red-h) !important;
 	        }
 
 	        :root[data-theme="light"] #sidebar .nav-link.active,
 	        :root[data-theme="light"] #sidebar .nav-link.active i,
 	        :root[data-theme="light"] #sidebar .nav-link.active span {
-	            color: #fff !important;
+	            color: #8d0000 !important;
 	        }
 
 	        :root[data-theme="light"] #sidebar .nav-badge {
@@ -2820,7 +2821,7 @@
 	    </style>
 
 	    @stack('styles')
-        <link href="/css/mobile-sidebar-fix.css?v=5" rel="stylesheet">
+        <link href="/css/mobile-sidebar-fix.css?v=6" rel="stylesheet">
         <script src="/js/mobile-sidebar-fix.js?v=4" defer></script>
 </head>
 <body>
