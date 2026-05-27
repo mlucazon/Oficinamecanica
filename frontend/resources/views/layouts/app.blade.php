@@ -2812,6 +2812,7 @@
 	    </style>
 
 	    @stack('styles')
+        @verbatim
         <style id="mobile-sidebar-final-fix">
             @media (max-width: 900px) {
                 body.role-gerente #sidebar,
@@ -2928,8 +2929,10 @@
                 }
             }
         </style>
+        @endverbatim
 </head>
-<body class="role-{{ auth()->user()->role ?? 'guest' }}">
+@php($layoutRoleClass = 'role-' . (auth()->user()->role ?? 'guest'))
+<body class="{{ $layoutRoleClass }}">
 
 <div id="sidebar-overlay"></div>
 
