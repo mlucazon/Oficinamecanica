@@ -6,8 +6,80 @@
     $clienteVoltarId = request('cliente_id') ?: $veiculo->cliente_id;
 @endphp
 
+@push('styles')
+<style>
+    .vehicle-detail-page,
+    .vehicle-detail-page .card,
+    .vehicle-detail-page .card-body {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .vehicle-detail-layout {
+        display: grid !important;
+        grid-template-columns: 220px minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+    }
+
+    .vehicle-detail-photo,
+    .vehicle-detail-info {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .vehicle-detail-info {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        background: rgba(255,255,255,.018);
+    }
+
+    .vehicle-detail-info dl,
+    .vehicle-detail-info .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .vehicle-detail-info dt,
+    .vehicle-detail-info dd {
+        overflow-wrap: anywhere;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    @media (max-width: 767.98px) {
+        .vehicle-detail-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .vehicle-detail-photo {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex-basis: auto !important;
+        }
+
+        .vehicle-detail-photo > div {
+            height: auto !important;
+            min-height: 180px;
+            aspect-ratio: 16 / 10;
+        }
+
+        .vehicle-detail-page > [class*="col-"] {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .vehicle-detail-page .card-body {
+            padding-left: .85rem !important;
+            padding-right: .85rem !important;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="row justify-content-center"><div class="col-lg-8">
+<div class="row justify-content-center vehicle-detail-page"><div class="col-12 col-lg-8">
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div>
@@ -23,7 +95,7 @@
     <div class="card-body">
         <div class="row g-3">
             <div class="col-md-12">
-                <div class="d-flex align-items-start gap-3" style="flex-wrap:nowrap;">
+                <div class="d-flex align-items-start gap-3 vehicle-detail-layout" style="flex-wrap:wrap;">
                     {{-- foto (não depende de banco, vem do storage) --}}
                     @php
                         $fotoUrl = null;
@@ -39,7 +111,7 @@
                         }
                     @endphp
 
-                    <div style="flex:0 0 220px; max-width:220px; position:relative;">
+                    <div class="vehicle-detail-photo" style="flex:0 0 220px; max-width:220px; position:relative;">
                         @if(!empty($fotoUrl))
                             <div style="width:100%;height:220px;overflow:hidden;border-radius:8px; position:relative;">
                                 <img id="veiculo-foto" src="{{ $fotoUrl }}" alt="Foto do veículo" style="width:100%;height:100%;object-fit:cover;display:block;" />
@@ -53,7 +125,7 @@
                     </div>
 
                     {{-- bloco à direita (placa/marca/modelo/ano) --}}
-                    <div style="flex:1; min-width: 250px;">
+                    <div class="vehicle-detail-info" style="flex:1; min-width: 0;">
                         <dl class="row mb-0">
                             <dt class="col-5">Placa</dt>
                             <dd class="col-7 font-mono fw-800" style="color:#b00020;font-weight:900;">{{ $veiculo->placa }}</dd>
@@ -70,7 +142,7 @@
                     </div>
 
                     {{-- bloco à direita (cor/km) --}}
-                    <div style="flex:1; min-width: 200px;">
+                    <div class="vehicle-detail-info" style="flex:1; min-width: 0;">
                         <dl class="row mb-0">
                             <dt class="col-5">Cor</dt>
                             <dd class="col-7 fw-900" style="color:#b00020;font-weight:900;">{{ $veiculo->cor ?? '—' }}</dd>

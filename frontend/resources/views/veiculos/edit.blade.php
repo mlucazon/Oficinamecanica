@@ -1,8 +1,62 @@
 @extends('layouts.app')
 @section('title', 'Editar Veículo')
 @section('breadcrumb', 'Editar Veículo')
+@push('styles')
+<style>
+    .vehicle-form-page,
+    .vehicle-form-page .row,
+    .vehicle-form-page [class*="col-"],
+    .vehicle-form-page .card,
+    .vehicle-form-page .card-body,
+    .vehicle-form-page form {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .vehicle-form-page .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .vehicle-form-page [class*="col-"] {
+        padding-left: .375rem;
+        padding-right: .375rem;
+    }
+
+    .vehicle-form-page .form-control,
+    .vehicle-form-page .form-select,
+    .vehicle-form-page .form-control-plaintext {
+        min-width: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 576px) {
+        .vehicle-form-page {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .vehicle-form-page > [class*="col-"],
+        .vehicle-form-page [class*="col-"] {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .vehicle-form-page .card-body {
+            padding-left: .85rem !important;
+            padding-right: .85rem !important;
+        }
+
+        .vehicle-form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="row justify-content-center"><div class="col-lg-7">
+<div class="row justify-content-center vehicle-form-page"><div class="col-12 col-lg-7">
 <div class="card">
     <div class="card-header"><i class="bi bi-car-front me-2"></i>Editar Veículo</div>
     <div class="card-body">
@@ -132,7 +186,7 @@
                            value="{{ old('km_atual', $veiculo->km_atual) }}">
                 </div>
             </div>
-            <div class="mt-4 d-flex gap-2">
+            <div class="mt-4 d-flex flex-wrap gap-2 vehicle-form-actions">
                 <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Salvar</button>
                 <a href="{{ route('veiculos.index') }}" class="btn btn-outline-secondary">Cancelar</a>
             </div>

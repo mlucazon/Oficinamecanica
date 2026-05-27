@@ -84,11 +84,29 @@
 @push('styles')
 <style>
     .vehicle-form-page,
+    .vehicle-form-page .row,
+    .vehicle-form-page [class*="col-"],
     .vehicle-form-page .card,
     .vehicle-form-page .card-body,
     .vehicle-form-page form {
         min-width: 0;
         max-width: 100%;
+    }
+
+    .vehicle-form-page .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .vehicle-form-page [class*="col-"] {
+        padding-left: .375rem;
+        padding-right: .375rem;
+    }
+
+    .vehicle-form-page .form-label,
+    .vehicle-form-page .form-text,
+    .vehicle-form-page .invalid-feedback {
+        overflow-wrap: anywhere;
     }
 
     .vehicle-form-page .form-control,
@@ -113,6 +131,19 @@
         .vehicle-form-page .card-body {
             padding-left: .85rem !important;
             padding-right: .85rem !important;
+        }
+
+        .vehicle-form-page .row {
+            row-gap: .85rem;
+        }
+
+        .vehicle-form-page [class*="col-"] {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .vehicle-form-page .input-group {
+            flex-wrap: nowrap;
         }
 
         .vehicle-form-page .vehicle-form-actions .btn {
