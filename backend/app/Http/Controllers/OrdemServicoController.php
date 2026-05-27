@@ -56,6 +56,11 @@ class OrdemServicoController extends Controller
         $cliente = Auth::user()->cliente;
         abort_unless($cliente, 403);
 
+        if (!$cliente->veiculos()->exists()) {
+            return redirect()->route('conta.veiculos')
+                ->with('error', 'Para abrir uma OS, primeiro cadastre um veiculo.');
+        }
+
         $clientes  = collect([$cliente]);
         $mecanicos = Mecanico::where('ativo', true)->orderBy('nome')->get();
         return view('ordens-servico.create', compact('clientes', 'mecanicos'));
@@ -68,6 +73,11 @@ class OrdemServicoController extends Controller
 
         $cliente = Auth::user()->cliente;
         abort_unless($cliente, 403);
+
+        if (!$cliente->veiculos()->exists()) {
+            return redirect()->route('conta.veiculos')
+                ->with('error', 'Para abrir uma OS, primeiro cadastre um veiculo.');
+        }
 
         $data = $request->validate([
             'veiculo_id'  => 'required|exists:veiculos,id',

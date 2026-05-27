@@ -3,52 +3,80 @@
 namespace App\Http\Controllers;
 
 use App\Models\Garantia;
+use App\Models\Notificacao;
 use Illuminate\Http\Request;
 
 class GarantiaController extends Controller
 {
     public function index()
     {
-        $garantias = Garantia::with('ordemServico.cliente')->orderByDesc('data_fim')->paginate(20);
+        $user = auth()->user();
+
+        $query = Garantia::with('ordemServico.cliente')->orderByDesc('data_fim');
+
+        if ($user->isCliente()) {
+            $query->whereHas('ordemServico.cliente', fn($q) => $q->where('user_id', $user->id));
+        }
+
+        if ($user->isMecanico()) {
+            $query->whereHas('ordemServico', fn($q) => $q->where('mecanico_id', $user->mecanico?->id));
+        }
+
+        $garantias = $query->paginate(20);
+
         return view('garantias.index', compact('garantias'));
     }
 
     public function show(Garantia $garantia)
     {
         $garantia->load('ordemServico.cliente');
+        $this->authorizeGarantia($garantia);
+
         return view('garantias.show', compact('garantia'));
     }
 
     public function edit(Garantia $garantia)
     {
+        $this->authorizeGarantia($garantia, true);
+
         return view('garantias.edit', compact('garantia'));
     }
 
     public function update(Request $request, Garantia $garantia)
     {
+        $this->authorizeGarantia($garantia, true);
+
         $data = $request->validate([
-            'descricao'  => 'required|string',
-            'data_fim'   => 'required|date',
+            'descricao' => 'required|string',
+            'data_fim' => 'required|date',
             'observacao' => 'nullable|string',
         ]);
+
         $garantia->update($data);
+
         return redirect()->route('garantias.show', $garantia)->with('success', 'Garantia atualizada!');
     }
 
     public function acionar(Request $request, Garantia $garantia)
     {
+        $this->authorizeGarantia($garantia);
+
         $request->validate(['observacao' => 'required|string|max:1000']);
+
         if ($garantia->status !== 'aceita') {
-            return back()->with('error', 'Esta garantia ainda não foi aceita pelo cliente.');
+            return back()->with('error', 'Esta garantia ainda nao foi aceita pelo cliente.');
         }
+
         if ($garantia->expirada()) {
             return back()->with('error', 'Garantia expirada em ' . $garantia->data_fim->format('d/m/Y') . '.');
         }
+
         $garantia->update([
-            'acionada'         => true,
+            'acionada' => true,
             'data_acionamento' => now(),
-            'observacao'       => $request->observacao,
+            'observacao' => $request->observacao,
         ]);
+
         return back()->with('success', 'Garantia acionada!');
     }
 
@@ -61,7 +89,7 @@ class GarantiaController extends Controller
         }
 
         if ($garantia->status !== 'pendente') {
-            return back()->with('error', 'Esta oferta de garantia já foi respondida.');
+            return back()->with('error', 'Esta oferta de garantia ja foi respondida.');
         }
 
         $garantia->update([
@@ -81,7 +109,7 @@ class GarantiaController extends Controller
         }
 
         if ($garantia->status !== 'pendente') {
-            return back()->with('error', 'Esta oferta de garantia já foi respondida.');
+            return back()->with('error', 'Esta oferta de garantia ja foi respondida.');
         }
 
         $garantia->update([
@@ -89,7 +117,7 @@ class GarantiaController extends Controller
             'observacao' => 'Cliente recusou a garantia adicional de 60 dias.',
         ]);
 
-        \App\Models\Notificacao::where('user_id', auth()->id())
+        Notificacao::where('user_id', auth()->id())
             ->where('os_id', $garantia->os_id)
             ->where('status', 'pendente')
             ->update(['status' => 'recusada', 'lida' => true]);
@@ -106,7 +134,7 @@ class GarantiaController extends Controller
         }
 
         if ($garantia->status !== 'aguardando_pagamento') {
-            return back()->with('error', 'Esta garantia não está aguardando pagamento.');
+            return back()->with('error', 'Esta garantia nao esta aguardando pagamento.');
         }
 
         $data = $request->validate([
@@ -115,7 +143,7 @@ class GarantiaController extends Controller
 
         $metodo = match ($data['metodo_pagamento']) {
             'pix' => 'Pix',
-            'cartao' => 'Cartão',
+            'cartao' => 'Cartao',
             default => 'Dinheiro/presencial',
         };
 
@@ -126,11 +154,31 @@ class GarantiaController extends Controller
             'observacao' => 'Pagamento confirmado via ' . $metodo . '. Garantia adicional de 60 dias ativa.',
         ]);
 
-        \App\Models\Notificacao::where('user_id', auth()->id())
+        Notificacao::where('user_id', auth()->id())
             ->where('os_id', $garantia->os_id)
             ->where('status', 'pendente')
             ->update(['status' => 'aceita', 'lida' => true]);
 
         return back()->with('success', 'Pagamento confirmado. Garantia de 60 dias ativada.');
+    }
+
+    private function authorizeGarantia(Garantia $garantia, bool $gerencial = false): void
+    {
+        $user = auth()->user();
+        $garantia->loadMissing('ordemServico.cliente');
+
+        if ($gerencial) {
+            abort_unless($user->isAtendente() || $user->isGerente(), 403);
+            return;
+        }
+
+        if ($user->isCliente()) {
+            abort_unless($garantia->ordemServico->cliente?->user_id === $user->id, 403);
+            return;
+        }
+
+        if ($user->isMecanico()) {
+            abort_unless($garantia->ordemServico->mecanico_id === $user->mecanico?->id, 403);
+        }
     }
 }
