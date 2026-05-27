@@ -2637,6 +2637,150 @@
                 }
             }
 
+            /* Mobile sidebar hard reset: keeps the drawer usable even with long manager menus. */
+            @media (max-width: 900px) {
+                html body #sidebar,
+                html body #sidebar:hover,
+                html body #sidebar:focus-within {
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: auto !important;
+                    width: min(82vw, 300px) !important;
+                    max-width: calc(100vw - 48px) !important;
+                    height: 100dvh !important;
+                    min-height: 100dvh !important;
+                    padding: 0 !important;
+                    transform: translate3d(-105%, 0, 0) !important;
+                    overflow: hidden !important;
+                    box-sizing: border-box !important;
+                }
+
+                html body #sidebar.open,
+                html body #sidebar.open:hover,
+                html body #sidebar.open:focus-within {
+                    transform: translate3d(0, 0, 0) !important;
+                }
+
+                html body #sidebar .sidebar-brand.sidebar-brand-logo,
+                html body #sidebar:hover .sidebar-brand.sidebar-brand-logo,
+                html body #sidebar:focus-within .sidebar-brand.sidebar-brand-logo {
+                    display: flex !important;
+                    width: 100% !important;
+                    height: 62px !important;
+                    min-height: 62px !important;
+                    padding: 0 14px !important;
+                    justify-content: flex-start !important;
+                    gap: 10px !important;
+                    overflow: hidden !important;
+                }
+
+                html body #sidebar .sidebar-brand-text,
+                html body #sidebar:hover .sidebar-brand-text,
+                html body #sidebar:focus-within .sidebar-brand-text,
+                html body #sidebar:not(:hover):not(:focus-within) .sidebar-brand-text {
+                    display: block !important;
+                    opacity: 1 !important;
+                    min-width: 0 !important;
+                    max-width: calc(100% - 52px) !important;
+                    height: auto !important;
+                    overflow: hidden !important;
+                    transform: none !important;
+                }
+
+                html body #sidebar .brand-name,
+                html body #sidebar .brand-sub {
+                    display: block !important;
+                    max-width: 100% !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    white-space: nowrap !important;
+                    opacity: 1 !important;
+                    transform: none !important;
+                }
+
+                html body #sidebar .nav-scroll,
+                html body #sidebar:hover .nav-scroll,
+                html body #sidebar:focus-within .nav-scroll,
+                html body #sidebar:not(:hover):not(:focus-within) .nav-scroll {
+                    display: flex !important;
+                    flex: 1 1 auto !important;
+                    min-height: 0 !important;
+                    flex-direction: column !important;
+                    align-items: stretch !important;
+                    padding: 10px !important;
+                    overflow-y: auto !important;
+                    overflow-x: hidden !important;
+                    -webkit-overflow-scrolling: touch !important;
+                }
+
+                html body #sidebar .nav-link,
+                html body #sidebar:hover .nav-link,
+                html body #sidebar:focus-within .nav-link,
+                html body #sidebar:not(:hover):not(:focus-within) .nav-link {
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: flex-start !important;
+                    gap: 10px !important;
+                    width: 100% !important;
+                    height: auto !important;
+                    min-height: 42px !important;
+                    margin: 2px 0 !important;
+                    padding: 9px 12px !important;
+                    border-radius: 9px !important;
+                    box-sizing: border-box !important;
+                    overflow: hidden !important;
+                }
+
+                html body #sidebar .nav-link i {
+                    width: 22px !important;
+                    min-width: 22px !important;
+                    font-size: 18px !important;
+                    text-align: center !important;
+                }
+
+                html body #sidebar .nav-link span,
+                html body #sidebar:hover .nav-link span,
+                html body #sidebar:focus-within .nav-link span,
+                html body #sidebar:not(:hover):not(:focus-within) .nav-link span {
+                    display: block !important;
+                    flex: 1 1 auto !important;
+                    min-width: 0 !important;
+                    width: auto !important;
+                    max-width: 100% !important;
+                    height: auto !important;
+                    opacity: 1 !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    white-space: nowrap !important;
+                    transform: none !important;
+                    pointer-events: auto !important;
+                    font-size: 14px !important;
+                    line-height: 1.2 !important;
+                    letter-spacing: 0 !important;
+                }
+
+                html body #sidebar .nav-label,
+                html body #sidebar:hover .nav-label,
+                html body #sidebar:focus-within .nav-label,
+                html body #sidebar:not(:hover):not(:focus-within) .nav-label {
+                    display: block !important;
+                    width: auto !important;
+                    max-width: 100% !important;
+                    height: auto !important;
+                    margin: 8px 0 3px !important;
+                    padding: 0 12px !important;
+                    opacity: 1 !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    white-space: nowrap !important;
+                    transform: none !important;
+                    font-size: 10px !important;
+                    line-height: 1.2 !important;
+                    letter-spacing: .14em !important;
+                }
+            }
+
             @media (min-width: 901px) {
                 :root[data-theme="light"] #topbar .topbar-user,
                 :root[data-theme="light"] #topbar .topbar-btn,
@@ -2692,15 +2836,16 @@
 
         <div class="nav-label">Cadastros</div>
 
-        @if(auth()->user()->isCliente())
+        @php($currentRole = auth()->user()->role)
+        @if($currentRole === 'cliente')
         <a href="{{ route('conta.veiculos') }}" class="nav-link {{ request()->routeIs('conta.veiculos') ? 'active' : '' }}">
             <i class="bi bi-car-front"></i> <span>Veículos</span>
         </a>
-        @elseif(auth()->user()->isGerente() || auth()->user()->isAtendente() || auth()->user()->isMecanico())
+        @elseif(in_array($currentRole, ['gerente', 'atendente', 'mecanico'], true))
         <a href="{{ route('conta.clientes') }}" class="nav-link {{ request()->routeIs('conta.clientes') ? 'active' : '' }}">
             <i class="bi bi-people"></i> <span>Clientes</span>
         </a>
-        @elseif(!auth()->user()->isGerente())
+        @else
         <a href="{{ route('veiculos.index') }}" class="nav-link {{ request()->routeIs('veiculos.*') ? 'active' : '' }}">
             <i class="bi bi-car-front"></i> <span>Veículos</span>
         </a>
