@@ -65,6 +65,15 @@
 
 <div class="row g-3">
 
+    @if(str_contains((string) $ordemServico->observacoes, 'garantia ativa do veiculo'))
+        <div class="col-12">
+            <div class="alert alert-success mb-0">
+                <i class="bi bi-shield-check me-1"></i>
+                Esta OS foi aberta usando uma garantia ativa deste veiculo.
+            </div>
+        </div>
+    @endif
+
     @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id() && $ordemServico->aprovado_cliente && in_array($ordemServico->status, ['em_execucao', 'aprovada']))
         <div class="col-12">
             <div class="alert alert-warning d-flex align-items-start justify-content-between gap-3 flex-wrap mb-0">

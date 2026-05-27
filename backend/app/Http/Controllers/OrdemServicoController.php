@@ -8,6 +8,7 @@ use App\Models\Veiculo;
 use App\Models\Mecanico;
 use App\Models\User;
 use App\Models\Notificacao;
+use App\Models\Garantia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -134,6 +135,8 @@ class OrdemServicoController extends Controller
         }
 
         // Criar notificações para todos os atendentes/gerentes
+        $garantiaUsada = $this->acionarGarantiaAtivaParaNovaOs($os);
+
         $atendentes = User::whereIn('role', ['atendente', 'gerente'])
             ->where('id', '!=', Auth::id())
             ->get();
@@ -144,12 +147,57 @@ class OrdemServicoController extends Controller
                 'os_id'   => $os->id,
                 'tipo'    => 'solicitacao_os',
                 'status'  => 'pendente',
-                'mensagem' => "Nova OS #{$os->numero} de {$os->cliente->nome}",
+                'mensagem' => $garantiaUsada
+                    ? "Nova OS #{$os->numero} de {$os->cliente->nome} - garantia acionada automaticamente"
+                    : "Nova OS #{$os->numero} de {$os->cliente->nome}",
             ]);
+        }
+
+        if ($garantiaUsada) {
+            return redirect()->route('os.show', $os)
+                ->with('success', "OS {$os->numero} aberta com sucesso usando a garantia ativa do veiculo.");
         }
 
         return redirect()->route('os.show', $os)
                ->with('success', "OS {$os->numero} aberta com sucesso! Aguardando aceitação do assistente.");
+    }
+
+    private function acionarGarantiaAtivaParaNovaOs(OrdemServico $os): ?Garantia
+    {
+        $garantia = Garantia::where('status', 'aceita')
+            ->where('acionada', false)
+            ->whereDate('data_fim', '>=', today())
+            ->whereHas('ordemServico', function ($query) use ($os) {
+                $query->where('cliente_id', $os->cliente_id)
+                    ->where('veiculo_id', $os->veiculo_id)
+                    ->where('id', '!=', $os->id);
+            })
+            ->orderByDesc('data_fim')
+            ->first();
+
+        if (!$garantia) {
+            return null;
+        }
+
+        $observacaoGarantia = trim((string) $garantia->observacao);
+        $observacaoOs = trim((string) $os->observacoes);
+        $mensagem = "Garantia acionada automaticamente na OS {$os->numero} em " . now()->format('d/m/Y H:i') . ".";
+
+        $garantia->update([
+            'acionada' => true,
+            'data_acionamento' => now(),
+            'observacao' => $observacaoGarantia
+                ? $observacaoGarantia . "\n" . $mensagem
+                : $mensagem,
+        ]);
+
+        $os->update([
+            'observacoes' => $observacaoOs
+                ? $observacaoOs . "\n" . 'Esta OS foi aberta usando uma garantia ativa do veiculo.'
+                : 'Esta OS foi aberta usando uma garantia ativa do veiculo.',
+        ]);
+
+        return $garantia;
     }
 
     // Ver OS completa
