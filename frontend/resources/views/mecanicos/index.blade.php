@@ -6,12 +6,19 @@
 <style>
     .mecanicos-mobile-list {
         display: none;
+        padding: 12px;
+        background: rgba(255,255,255,.01);
     }
 
     .mecanico-mobile-card {
         padding: 14px;
-        border-bottom: 1px solid var(--border);
+        border: 1px solid var(--border);
+        border-radius: 8px;
         background: rgba(255,255,255,.015);
+    }
+
+    .mecanico-mobile-card + .mecanico-mobile-card {
+        margin-top: 12px;
     }
 
     .mecanico-mobile-head {
