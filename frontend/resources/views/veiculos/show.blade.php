@@ -4,6 +4,9 @@
 
 @php
     $clienteVoltarId = request('cliente_id') ?: $veiculo->cliente_id;
+    $voltarVeiculoUrl = auth()->user()->isCliente()
+        ? route('conta.veiculos')
+        : ($clienteVoltarId ? route('clientes.show', $clienteVoltarId) : route('veiculos.index'));
 @endphp
 
 @push('styles')
@@ -226,7 +229,7 @@
 @endif
 
 <div class="mt-4 d-flex gap-2">
-    <a href="{{ $clienteVoltarId ? route('clientes.show', $clienteVoltarId) : route('veiculos.index') }}" class="btn btn-outline-secondary">Voltar</a>
+    <a href="{{ $voltarVeiculoUrl }}" class="btn btn-outline-secondary">Voltar</a>
 </div>
 </div></div>
 @endsection
