@@ -2279,6 +2279,13 @@
                     min-width: 0 !important;
                 }
 
+                #content > .row,
+                #content .card-body > .row {
+                    max-width: 100% !important;
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                }
+
                 .card,
                 .modal-content,
                 .toast-at {

@@ -2,7 +2,7 @@
 @section('title', 'Novo Veículo')
 @section('breadcrumb', 'Novo Veículo')
 @section('content')
-<div class="row justify-content-center"><div class="col-lg-7">
+<div class="row justify-content-center vehicle-form-page"><div class="col-12 col-lg-7">
 <div class="card">
     <div class="card-header"><i class="bi bi-car-front me-2"></i>Novo Veículo</div>
     <div class="card-body">
@@ -10,7 +10,7 @@
 
             @csrf
             <div class="row g-3">
-                <div class="col-md-3">
+                <div class="col-12 col-sm-6 col-md-3">
                     <label class="form-label">Placa *</label>
                     <input type="text" name="placa" class="form-control font-mono text-uppercase @error('placa') is-invalid @enderror"
                            value="{{ old('placa') }}" placeholder="ABC1D23" required>
@@ -19,7 +19,7 @@
                     @enderror
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12 col-sm-6 col-md-3">
                     <label class="form-label">Ano *</label>
                     <input type="number" name="ano" class="form-control font-mono @error('ano') is-invalid @enderror"
                            value="{{ old('ano', date('Y')) }}" min="1900" max="{{ date('Y')+1 }}" required>
@@ -36,7 +36,7 @@
 
                 @include('veiculos._marca_modelo_selects', ['marcas' => $marcas, 'modelos' => $modelos, 'veiculo' => $veiculo, 'marcaSelecionadaId' => $marcaSelecionadaId])
 
-                <div class="col-md-4">
+                <div class="col-12 col-sm-6 col-md-4">
                     <label class="form-label">Cor</label>
                     <select name="cor" class="form-select" required>
                         <option value="" @selected(old('cor') === null || old('cor') === '')>Selecione a cor...</option>
@@ -46,7 +46,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-12 col-sm-6 col-md-4">
                     <label class="form-label">Km atual</label>
                     <div class="input-group">
                         <input type="number" name="km_atual" id="km_atual" class="form-control font-mono" min="0"
@@ -71,7 +71,7 @@
 
             </div>
 
-            <div class="mt-4 d-flex gap-2">
+            <div class="mt-4 d-flex flex-wrap gap-2 vehicle-form-actions">
                 <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Salvar</button>
                 <a href="{{ route('veiculos.index') }}" class="btn btn-outline-secondary">Cancelar</a>
             </div>
@@ -81,3 +81,43 @@
 </div></div>
 @endsection
 
+@push('styles')
+<style>
+    .vehicle-form-page,
+    .vehicle-form-page .card,
+    .vehicle-form-page .card-body,
+    .vehicle-form-page form {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .vehicle-form-page .form-control,
+    .vehicle-form-page .form-select,
+    .vehicle-form-page .input-group,
+    .vehicle-form-page input[type="file"] {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    @media (max-width: 576px) {
+        .vehicle-form-page {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .vehicle-form-page > [class*="col-"] {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .vehicle-form-page .card-body {
+            padding-left: .85rem !important;
+            padding-right: .85rem !important;
+        }
+
+        .vehicle-form-page .vehicle-form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+@endpush

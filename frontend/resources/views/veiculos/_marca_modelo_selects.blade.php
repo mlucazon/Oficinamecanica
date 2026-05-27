@@ -7,7 +7,7 @@
     $marcaSelecionadaId = $marcaSelecionadaId ?? null;
 @endphp
 
-<div class="col-md-3">
+<div class="col-12 col-sm-6 col-md-3">
     <label class="form-label">Marca *</label>
     <select name="marca" id="sel-marca" class="form-select @error('marca') is-invalid @enderror" required>
         <option value="" @selected(old('marca') === null || old('marca') === '')>Selecione...</option>
@@ -22,7 +22,7 @@
     @enderror
 </div>
 
-<div class="col-md-3">
+<div class="col-12 col-sm-6 col-md-3">
     <label class="form-label">Modelo *</label>
     <select name="modelo" id="sel-modelo" class="form-select @error('modelo') is-invalid @enderror" required>
         <option value="" @selected(old('modelo') === null || old('modelo') === '')>Selecione...</option>
@@ -87,5 +87,4 @@
 })();
 </script>
 @endpush
-
 
