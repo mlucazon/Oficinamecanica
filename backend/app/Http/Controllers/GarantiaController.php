@@ -108,13 +108,15 @@ class GarantiaController extends Controller
             abort(403);
         }
 
-        if ($garantia->status !== 'pendente') {
+        if (!in_array($garantia->status, ['pendente', 'aguardando_pagamento'], true)) {
             return back()->with('error', 'Esta oferta de garantia ja foi respondida.');
         }
 
         $garantia->update([
             'status' => 'recusada',
-            'observacao' => 'Cliente recusou a garantia adicional de 60 dias.',
+            'observacao' => $garantia->status === 'aguardando_pagamento'
+                ? 'Cliente desistiu do pagamento da garantia adicional de 60 dias.'
+                : 'Cliente recusou a garantia adicional de 60 dias.',
         ]);
 
         Notificacao::where('user_id', auth()->id())

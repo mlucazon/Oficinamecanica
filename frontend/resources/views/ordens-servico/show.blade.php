@@ -472,6 +472,13 @@
 		                                    </button>
 		                                </div>
 		                            </form>
+                                    <form method="POST" action="{{ route('garantias.recusar-oferta', $garantiaPagamento) }}" class="text-end mt-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="btn btn-outline-secondary" onclick="return confirm('Deseja cancelar a garantia e seguir pagando somente a OS?')">
+                                            <i class="bi bi-x-circle me-1"></i>Cancelar garantia e pagar somente a OS
+                                        </button>
+                                    </form>
 		                        @else
 		                            <p class="text-muted mb-0">Aguardando o cliente confirmar o pagamento da garantia.</p>
 		                        @endif
