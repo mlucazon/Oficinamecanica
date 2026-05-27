@@ -2820,6 +2820,7 @@
 	    </style>
 
 	    @stack('styles')
+        <link href="/css/mobile-sidebar-fix.css?v=1" rel="stylesheet">
 </head>
 <body>
 
