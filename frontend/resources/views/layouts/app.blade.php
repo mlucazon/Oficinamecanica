@@ -3035,7 +3035,15 @@
 	        </button>
 	        <button class="topbar-btn no-print" title="Notificações" type="button" onclick="toggleMiniNotifs()">
 	            <i class="bi bi-bell"></i>
-	            <span class="notif-dot"></span>
+                @php
+                    $topbarNaoLidasCount = \App\Models\Notificacao::where('user_id', auth()->id())
+                        ->where('lida', false)
+                        ->where('status', 'pendente')
+                        ->count();
+                @endphp
+                @if($topbarNaoLidasCount > 0)
+	                <span class="notif-dot"></span>
+                @endif
         </button>
 
         <div id="mini-notificacoes" class="mini-notificacoes" style="display:none; position:absolute; top:62px; right:28px; width:360px; z-index:9500;">
