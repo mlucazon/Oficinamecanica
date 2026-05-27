@@ -164,8 +164,12 @@
             @endif
         @else
             @if($accessGranted ?? false)
-                <div class="alert alert-success">
-                    Acesso autorizado pelo gerente. Voce pode consultar as contas abaixo.
+                <div class="alert alert-success d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                    <span>Acesso autorizado pelo gerente. Voce pode consultar as contas abaixo.</span>
+                    <form method="POST" action="{{ route('conta.usuarios.fechar') }}" class="m-0">
+                        @csrf
+                        <button class="btn btn-sm btn-outline-secondary">Fechar acesso</button>
+                    </form>
                 </div>
 
                 <div>

@@ -184,14 +184,36 @@ class RoleAccountController extends Controller
 
     public function fechar(Request $request)
     {
-        if (! auth()->user()->isGerente()) {
-            abort(403);
+        $user = auth()->user();
+
+        if ($user->isGerente()) {
+            $request->session()->forget('conta_usuarios_acesso');
+
+            return redirect()->route('conta.usuarios')
+                ->with('success', 'Acesso encerrado. Informe a senha novamente para reabrir.');
         }
 
-        $request->session()->forget('conta_usuarios_acesso');
+        if ($user->isAtendente()) {
+            $solicitacao = ContaAcessoSolicitacao::where('solicitante_id', $user->id)
+                ->where('status', 'aprovada')
+                ->latest()
+                ->first();
 
-        return redirect()->route('conta.usuarios')
-            ->with('success', 'Acesso encerrado. Informe a senha novamente para reabrir.');
+            if (! $solicitacao) {
+                return redirect()->route('conta.usuarios')
+                    ->with('error', 'Nao existe acesso autorizado para fechar.');
+            }
+
+            $solicitacao->update([
+                'status' => 'recusada',
+                'respondido_em' => now(),
+            ]);
+
+            return redirect()->route('conta.usuarios')
+                ->with('success', 'Acesso as contas fechado. Solicite autorizacao novamente quando precisar.');
+        }
+
+        abort(403);
     }
 
     public function detalhes(Request $request, User $user)
