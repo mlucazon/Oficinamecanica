@@ -416,6 +416,10 @@
 		                            </div>
 		                        @endif
 		                    @elseif($garantiaPagamento)
+                                @php
+                                    $pixCobrancaUrl = 'https://nubank.com.br/cobrar/1htzrg/6a17451a-654b-4b18-b315-a5d43bb81b02';
+                                    $pixQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . urlencode($pixCobrancaUrl);
+                                @endphp
 		                        <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
 		                            <div>
 		                                <div class="fw-semibold">Pagamento da garantia de 60 dias</div>
@@ -430,6 +434,27 @@
 		                        </div>
 
 		                        @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id())
+                                    <div class="row g-3 align-items-center mb-3">
+                                        <div class="col-md-auto text-center">
+                                            <div style="display:inline-block;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff;">
+                                                <img src="{{ $pixQrUrl }}" alt="QR Code Pix Nubank" width="220" height="220" style="display:block;max-width:100%;height:auto;">
+                                            </div>
+                                        </div>
+                                        <div class="col-md">
+                                            <div class="fw-semibold mb-1">Pague pelo Pix</div>
+                                            <div class="small mb-2" style="color: var(--text2);">
+                                                Escaneie o QR Code ou abra o link de cobranca. Depois confirme o pagamento abaixo para ativar a garantia.
+                                            </div>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <a href="{{ $pixCobrancaUrl }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-qr-code me-1"></i>Abrir cobranca Pix
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="navigator.clipboard?.writeText('{{ $pixCobrancaUrl }}')">
+                                                    <i class="bi bi-clipboard me-1"></i>Copiar link
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
 		                            <form method="POST" action="{{ route('garantias.pagar-oferta', $garantiaPagamento) }}" class="row g-3 align-items-end">
 		                                @csrf
 		                                @method('PATCH')
