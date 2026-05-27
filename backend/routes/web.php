@@ -91,8 +91,10 @@ Route::middleware(['auth'])->group(function () {
     // Ordens de Serviço
     // Ordens de Serviço - rotas com {id} em vez de implicit model binding
     Route::get('/ordens-servico', [OrdemServicoController::class, 'index'])->name('os.index');
-    Route::get('/ordens-servico/create', [OrdemServicoController::class, 'create'])->name('os.create');
-    Route::post('/ordens-servico', [OrdemServicoController::class, 'store'])->name('os.store');
+    Route::middleware('role:cliente')->group(function () {
+        Route::get('/ordens-servico/create', [OrdemServicoController::class, 'create'])->name('os.create');
+        Route::post('/ordens-servico', [OrdemServicoController::class, 'store'])->name('os.store');
+    });
     Route::get('/ordens-servico/{id}', [OrdemServicoController::class, 'show'])->name('os.show');
     Route::get('/ordens-servico/{id}/edit', [OrdemServicoController::class, 'edit'])->name('os.edit');
     Route::put('/ordens-servico/{id}', [OrdemServicoController::class, 'update'])->name('os.update');

@@ -51,7 +51,12 @@ class OrdemServicoController extends Controller
     // UC003 — Formulário de abertura
     public function create()
     {
-        $clientes  = Cliente::orderBy('nome')->get();
+        abort_unless(Auth::user()->isCliente(), 403);
+
+        $cliente = Auth::user()->cliente;
+        abort_unless($cliente, 403);
+
+        $clientes  = collect([$cliente]);
         $mecanicos = Mecanico::where('ativo', true)->orderBy('nome')->get();
         return view('ordens-servico.create', compact('clientes', 'mecanicos'));
     }
@@ -59,8 +64,12 @@ class OrdemServicoController extends Controller
     // UC003 — Salvar nova OS
     public function store(Request $request)
     {
+        abort_unless(Auth::user()->isCliente(), 403);
+
+        $cliente = Auth::user()->cliente;
+        abort_unless($cliente, 403);
+
         $data = $request->validate([
-            'cliente_id'  => 'required|exists:clientes,id',
             'veiculo_id'  => 'required|exists:veiculos,id',
             'mecanico_id' => 'nullable|exists:mecanicos,id',
             'sintomas'    => 'required|string|max:2000',
@@ -73,6 +82,9 @@ class OrdemServicoController extends Controller
             'video_defeito.max' => 'O video deve ter no maximo 50 MB.',
         ]);
 
+        abort_unless($cliente->veiculos()->whereKey($data['veiculo_id'])->exists(), 403);
+
+        $data['cliente_id'] = $cliente->id;
         $data['numero'] = OrdemServico::gerarNumero();
         $data['status'] = 'aguardando_aceitacao';
 

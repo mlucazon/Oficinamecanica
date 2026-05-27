@@ -6,7 +6,7 @@
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
         <span><i class="bi bi-clipboard2-check me-2"></i>Ordens de Serviço</span>
-        @if(!auth()->user()->isMecanico())
+        @if(auth()->user()->isCliente())
             <a href="{{ route('os.create') }}" class="btn btn-sm btn-primary">
                 <i class="bi bi-plus-lg me-1"></i>Abrir OS
             </a>
