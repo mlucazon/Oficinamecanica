@@ -64,7 +64,7 @@
         <tr>
             <td>{{ ucfirst($item->tipo) }}</td>
             <td>{{ $item->descricao }}</td>
-            <td class="font-mono text-end">{{ $item->quantidade }}</td>
+            <td class="font-mono text-end">{{ $item->quantidade_formatada }}</td>
             <td class="font-mono text-end">R$ {{ number_format($item->valor_unitario,2,',','.') }}</td>
             <td class="font-mono text-end">R$ {{ number_format($item->valor_total,2,',','.') }}</td>
         </tr>

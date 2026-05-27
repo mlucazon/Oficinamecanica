@@ -14,6 +14,12 @@ class ItemOs extends Model
     public function servico()      { return $this->belongsTo(Servico::class); }
     public function peca()         { return $this->belongsTo(Peca::class); }
 
+    public function getQuantidadeFormatadaAttribute(): string
+    {
+        $valor = number_format((float) $this->quantidade, 3, ',', '.');
+        return rtrim(rtrim($valor, '0'), ',');
+    }
+
     protected static function booted(): void
     {
         static::saving(function (self $item) {

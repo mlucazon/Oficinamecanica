@@ -314,7 +314,7 @@
                             @forelse($ordemServico->itens as $item)
                                 <tr>
                                     <td>{{ $item->descricao }}</td>
-                                    <td class="font-mono">{{ $item->quantidade }}</td>
+                                    <td class="font-mono">{{ $item->quantidade_formatada }}</td>
                                     <td class="font-mono">R$ {{ number_format($item->valor_unitario, 2, ',', '.') }}</td>
                                     <td class="font-mono">R$ {{ number_format($item->valor_total, 2, ',', '.') }}</td>
                                 </tr>
