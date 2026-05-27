@@ -2812,8 +2812,124 @@
 	    </style>
 
 	    @stack('styles')
+        <style id="mobile-sidebar-final-fix">
+            @media (max-width: 900px) {
+                body.role-gerente #sidebar,
+                body.role-gerente #sidebar:hover,
+                body.role-gerente #sidebar:focus-within {
+                    position: fixed !important;
+                    inset: 0 auto 0 0 !important;
+                    width: 300px !important;
+                    max-width: 84vw !important;
+                    min-width: 0 !important;
+                    height: 100dvh !important;
+                    min-height: 100dvh !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    transform: translate3d(-105%, 0, 0) !important;
+                    overflow: hidden !important;
+                    box-sizing: border-box !important;
+                    z-index: 1200 !important;
+                }
+
+                body.role-gerente #sidebar.open,
+                body.role-gerente #sidebar.open:hover,
+                body.role-gerente #sidebar.open:focus-within {
+                    transform: translate3d(0, 0, 0) !important;
+                }
+
+                body.role-gerente #sidebar .sidebar-brand,
+                body.role-gerente #sidebar .sidebar-brand.sidebar-brand-logo {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    max-width: 100% !important;
+                    height: 62px !important;
+                    min-height: 62px !important;
+                    padding: 0 12px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: flex-start !important;
+                    gap: 10px !important;
+                    overflow: hidden !important;
+                    transform: none !important;
+                }
+
+                body.role-gerente #sidebar .nav-scroll {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    display: flex !important;
+                    flex: 1 1 auto !important;
+                    min-height: 0 !important;
+                    flex-direction: column !important;
+                    align-items: stretch !important;
+                    padding: 10px !important;
+                    overflow-y: auto !important;
+                    overflow-x: hidden !important;
+                }
+
+                body.role-gerente #sidebar .nav-link,
+                body.role-gerente #sidebar:hover .nav-link,
+                body.role-gerente #sidebar:focus-within .nav-link,
+                body.role-gerente #sidebar:not(:hover):not(:focus-within) .nav-link {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    max-width: 100% !important;
+                    height: auto !important;
+                    min-height: 42px !important;
+                    margin: 2px 0 !important;
+                    padding: 9px 10px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: flex-start !important;
+                    gap: 10px !important;
+                    overflow: hidden !important;
+                    box-sizing: border-box !important;
+                }
+
+                body.role-gerente #sidebar .nav-link i {
+                    width: 22px !important;
+                    min-width: 22px !important;
+                    flex: 0 0 22px !important;
+                }
+
+                body.role-gerente #sidebar .nav-link span,
+                body.role-gerente #sidebar .nav-label,
+                body.role-gerente #sidebar .brand-name,
+                body.role-gerente #sidebar .brand-sub,
+                body.role-gerente #sidebar .sidebar-brand-text {
+                    opacity: 1 !important;
+                    transform: none !important;
+                    pointer-events: auto !important;
+                }
+
+                body.role-gerente #sidebar .nav-link span {
+                    display: block !important;
+                    flex: 1 1 auto !important;
+                    min-width: 0 !important;
+                    max-width: 100% !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    white-space: nowrap !important;
+                    font-size: 14px !important;
+                    letter-spacing: 0 !important;
+                }
+
+                body.role-gerente #sidebar .nav-label {
+                    display: block !important;
+                    margin: 9px 0 4px !important;
+                    padding: 0 10px !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    white-space: nowrap !important;
+                    font-size: 10px !important;
+                    letter-spacing: .12em !important;
+                }
+            }
+        </style>
 </head>
-<body>
+<body class="role-{{ auth()->user()->role ?? 'guest' }}">
 
 <div id="sidebar-overlay"></div>
 
@@ -3100,18 +3216,144 @@ function toggleTheme() {
     setTheme(current === 'dark' ? 'light' : 'dark');
 }
 
+function normalizeMobileSidebar() {
+    const sb = document.getElementById('sidebar');
+    if (!sb) return;
+
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    const isManager = document.body.classList.contains('role-gerente');
+    const navScroll = sb.querySelector('.nav-scroll');
+    const brand = sb.querySelector('.sidebar-brand');
+
+    if (!isMobile || !isManager) {
+        [sb, navScroll, brand, ...sb.querySelectorAll('.nav-link, .nav-link span, .nav-link i, .nav-label, .sidebar-brand-text, .brand-name, .brand-sub')]
+            .filter(Boolean)
+            .forEach((el) => el.removeAttribute('style'));
+        return;
+    }
+
+    Object.assign(sb.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: 'auto',
+        width: 'min(300px, 84vw)',
+        maxWidth: '84vw',
+        height: '100dvh',
+        minHeight: '100dvh',
+        margin: '0',
+        padding: '0',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        zIndex: '1200',
+        transform: sb.classList.contains('open') ? 'translate3d(0, 0, 0)' : 'translate3d(-105%, 0, 0)'
+    });
+
+    if (brand) {
+        Object.assign(brand.style, {
+            width: '100%',
+            maxWidth: '100%',
+            height: '62px',
+            minHeight: '62px',
+            padding: '0 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            gap: '10px',
+            overflow: 'hidden',
+            transform: 'none'
+        });
+    }
+
+    if (navScroll) {
+        Object.assign(navScroll.style, {
+            width: '100%',
+            display: 'flex',
+            flex: '1 1 auto',
+            minHeight: '0',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            padding: '10px',
+            overflowY: 'auto',
+            overflowX: 'hidden'
+        });
+    }
+
+    sb.querySelectorAll('.nav-link').forEach((link) => {
+        Object.assign(link.style, {
+            width: '100%',
+            maxWidth: '100%',
+            minHeight: '42px',
+            height: 'auto',
+            margin: '2px 0',
+            padding: '9px 10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            gap: '10px',
+            overflow: 'hidden',
+            boxSizing: 'border-box'
+        });
+    });
+
+    sb.querySelectorAll('.nav-link i').forEach((icon) => {
+        Object.assign(icon.style, {
+            width: '22px',
+            minWidth: '22px',
+            flex: '0 0 22px',
+            textAlign: 'center'
+        });
+    });
+
+    sb.querySelectorAll('.nav-link span').forEach((span) => {
+        Object.assign(span.style, {
+            display: 'block',
+            flex: '1 1 auto',
+            minWidth: '0',
+            maxWidth: '100%',
+            opacity: '1',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            transform: 'none',
+            pointerEvents: 'auto',
+            fontSize: '14px',
+            letterSpacing: '0'
+        });
+    });
+
+    sb.querySelectorAll('.nav-label').forEach((label) => {
+        Object.assign(label.style, {
+            display: 'block',
+            margin: '9px 0 4px',
+            padding: '0 10px',
+            opacity: '1',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            transform: 'none',
+            fontSize: '10px',
+            letterSpacing: '.12em'
+        });
+    });
+}
+
 function toggleSidebar() {
     const sb = document.getElementById('sidebar');
     const ov = document.getElementById('sidebar-overlay');
     sb.classList.toggle('open');
     ov.classList.toggle('show');
     document.body.classList.toggle('sidebar-open', sb.classList.contains('open'));
+    normalizeMobileSidebar();
 }
 
 document.getElementById('sidebar-overlay').addEventListener('click', () => {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebar-overlay').classList.remove('show');
     document.body.classList.remove('sidebar-open');
+    normalizeMobileSidebar();
 });
 
 document.querySelectorAll('#sidebar .nav-link').forEach((link) => {
@@ -3120,9 +3362,14 @@ document.querySelectorAll('#sidebar .nav-link').forEach((link) => {
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebar-overlay').classList.remove('show');
             document.body.classList.remove('sidebar-open');
+            normalizeMobileSidebar();
         }
     });
 });
+
+window.addEventListener('resize', normalizeMobileSidebar);
+document.addEventListener('DOMContentLoaded', normalizeMobileSidebar);
+normalizeMobileSidebar();
 
 function dismissToast(btn) {
     const toast = btn.closest('.toast-at');
