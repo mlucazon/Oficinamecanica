@@ -2,6 +2,105 @@
 @section('title', 'Notificacoes')
 @section('breadcrumb', 'Notificacoes')
 
+@push('styles')
+<style>
+    .notifications-mobile-list {
+        display: none;
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .notification-mobile-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        background: rgba(255,255,255,.02);
+    }
+
+    .notification-mobile-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .notification-mobile-head strong {
+        display: block;
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .notification-mobile-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .notification-mobile-field {
+        min-width: 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 9px;
+        background: rgba(255,255,255,.018);
+    }
+
+    .notification-mobile-field span {
+        display: block;
+        margin-bottom: 3px;
+        color: var(--text3);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .notification-mobile-field strong,
+    .notification-mobile-field small {
+        display: block;
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .notification-mobile-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    @media (max-width: 767.98px) {
+        .notifications-desktop-table {
+            display: none;
+        }
+
+        .notifications-mobile-list {
+            display: grid;
+        }
+
+        .notification-mobile-actions .btn,
+        .notification-mobile-actions form {
+            flex: 1 1 130px;
+        }
+
+        .notification-mobile-actions .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .notification-mobile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="d-flex justify-content-end mb-3">
     <form method="POST" action="{{ route('notificacoes.limpar') }}" onsubmit="return confirm('Limpar apenas o histórico de notificações?')">
@@ -154,7 +253,7 @@
                 @if($notificacoes_pendentes->isEmpty())
                     <p class="text-center text-muted py-4">Nenhuma solicitacao pendente no momento.</p>
                 @else
-                    <div class="table-responsive">
+                    <div class="table-responsive notifications-desktop-table">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
@@ -212,6 +311,64 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="notifications-mobile-list">
+                        @foreach($notificacoes_pendentes as $notif)
+                            <div class="notification-mobile-card">
+                                <div class="notification-mobile-head">
+                                    <div>
+                                        <strong>{{ $notif->os->numero }}</strong>
+                                        <span class="badge bg-warning text-dark mt-1">Pendente</span>
+                                    </div>
+                                    <small style="color: var(--text2);">{{ $notif->created_at->format('d/m H:i') }}</small>
+                                </div>
+
+                                <div class="notification-mobile-grid">
+                                    <div class="notification-mobile-field">
+                                        <span>Cliente</span>
+                                        <strong>{{ $notif->os->cliente->nome }}</strong>
+                                    </div>
+                                    <div class="notification-mobile-field">
+                                        <span>Veiculo</span>
+                                        <strong>{{ $notif->os->veiculo->marca }} {{ $notif->os->veiculo->modelo }}</strong>
+                                    </div>
+                                    <div class="notification-mobile-field">
+                                        <span>Placa</span>
+                                        <strong class="font-mono">{{ $notif->os->veiculo->placa }}</strong>
+                                    </div>
+                                    <div class="notification-mobile-field">
+                                        <span>Tipo</span>
+                                        <strong>{{ $notif->tipo === 'solicitacao_os' ? 'Solicitacao de OS' : 'Atualizacao' }}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="notification-mobile-actions">
+                                    <a href="{{ route('os.show', $notif->os) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                    @if($notif->tipo === 'solicitacao_os')
+                                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#aceitarModal{{ $notif->id }}">
+                                            <i class="bi bi-check-circle me-1"></i>Aceitar
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#recusarModal{{ $notif->id }}">
+                                            <i class="bi bi-x-circle me-1"></i>Recusar
+                                        </button>
+                                    @elseif($notif->os->status === 'orcamento_enviado_atendente')
+                                        <form method="POST" action="{{ route('os.orcamento.cliente', $notif->os_id) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button class="btn btn-warning btn-sm">
+                                                <i class="bi bi-send me-1"></i>Enviar
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">
+                                            Aguardando cliente
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 @endif
             </div>
         </div>
@@ -226,7 +383,7 @@
                 @if($notificacoes_respondidas->isEmpty())
                     <p class="text-center text-muted py-4">Nenhum historico para exibir.</p>
                 @else
-                    <div class="table-responsive">
+                    <div class="table-responsive notifications-desktop-table">
                         <table class="table table-sm mb-0">
                             <thead class="table-light">
                                 <tr>
@@ -267,6 +424,46 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
+                    <div class="notifications-mobile-list">
+                        @foreach($notificacoes_respondidas as $notif)
+                            <div class="notification-mobile-card">
+                                <div class="notification-mobile-head">
+                                    <div>
+                                        <strong>{{ $notif->os->numero }}</strong>
+                                        @if($notif->status === 'aceita')
+                                            <span class="badge bg-success mt-1">Aceita</span>
+                                        @else
+                                            <span class="badge bg-danger mt-1">Recusada</span>
+                                        @endif
+                                    </div>
+                                    <small style="color: var(--text2);">{{ $notif->updated_at->format('d/m H:i') }}</small>
+                                </div>
+
+                                <div class="notification-mobile-grid">
+                                    <div class="notification-mobile-field">
+                                        <span>Cliente</span>
+                                        <strong>{{ $notif->os->cliente->nome }}</strong>
+                                    </div>
+                                    <div class="notification-mobile-field">
+                                        <span>Resposta</span>
+                                        <strong>{{ $notif->status === 'aceita' ? 'Aceita' : 'Recusada' }}</strong>
+                                    </div>
+                                    @if($notif->mensagem)
+                                        <div class="notification-mobile-field" style="grid-column: 1 / -1;">
+                                            <span>Mensagem</span>
+                                            <small>{{ $notif->mensagem }}</small>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="notification-mobile-actions">
+                                    <a href="{{ route('os.show', $notif->os) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye me-1"></i>Ver OS
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 @endif
             </div>
