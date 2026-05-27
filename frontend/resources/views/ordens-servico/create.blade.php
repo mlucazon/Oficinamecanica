@@ -61,9 +61,9 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Vídeo do defeito (Opcional)  </label>
-                    <input type="file" name="video_defeito" id="video_defeito" class="form-control @error('video_defeito') is-invalid @enderror" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-m4v,video/3gpp,.mp4,.mov,.m4v,.webm,.ogg,.avi,.3gp">
+                    <input type="file" name="video_defeito" id="video_defeito" class="form-control @error('video_defeito') is-invalid @enderror" accept="video/*,.mp4,.mov,.m4v,.webm,.ogg,.avi,.3gp,.3gpp">
                     @error('video_defeito')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    <div class="form-text">Se o defeito for perceptível/audível, envie vídeo também.</div>
+                    <div class="form-text">Se o defeito for perceptivel/audivel, envie video tambem. Limite: 100 MB.</div>
 
                     <div class="mt-2" id="preview-video" style="display:none;">
                         <video id="video-preview" class="w-100 rounded" style="max-height:160px;object-fit:cover;" controls></video>

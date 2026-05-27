@@ -29,6 +29,12 @@ RUN apk add --no-cache \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd opcache zip
 
+RUN { \
+        echo 'upload_max_filesize=100M'; \
+        echo 'post_max_size=110M'; \
+        echo 'max_file_uploads=20'; \
+    } > /usr/local/etc/php/conf.d/uploads.ini
+
 RUN mkdir -p /run/nginx
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

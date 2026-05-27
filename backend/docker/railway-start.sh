@@ -19,4 +19,7 @@ fi
 php artisan storage:link --force --no-interaction || true
 
 echo "Starting Laravel on 0.0.0.0:${PORT}..."
-exec php artisan serve --host=0.0.0.0 --port="${PORT}"
+exec php \
+    -d upload_max_filesize=100M \
+    -d post_max_size=110M \
+    artisan serve --host=0.0.0.0 --port="${PORT}"
