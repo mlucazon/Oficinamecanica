@@ -199,10 +199,10 @@
         const panel = ensureMobilePanel();
         if (!parts.sidebar || !parts.overlay) return;
 
-        parts.sidebar.classList.toggle('open', open);
+        parts.sidebar.classList.remove('open');
         parts.overlay.classList.toggle('show', open);
         document.body.classList.toggle('sidebar-open', open);
-        parts.sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+        parts.sidebar.setAttribute('aria-hidden', 'true');
         if (panel) {
             panel.setAttribute('aria-hidden', open ? 'false' : 'true');
             panel.style.transform = open ? 'translate3d(0,0,0)' : 'translate3d(-105%,0,0)';
@@ -215,11 +215,15 @@
 
         ensureMobilePanel();
         parts.sidebar.setAttribute('aria-hidden', 'true');
-        parts.toggle.addEventListener('click', function (event) {
+
+        document.addEventListener('click', function (event) {
+            const toggle = event.target.closest('#sidebar-toggle, .sidebar-toggle');
+            if (!toggle || !isMobile()) return;
+
             event.preventDefault();
-            event.stopPropagation();
-            setOpen(!parts.sidebar.classList.contains('open'));
-        });
+            event.stopImmediatePropagation();
+            setOpen(!document.body.classList.contains('sidebar-open'));
+        }, true);
 
         parts.overlay.addEventListener('click', function () {
             setOpen(false);

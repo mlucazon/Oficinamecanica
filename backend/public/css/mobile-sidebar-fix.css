@@ -33,6 +33,8 @@
         box-sizing: border-box !important;
     }
 
+    #sidebar,
+    #sidebar.open,
     body.sidebar-open #sidebar {
         visibility: hidden !important;
         pointer-events: none !important;
