@@ -33,6 +33,11 @@
         box-sizing: border-box !important;
     }
 
+    body.sidebar-open #sidebar {
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+
     #sidebar.open,
     #sidebar.open:hover,
     #sidebar.open:focus-within,

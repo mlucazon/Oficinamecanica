@@ -2820,8 +2820,8 @@
 	    </style>
 
 	    @stack('styles')
-        <link href="/css/mobile-sidebar-fix.css?v=3" rel="stylesheet">
-        <script src="/js/mobile-sidebar-fix.js?v=2" defer></script>
+        <link href="/css/mobile-sidebar-fix.css?v=4" rel="stylesheet">
+        <script src="/js/mobile-sidebar-fix.js?v=3" defer></script>
 </head>
 <body>
 
