@@ -153,6 +153,9 @@
                                 </div>
 
                                 <div class="cliente-veiculo-actions">
+                                    <a href="{{ route('veiculos.show', $v->id) }}?cliente_id={{ $cliente->id }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
                                     <a href="{{ route('veiculos.edit',$v) }}" class="btn btn-sm btn-outline-secondary">
                                         <i class="bi bi-pencil me-1"></i>Editar
                                     </a>

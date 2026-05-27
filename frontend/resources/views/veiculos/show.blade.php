@@ -2,6 +2,10 @@
 @section('title', "$veiculo->marca $veiculo->modelo")
 @section('breadcrumb', "Veículos / $veiculo->marca $veiculo->modelo")
 
+@php
+    $clienteVoltarId = request('cliente_id') ?: $veiculo->cliente_id;
+@endphp
+
 @section('content')
 <div class="row justify-content-center"><div class="col-lg-8">
 <div class="card">
@@ -150,7 +154,7 @@
 @endif
 
 <div class="mt-4 d-flex gap-2">
-    <a href="{{ route('veiculos.index') }}" class="btn btn-outline-secondary">Voltar</a>
+    <a href="{{ $clienteVoltarId ? route('clientes.show', $clienteVoltarId) : route('veiculos.index') }}" class="btn btn-outline-secondary">Voltar</a>
 </div>
 </div></div>
 @endsection
