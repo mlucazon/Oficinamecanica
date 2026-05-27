@@ -2954,12 +2954,11 @@
 
         <div class="nav-label">Cadastros</div>
 
-        @php($currentRole = auth()->user()->role)
-        @if($currentRole === 'cliente')
+        @if(auth()->user()->role === 'cliente')
         <a href="{{ route('conta.veiculos') }}" class="nav-link {{ request()->routeIs('conta.veiculos') ? 'active' : '' }}">
             <i class="bi bi-car-front"></i> <span>Veículos</span>
         </a>
-        @elseif(in_array($currentRole, ['gerente', 'atendente', 'mecanico'], true))
+        @elseif(in_array(auth()->user()->role, ['gerente', 'atendente', 'mecanico'], true))
         <a href="{{ route('conta.clientes') }}" class="nav-link {{ request()->routeIs('conta.clientes') ? 'active' : '' }}">
             <i class="bi bi-people"></i> <span>Clientes</span>
         </a>
