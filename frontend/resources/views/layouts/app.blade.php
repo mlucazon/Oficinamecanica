@@ -2815,9 +2815,9 @@
         @verbatim
         <style id="mobile-sidebar-final-fix">
             @media (max-width: 900px) {
-                body.role-gerente #sidebar,
-                body.role-gerente #sidebar:hover,
-                body.role-gerente #sidebar:focus-within {
+                body #sidebar,
+                body #sidebar:hover,
+                body #sidebar:focus-within {
                     position: fixed !important;
                     inset: 0 auto 0 0 !important;
                     width: 300px !important;
@@ -2835,14 +2835,14 @@
                     z-index: 1200 !important;
                 }
 
-                body.role-gerente #sidebar.open,
-                body.role-gerente #sidebar.open:hover,
-                body.role-gerente #sidebar.open:focus-within {
+                body #sidebar.open,
+                body #sidebar.open:hover,
+                body #sidebar.open:focus-within {
                     transform: translate3d(0, 0, 0) !important;
                 }
 
-                body.role-gerente #sidebar .sidebar-brand,
-                body.role-gerente #sidebar .sidebar-brand.sidebar-brand-logo {
+                body #sidebar .sidebar-brand,
+                body #sidebar .sidebar-brand.sidebar-brand-logo {
                     width: 100% !important;
                     min-width: 0 !important;
                     max-width: 100% !important;
@@ -2857,7 +2857,7 @@
                     transform: none !important;
                 }
 
-                body.role-gerente #sidebar .nav-scroll {
+                body #sidebar .nav-scroll {
                     width: 100% !important;
                     min-width: 0 !important;
                     display: flex !important;
@@ -2870,10 +2870,10 @@
                     overflow-x: hidden !important;
                 }
 
-                body.role-gerente #sidebar .nav-link,
-                body.role-gerente #sidebar:hover .nav-link,
-                body.role-gerente #sidebar:focus-within .nav-link,
-                body.role-gerente #sidebar:not(:hover):not(:focus-within) .nav-link {
+                body #sidebar .nav-link,
+                body #sidebar:hover .nav-link,
+                body #sidebar:focus-within .nav-link,
+                body #sidebar:not(:hover):not(:focus-within) .nav-link {
                     width: 100% !important;
                     min-width: 0 !important;
                     max-width: 100% !important;
@@ -2889,23 +2889,23 @@
                     box-sizing: border-box !important;
                 }
 
-                body.role-gerente #sidebar .nav-link i {
+                body #sidebar .nav-link i {
                     width: 22px !important;
                     min-width: 22px !important;
                     flex: 0 0 22px !important;
                 }
 
-                body.role-gerente #sidebar .nav-link span,
-                body.role-gerente #sidebar .nav-label,
-                body.role-gerente #sidebar .brand-name,
-                body.role-gerente #sidebar .brand-sub,
-                body.role-gerente #sidebar .sidebar-brand-text {
+                body #sidebar .nav-link span,
+                body #sidebar .nav-label,
+                body #sidebar .brand-name,
+                body #sidebar .brand-sub,
+                body #sidebar .sidebar-brand-text {
                     opacity: 1 !important;
                     transform: none !important;
                     pointer-events: auto !important;
                 }
 
-                body.role-gerente #sidebar .nav-link span {
+                body #sidebar .nav-link span {
                     display: block !important;
                     flex: 1 1 auto !important;
                     min-width: 0 !important;
@@ -2917,7 +2917,7 @@
                     letter-spacing: 0 !important;
                 }
 
-                body.role-gerente #sidebar .nav-label {
+                body #sidebar .nav-label {
                     display: block !important;
                     margin: 9px 0 4px !important;
                     padding: 0 10px !important;
@@ -2931,8 +2931,7 @@
         </style>
         @endverbatim
 </head>
-@php($layoutRoleClass = 'role-' . (auth()->user()->role ?? 'guest'))
-<body class="{{ $layoutRoleClass }}">
+<body>
 
 <div id="sidebar-overlay"></div>
 
@@ -3224,11 +3223,10 @@ function normalizeMobileSidebar() {
     if (!sb) return;
 
     const isMobile = window.matchMedia('(max-width: 900px)').matches;
-    const isManager = document.body.classList.contains('role-gerente');
     const navScroll = sb.querySelector('.nav-scroll');
     const brand = sb.querySelector('.sidebar-brand');
 
-    if (!isMobile || !isManager) {
+    if (!isMobile) {
         [sb, navScroll, brand, ...sb.querySelectorAll('.nav-link, .nav-link span, .nav-link i, .nav-label, .sidebar-brand-text, .brand-name, .brand-sub')]
             .filter(Boolean)
             .forEach((el) => el.removeAttribute('style'));
