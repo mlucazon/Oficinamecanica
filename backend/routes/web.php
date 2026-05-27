@@ -161,7 +161,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Área do atendente - Cadastros
-    Route::middleware('role:atendente,mecanico')->prefix('minha-conta')->name('conta.')->group(function () {
+    Route::middleware('role:atendente,gerente,mecanico')->prefix('minha-conta')->name('conta.')->group(function () {
         Route::get('/clientes', [ClienteController::class, 'clientesLogados'])->name('clientes');
     });
 

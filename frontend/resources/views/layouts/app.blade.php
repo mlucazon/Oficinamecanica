@@ -2131,8 +2131,12 @@
                     min-height: 100dvh !important;
                     transform: translateX(-105%) !important;
                     border-right: 1px solid var(--border2) !important;
-                    overflow-y: auto !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    overflow: hidden !important;
                     overscroll-behavior: contain;
+                    transition: transform .24s ease !important;
+                    will-change: transform;
                 }
 
                 #sidebar.open {
@@ -2156,9 +2160,15 @@
                 }
 
                 #sidebar .nav-scroll {
+                    display: flex !important;
+                    flex: 1 1 auto !important;
+                    min-height: 0 !important;
+                    flex-direction: column !important;
                     align-items: stretch !important;
                     padding: .75rem !important;
                     gap: 2px !important;
+                    overflow-y: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
                 }
 
                 #sidebar .sidebar-brand,
@@ -2201,12 +2211,16 @@
                 }
 
                 #sidebar .nav-link {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 10px !important;
                     width: 100% !important;
                     min-height: 44px !important;
                     border-radius: 9px !important;
                     margin: 1px 0 !important;
                     padding: 10px 12px !important;
                     white-space: normal !important;
+                    flex-shrink: 0 !important;
                 }
 
                 #sidebar .nav-link span,
@@ -2675,11 +2689,11 @@
         <a href="{{ route('conta.veiculos') }}" class="nav-link {{ request()->routeIs('conta.veiculos') ? 'active' : '' }}">
             <i class="bi bi-car-front"></i> <span>Veículos</span>
         </a>
-        @elseif(auth()->user()->isAtendente() || auth()->user()->isMecanico())
+        @elseif(auth()->user()->isGerente() || auth()->user()->isAtendente() || auth()->user()->isMecanico())
         <a href="{{ route('conta.clientes') }}" class="nav-link {{ request()->routeIs('conta.clientes') ? 'active' : '' }}">
             <i class="bi bi-people"></i> <span>Clientes</span>
         </a>
-        @else
+        @elseif(!auth()->user()->isGerente())
         <a href="{{ route('veiculos.index') }}" class="nav-link {{ request()->routeIs('veiculos.*') ? 'active' : '' }}">
             <i class="bi bi-car-front"></i> <span>Veículos</span>
         </a>
