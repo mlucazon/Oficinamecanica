@@ -35,7 +35,10 @@
 
     #sidebar.open,
     #sidebar.open:hover,
-    #sidebar.open:focus-within {
+    #sidebar.open:focus-within,
+    body.sidebar-open #sidebar,
+    body.sidebar-open #sidebar:hover,
+    body.sidebar-open #sidebar:focus-within {
         transform: translate3d(0, 0, 0) !important;
     }
 
@@ -49,7 +52,8 @@
         transition: opacity .2s ease !important;
     }
 
-    #sidebar-overlay.show {
+    #sidebar-overlay.show,
+    body.sidebar-open #sidebar-overlay {
         opacity: 1 !important;
         pointer-events: auto !important;
     }

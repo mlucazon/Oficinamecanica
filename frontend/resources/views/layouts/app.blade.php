@@ -2820,7 +2820,8 @@
 	    </style>
 
 	    @stack('styles')
-        <link href="/css/mobile-sidebar-fix.css?v=1" rel="stylesheet">
+        <link href="/css/mobile-sidebar-fix.css?v=2" rel="stylesheet">
+        <script src="/js/mobile-sidebar-fix.js?v=1" defer></script>
 </head>
 <body>
 
@@ -2927,7 +2928,7 @@
 </nav>
 
 	<header id="topbar">
-	    <button class="sidebar-toggle no-print" type="button" onclick="toggleSidebar()" aria-label="Abrir menu">
+	    <button id="sidebar-toggle" class="sidebar-toggle no-print" type="button" aria-label="Abrir menu">
 	        <i class="bi bi-list"></i>
 	    </button>
 	    <div class="breadcrumb-wrap">
