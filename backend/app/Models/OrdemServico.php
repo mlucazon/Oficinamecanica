@@ -38,11 +38,30 @@ class OrdemServico extends Model
     {
         $servicos = $this->itens()->where('tipo','servico')->sum('valor_total');
         $pecas    = $this->itens()->where('tipo','peca')->sum('valor_total');
+        $subtotal = (float) $servicos + (float) $pecas;
+        $desconto = $this->temDescontoPrimeiraOs() ? round($subtotal * 0.30, 2) : (float) $this->valor_desconto;
+
         $this->update([
             'valor_servicos' => $servicos,
             'valor_pecas'    => $pecas,
-            'valor_total'    => ($servicos + $pecas) - $this->valor_desconto,
+            'valor_desconto' => $desconto,
+            'valor_total'    => max($subtotal - $desconto, 0),
         ]);
+    }
+
+    public function temDescontoPrimeiraOs(): bool
+    {
+        if (!$this->cliente_id || !$this->id) {
+            return false;
+        }
+
+        $primeiraOsId = static::query()
+            ->where('cliente_id', $this->cliente_id)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->value('id');
+
+        return (int) $primeiraOsId === (int) $this->id;
     }
 
     public function statusLabel(): string

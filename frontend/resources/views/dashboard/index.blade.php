@@ -14,6 +14,19 @@
     $heroTexto = 'Acompanhe solicitações, aprovações e o andamento dos serviços com uma visão clara, rápida e feita para o ritmo da oficina.';
 @endphp
 
+<section class="discount-home-banner">
+    <div class="discount-home-content">
+        <span class="discount-home-kicker">DESCONTO DE BOAS-VINDAS</span>
+        <h2>Cliente novo ganha 30% OFF na primeira OS</h2>
+        <p>O desconto e aplicado automaticamente no primeiro orcamento aprovado para voce cuidar do seu veiculo pagando menos.</p>
+    </div>
+    @if($user->isCliente())
+        <a href="{{ route('os.create') }}" class="btn btn-light">
+            <i class="bi bi-plus-lg me-1"></i>Usar meu desconto
+        </a>
+    @endif
+</section>
+
 <section class="home-hero">
     <div class="home-hero-copy">
         <span class="home-kicker">OFICINA MECÂNICA • AUTOTECH</span>
@@ -67,3 +80,70 @@
 </section>
 
 @endsection
+
+@push('styles')
+<style>
+    .discount-home-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        padding: clamp(1.1rem, 3vw, 2rem);
+        border: 1px solid rgba(255, 255, 255, .16);
+        border-radius: 8px;
+        background:
+            linear-gradient(135deg, rgba(213, 0, 0, .96), rgba(109, 0, 0, .94)),
+            radial-gradient(circle at 88% 20%, rgba(255, 255, 255, .20), transparent 34%);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, .22);
+        color: #fff;
+    }
+
+    .discount-home-kicker {
+        display: block;
+        margin-bottom: .35rem;
+        font-size: .78rem;
+        font-weight: 800;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+        opacity: .88;
+    }
+
+    .discount-home-banner h2 {
+        margin: 0;
+        font-size: clamp(2rem, 6vw, 4.4rem);
+        line-height: .96;
+        font-weight: 900;
+    }
+
+    .discount-home-banner p {
+        max-width: 760px;
+        margin: .7rem 0 0;
+        color: rgba(255, 255, 255, .86);
+        font-size: clamp(.98rem, 2vw, 1.12rem);
+    }
+
+    .discount-home-banner .btn {
+        flex: 0 0 auto;
+        color: #b00000;
+        font-weight: 800;
+        border: 0;
+    }
+
+    :root[data-theme="light"] .discount-home-banner {
+        border-color: rgba(140, 0, 0, .18);
+        box-shadow: 0 12px 30px rgba(120, 0, 0, .12);
+    }
+
+    @media (max-width: 700px) {
+        .discount-home-banner {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .discount-home-banner .btn {
+            width: 100%;
+        }
+    }
+</style>
+@endpush

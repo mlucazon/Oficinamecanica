@@ -333,6 +333,26 @@
                         </tbody>
                     </table>
                 </div>
+                @if($ordemServico->temDescontoPrimeiraOs() && (float) $ordemServico->valor_desconto > 0)
+                    @php
+                        $subtotalOrcamento = (float) $ordemServico->valor_servicos + (float) $ordemServico->valor_pecas;
+                    @endphp
+                    <div class="alert alert-success mt-3 mb-0 d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                        <div>
+                            <div class="fw-semibold">
+                                <i class="bi bi-stars me-1"></i>Desconto de cliente novo aplicado
+                            </div>
+                            <div class="small">
+                                Primeira OS com 30% de desconto no orcamento.
+                            </div>
+                        </div>
+                        <div class="text-end font-mono">
+                            <div>Subtotal: R$ {{ number_format($subtotalOrcamento, 2, ',', '.') }}</div>
+                            <div class="text-success">- R$ {{ number_format($ordemServico->valor_desconto, 2, ',', '.') }}</div>
+                            <strong>Total: R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</strong>
+                        </div>
+                    </div>
+                @endif
                 @if((auth()->user()->isAtendente() || auth()->user()->isGerente()) && $ordemServico->status === 'orcamento_enviado_atendente')
                     <form method="POST" action="{{ route('os.orcamento.cliente', $ordemServico->id) }}" class="text-end mt-3">
                         @csrf

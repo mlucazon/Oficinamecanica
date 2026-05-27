@@ -74,7 +74,7 @@
         <tr><td colspan="4" class="text-end fw-600">Serviços</td><td class="font-mono text-end">R$ {{ number_format($ordemServico->valor_servicos,2,',','.') }}</td></tr>
         <tr><td colspan="4" class="text-end fw-600">Peças</td><td class="font-mono text-end">R$ {{ number_format($ordemServico->valor_pecas,2,',','.') }}</td></tr>
         @if($ordemServico->valor_desconto > 0)
-        <tr><td colspan="4" class="text-end fw-600">Desconto</td><td class="font-mono text-end text-danger">- R$ {{ number_format($ordemServico->valor_desconto,2,',','.') }}</td></tr>
+        <tr><td colspan="4" class="text-end fw-600">Desconto{{ $ordemServico->temDescontoPrimeiraOs() ? ' cliente novo (30%)' : '' }}</td><td class="font-mono text-end text-danger">- R$ {{ number_format($ordemServico->valor_desconto,2,',','.') }}</td></tr>
         @endif
         <tr class="table-warning">
             <td colspan="4" class="text-end fw-700 fs-6">TOTAL</td>
