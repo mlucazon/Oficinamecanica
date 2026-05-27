@@ -139,8 +139,21 @@ class VeiculoController extends Controller
 
         $clienteId = $veiculo->cliente_id;
         $redirectClienteId = request('redirect_cliente_id');
+        $redirectContaVeiculos = request()->boolean('redirect_conta_veiculos');
+
+        if ($veiculo->ordens()->exists()) {
+            $redirect = $redirectContaVeiculos
+                ? redirect()->route('conta.veiculos')
+                : redirect()->back();
+
+            return $redirect->with('error', 'Nao e possivel remover este veiculo porque ele possui OS vinculada.');
+        }
 
         $veiculo->delete();
+
+        if ($redirectContaVeiculos) {
+            return redirect()->route('conta.veiculos')->with('success', 'Veiculo removido.');
+        }
 
         if ((string) $redirectClienteId === (string) $clienteId) {
             return redirect()->route('clientes.show', $clienteId)->with('success', 'Veiculo removido.');
