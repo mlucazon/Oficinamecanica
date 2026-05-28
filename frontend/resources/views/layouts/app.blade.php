@@ -1304,7 +1304,7 @@
         }
     </style>
 
-	    <link href="{{ asset('css/app.css') }}?v=27" rel="stylesheet">
+	    <link href="{{ asset('css/app.css') }}?v=28" rel="stylesheet">
 
 	    <style>
 	        @media (min-width: 901px) {
@@ -2955,6 +2955,49 @@
             :root[data-theme="light"] body #sidebar .nav-link.active i {
                 color: #8d0000 !important;
                 font-weight: 800 !important;
+            }
+
+            @media (min-width: 901px) {
+                :root[data-theme="light"] body #topbar {
+                    background: rgba(255,250,245,.94) !important;
+                    border-bottom: 1px solid rgba(31,25,20,.16) !important;
+                    box-shadow: 0 12px 30px rgba(66,45,25,.12) !important;
+                    color: #2c241e !important;
+                    backdrop-filter: blur(16px) !important;
+                }
+
+                :root[data-theme="light"] body #topbar .breadcrumb-wrap,
+                :root[data-theme="light"] body #topbar .breadcrumb-wrap .bc-current,
+                :root[data-theme="light"] body #topbar .topbar-user,
+                :root[data-theme="light"] body #topbar .topbar-user .user-info-name,
+                :root[data-theme="light"] body #topbar .topbar-user div,
+                :root[data-theme="light"] body #topbar .topbar-user i,
+                :root[data-theme="light"] body #topbar .topbar-btn,
+                :root[data-theme="light"] body #topbar .topbar-btn i,
+                :root[data-theme="light"] body #topbar .btn-logout {
+                    color: #2c241e !important;
+                    text-shadow: none !important;
+                }
+
+                :root[data-theme="light"] body #topbar .topbar-user div[style*="var(--text3)"] {
+                    color: #6c5d50 !important;
+                }
+
+                :root[data-theme="light"] body #topbar .topbar-user,
+                :root[data-theme="light"] body #topbar .topbar-btn,
+                :root[data-theme="light"] body #topbar .btn-logout {
+                    background: #fffaf5 !important;
+                    border: 1px solid rgba(31,25,20,.18) !important;
+                    box-shadow: 0 8px 20px rgba(66,45,25,.10) !important;
+                }
+
+                :root[data-theme="light"] body #topbar .topbar-user:hover,
+                :root[data-theme="light"] body #topbar .topbar-btn:hover,
+                :root[data-theme="light"] body #topbar .btn-logout:hover {
+                    background: #f3e7dd !important;
+                    border-color: rgba(176,0,0,.28) !important;
+                    color: #17130f !important;
+                }
             }
 	    </style>
 
