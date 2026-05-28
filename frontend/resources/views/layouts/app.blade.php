@@ -33,8 +33,8 @@
             --border2:      rgba(255,255,255,.10);
             --border3:      rgba(255,255,255,.16);
             --text:         #F0F0F0;
-            --text2:        #BBBBBB;
-            --text3:        #888888;
+            --text2:        #D0D0D0;
+            --text3:        #A8A8A8;
             --success:      #1F7A3A;
             --success-bg:   rgba(31,122,58,.12);
             --success-text: #4BC970;
@@ -1112,6 +1112,31 @@
 
         .text-decoration-none:hover { color: var(--red-h) !important; }
 
+        .text-muted,
+        .form-text,
+        .page-subtitle,
+        .card .small,
+        .table .small,
+        .list-group-item .small,
+        small {
+            color: var(--text2) !important;
+        }
+
+        .card .text-muted,
+        .table .text-muted,
+        .alert .text-muted,
+        .mini-notificacoes .text-muted {
+            color: var(--text2) !important;
+            opacity: 1 !important;
+        }
+
+        .card strong,
+        .card .fw-semibold,
+        .card .fw-bold,
+        .table strong {
+            color: var(--text) !important;
+        }
+
         .page-header {
             margin-bottom: 1.4rem;
         }
@@ -1279,7 +1304,7 @@
         }
     </style>
 
-	    <link href="{{ asset('css/app.css') }}?v=25" rel="stylesheet">
+	    <link href="{{ asset('css/app.css') }}?v=26" rel="stylesheet">
 
 	    <style>
 	        @media (min-width: 901px) {
