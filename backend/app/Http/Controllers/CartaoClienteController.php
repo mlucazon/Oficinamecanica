@@ -8,6 +8,24 @@ use Illuminate\Support\Facades\Schema;
 
 class CartaoClienteController extends Controller
 {
+    public function index()
+    {
+        abort_unless(auth()->user()->isCliente(), 403);
+
+        if (!Schema::hasTable('cartoes_cliente')) {
+            return redirect()
+                ->route('perfil.edit')
+                ->with('error', 'A area de cartoes ainda esta sendo preparada. Tente novamente em instantes.');
+        }
+
+        $cartoes = auth()->user()
+            ->cartoes()
+            ->latest()
+            ->get();
+
+        return view('cartoes.index', compact('cartoes'));
+    }
+
     public function create()
     {
         abort_unless(auth()->user()->isCliente(), 403);

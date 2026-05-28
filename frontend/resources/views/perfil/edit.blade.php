@@ -512,10 +512,18 @@
                     <i class="bi bi-credit-card-2-front me-2 text-warning"></i>Meus cartoes
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-end">
-                        <a href="{{ route('cartoes.create') }}" class="btn btn-outline-danger">
-                            <i class="bi bi-plus-lg me-1"></i>Adicionar cartao
-                        </a>
+                    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                        @if($user->cartoes->isEmpty())
+                            <div class="text-muted">Nenhum cartao cadastrado?</div>
+                            <a href="{{ route('cartoes.create') }}" class="btn btn-outline-danger">
+                                <i class="bi bi-plus-lg me-1"></i>Adicionar cartao
+                            </a>
+                        @else
+                            <div class="fw-500">{{ $user->cartoes->count() }} cartao{{ $user->cartoes->count() > 1 ? 'es' : '' }} cadastrado{{ $user->cartoes->count() > 1 ? 's' : '' }}</div>
+                            <a href="{{ route('cartoes.index') }}" class="btn btn-outline-danger">
+                                <i class="bi bi-eye me-1"></i>Ver cartoes
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
