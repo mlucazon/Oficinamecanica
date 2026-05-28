@@ -480,8 +480,15 @@
                 @endif
                 @if(auth()->user()->isCliente() && $ordemServico->status === 'aguardando_aprovacao')
                     @php
-                        $pixCobrancaOsUrl = 'https://nubank.com.br/cobrar/1htzrg/6a17451a-654b-4b18-b315-a5d43bb81b02';
-                        $pixQrOsUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCobrancaOsUrl);
+                        $pixCopiaColaOs = \App\Support\PixBrCode::gerar(
+                            '090.507.633-83',
+                            (float) $ordemServico->valor_total,
+                            'AUTOTECH PRO',
+                            'FORTALEZA',
+                            'OS' . $ordemServico->id,
+                            'OS ' . $ordemServico->numero
+                        );
+                        $pixQrOsUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCopiaColaOs);
                     @endphp
                     <div class="alert alert-info mt-3 d-none" id="pagamento-pix-os">
                         <div class="row g-3 align-items-center">
@@ -494,16 +501,14 @@
                                 <div class="fw-semibold mb-1">Aprovar orçamento e confirmar pagamento</div>
                                 <div class="small mb-2">
                                     Total da OS: <span class="font-mono fw-bold">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>.
-                                    Escaneie o Pix ou escolha a forma de pagamento abaixo.
+                                    Escaneie o QR Code ou copie o Pix copia e cola.
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
-                                    <a href="{{ $pixCobrancaOsUrl }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-qr-code me-1"></i>Abrir cobranca Pix
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="navigator.clipboard?.writeText('{{ $pixCobrancaOsUrl }}')">
-                                        <i class="bi bi-clipboard me-1"></i>Copiar link
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard?.writeText(@js($pixCopiaColaOs))">
+                                        <i class="bi bi-clipboard me-1"></i>Copiar Pix
                                     </button>
                                 </div>
+                                <textarea class="form-control font-mono small mt-2" rows="3" readonly>{{ $pixCopiaColaOs }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -639,8 +644,15 @@
 		                        @endif
 		                    @elseif($garantiaPagamento)
                                 @php
-                                    $pixCobrancaUrl = 'https://nubank.com.br/cobrar/1htzrg/6a17451a-654b-4b18-b315-a5d43bb81b02';
-                                    $pixQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . urlencode($pixCobrancaUrl);
+                                    $pixGarantiaCopiaCola = \App\Support\PixBrCode::gerar(
+                                        '090.507.633-83',
+                                        (float) $garantiaPagamento->valor,
+                                        'AUTOTECH PRO',
+                                        'FORTALEZA',
+                                        'GAR' . $garantiaPagamento->id,
+                                        'GARANTIA OS ' . $ordemServico->numero
+                                    );
+                                    $pixQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . urlencode($pixGarantiaCopiaCola);
                                 @endphp
 		                        <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
 		                            <div>
@@ -668,13 +680,11 @@
                                                 Escaneie o QR Code ou abra o link de cobranca. Depois confirme o pagamento abaixo para ativar a garantia.
                                             </div>
                                             <div class="d-flex gap-2 flex-wrap">
-                                                <a href="{{ $pixCobrancaUrl }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-qr-code me-1"></i>Abrir cobranca Pix
-                                                </a>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="navigator.clipboard?.writeText('{{ $pixCobrancaUrl }}')">
-                                                    <i class="bi bi-clipboard me-1"></i>Copiar link
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard?.writeText(@js($pixGarantiaCopiaCola))">
+                                                    <i class="bi bi-clipboard me-1"></i>Copiar Pix
                                                 </button>
                                             </div>
+                                            <textarea class="form-control font-mono small mt-2" rows="3" readonly>{{ $pixGarantiaCopiaCola }}</textarea>
                                         </div>
                                     </div>
 		                            <form method="POST" action="{{ route('garantias.pagar-oferta', $garantiaPagamento) }}" class="row g-3 align-items-end">
