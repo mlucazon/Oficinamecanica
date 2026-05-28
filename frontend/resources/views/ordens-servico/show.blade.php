@@ -190,16 +190,17 @@
 
     .os-show-page dl.row {
         display: grid;
-        grid-template-columns: minmax(118px, .55fr) 1fr;
+        grid-template-columns: minmax(112px, 150px) minmax(0, 1fr);
         gap: .55rem 0;
     }
 
     .os-show-page dl.row dt,
     .os-show-page dl.row dd {
+        width: auto;
+        max-width: none;
+        flex: none;
         margin: 0;
         min-height: 42px;
-        display: flex;
-        align-items: center;
         border-top: 1px solid var(--border2);
         border-bottom: 1px solid var(--border2);
         background: rgba(255,255,255,.025);
@@ -214,6 +215,8 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: .04em;
+        display: flex;
+        align-items: center;
     }
 
     .os-show-page dl.row dd {
@@ -223,6 +226,9 @@
         color: var(--text);
         font-weight: 700;
         overflow-wrap: anywhere;
+        display: block;
+        align-content: center;
+        min-width: 0;
     }
 
     .os-show-page #sintomas-texto {
