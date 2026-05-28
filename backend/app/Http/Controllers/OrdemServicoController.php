@@ -416,7 +416,7 @@ class OrdemServicoController extends Controller
                 'status' => 'pendente',
                 'mensagem' => $usandoGarantiaAtiva
                     ? 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ' usando a garantia ativa do veiculo. Nao ha cobranca para esta OS.'
-                    : 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ', efetuou o pagamento e vai comparecer na oficina. A OS aguarda finalizacao.',
+                    : 'O cliente ' . $ordemServico->cliente->nome . ' realizou o pagamento da OS ' . $ordemServico->numero . ' e vai comparecer na oficina. A OS aguarda finalizacao.',
             ]);
         });
 
@@ -430,7 +430,7 @@ class OrdemServicoController extends Controller
                 'status' => 'pendente',
                 'mensagem' => $usandoGarantiaAtiva
                     ? 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ' usando a garantia ativa do veiculo. Finalize o servico sem cobrar o cliente.'
-                    : 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ', efetuou o pagamento e vai comparecer na oficina. Finalize o servico quando estiver pronto.',
+                    : 'O cliente ' . $ordemServico->cliente->nome . ' pagou a OS ' . $ordemServico->numero . ' e quer prosseguir com o servico. Finalize a OS quando o servico estiver pronto.',
             ]);
         }
 

@@ -117,7 +117,7 @@
 	    <div class="col-lg-7">
 	        <div class="card h-100">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-person-lines-fill me-2 text-warning"></i>Avisos do atendente</span>
+                <span><i class="bi bi-person-lines-fill me-2 text-warning"></i>Avisos da oficina</span>
                 @if($notificacoes_pendentes->count() > 0)
                     <span class="badge bg-danger">{{ $notificacoes_pendentes->count() }}</span>
                 @endif
@@ -131,12 +131,23 @@
 	                                OS {{ $notif->os->numero }} - {{ $notif->os->cliente->nome }} - {{ $notif->created_at->format('d/m/Y H:i') }}
 	                            </div>
                         </div>
-                        <a href="{{ route('os.show', $notif->os_id) }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-eye me-1"></i>Ver OS
-                        </a>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <a href="{{ route('os.show', $notif->os_id) }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye me-1"></i>Ver OS
+                            </a>
+                            @if($notif->os->status === 'aguardando_finalizacao' && $notif->os->mecanico_id === auth()->user()->mecanico?->id)
+                                <form method="POST" action="{{ route('os.fechar', $notif->os_id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button class="btn btn-sm btn-primary" onclick="return confirm('Finalizar esta OS?')">
+                                        <i class="bi bi-flag-fill me-1"></i>Finalizar OS
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                 @empty
-	                    <p class="mb-0" style="color: var(--text2);">Nenhum aviso do atendente no momento.</p>
+	                    <p class="mb-0" style="color: var(--text2);">Nenhum aviso da oficina no momento.</p>
                 @endforelse
             </div>
         </div>
