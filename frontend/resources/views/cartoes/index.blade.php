@@ -30,7 +30,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                <span class="badge bg-secondary">Salvo em {{ $cartao->created_at->format('d/m/Y') }}</span>
+                                <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                                    <span class="badge bg-secondary">Salvo em {{ $cartao->created_at->format('d/m/Y') }}</span>
+                                    <form method="POST" action="{{ route('cartoes.destroy', $cartao) }}" onsubmit="return confirm('Remover este cartao?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash me-1"></i>Remover
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         @endforeach
                     </div>

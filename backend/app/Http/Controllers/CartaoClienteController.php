@@ -73,6 +73,18 @@ class CartaoClienteController extends Controller
         return back()->with('success', 'Cartao salvo no seu perfil.');
     }
 
+    public function destroy(CartaoCliente $cartao)
+    {
+        abort_unless(auth()->user()->isCliente(), 403);
+        abort_unless($cartao->user_id === auth()->id(), 403);
+
+        $cartao->delete();
+
+        return redirect()
+            ->route('cartoes.index')
+            ->with('success', 'Cartao removido com sucesso.');
+    }
+
     private function detectarBandeira(string $numero): string
     {
         if (str_starts_with($numero, '4')) {

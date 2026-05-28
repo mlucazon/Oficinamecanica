@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role:cliente')->get('/cartoes', [CartaoClienteController::class, 'index'])->name('cartoes.index');
     Route::middleware('role:cliente')->get('/cartoes/create', [CartaoClienteController::class, 'create'])->name('cartoes.create');
     Route::middleware('role:cliente')->patch('/cartoes', [CartaoClienteController::class, 'store'])->name('cartoes.store');
+    Route::middleware('role:cliente')->delete('/cartoes/{cartao}', [CartaoClienteController::class, 'destroy'])->name('cartoes.destroy');
     Route::get('/avaliacoes', [AvaliacaoOsController::class, 'index'])->name('avaliacoes.index');
     Route::middleware('role:cliente')->group(function () {
         Route::get('/avaliacoes/os/{ordemServico}/criar', [AvaliacaoOsController::class, 'create'])->name('avaliacoes.create');
