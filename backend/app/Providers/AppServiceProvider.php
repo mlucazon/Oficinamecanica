@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\ServiceHistoryReset;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 
@@ -22,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
     {
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
+        }
+
+        if (! $this->app->runningInConsole() && (config('app.env') === 'production' || env('RAILWAY_PUBLIC_DOMAIN'))) {
+            ServiceHistoryReset::runOnce('reset_service_history_20260528_force');
         }
     }
 }
