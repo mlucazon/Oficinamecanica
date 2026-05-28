@@ -408,7 +408,7 @@ class OrdemServicoController extends Controller
                 'lida' => true,
             ]);
 
-        User::whereIn('role', ['atendente', 'gerente'])->get()->each(function (User $user) use ($ordemServico) {
+        User::whereIn('role', ['atendente', 'gerente'])->get()->each(function (User $user) use ($ordemServico, $usandoGarantiaAtiva) {
             Notificacao::create([
                 'user_id' => $user->id,
                 'os_id' => $ordemServico->id,
