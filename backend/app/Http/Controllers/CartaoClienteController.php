@@ -42,6 +42,7 @@ class CartaoClienteController extends Controller
             'cartao_numero' => 'required|string|max:24',
             'cartao_nome' => 'required|string|max:120',
             'cartao_validade' => ['required', 'regex:/^\d{2}\/\d{2}$/'],
+            'cartao_cvv' => ['required', 'regex:/^\d{3,4}$/'],
         ]);
 
         $numero = preg_replace('/\D+/', '', $data['cartao_numero']);

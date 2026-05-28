@@ -563,7 +563,7 @@
                                         </div>
                                         <div class="col-md-5">
                                             <label class="form-label">Numero do cartao</label>
-                                            <input type="text" name="cartao_numero" class="form-control payment-card-field" inputmode="numeric" maxlength="24" placeholder="0000 0000 0000 0000">
+                                            <input type="text" name="cartao_numero" class="form-control payment-card-field js-card-number" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label">Nome impresso</label>
@@ -571,11 +571,11 @@
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label">Validade</label>
-                                            <input type="text" name="cartao_validade" class="form-control payment-card-field" maxlength="5" placeholder="MM/AA">
+                                            <input type="text" name="cartao_validade" class="form-control payment-card-field js-card-validity" inputmode="numeric" maxlength="5" placeholder="MM/AA">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label">CVV</label>
-                                            <input type="text" name="cartao_cvv" class="form-control payment-card-field" inputmode="numeric" maxlength="4" placeholder="123">
+                                            <input type="text" name="cartao_cvv" class="form-control payment-card-field js-card-cvv" inputmode="numeric" maxlength="4" placeholder="123">
                                         </div>
                                         <div class="col-md-4 d-none" id="parcelas-cartao-os">
                                             <label class="form-label">Parcelas</label>
@@ -823,6 +823,37 @@ document.addEventListener('DOMContentLoaded', () => {
         cartaoOpcao?.addEventListener('change', atualizarPagamentoOs);
         atualizarPagamentoOs();
     }
+
+    document.querySelectorAll('.js-card-number').forEach((input) => {
+        const formatCardNumber = () => {
+            input.value = input.value
+                .replace(/\D/g, '')
+                .slice(0, 16)
+                .replace(/(\d{4})(?=\d)/g, '$1 ');
+        };
+
+        input.addEventListener('input', formatCardNumber);
+        formatCardNumber();
+    });
+
+    document.querySelectorAll('.js-card-validity').forEach((input) => {
+        const formatValidity = () => {
+            const value = input.value.replace(/\D/g, '').slice(0, 4);
+            input.value = value.length > 2 ? `${value.slice(0, 2)}/${value.slice(2)}` : value;
+        };
+
+        input.addEventListener('input', formatValidity);
+        formatValidity();
+    });
+
+    document.querySelectorAll('.js-card-cvv').forEach((input) => {
+        const formatCvv = () => {
+            input.value = input.value.replace(/\D/g, '').slice(0, 4);
+        };
+
+        input.addEventListener('input', formatCvv);
+        formatCvv();
+    });
 });
 
 function atualizarPagamentoOs() {
