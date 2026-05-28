@@ -1304,7 +1304,7 @@
         }
     </style>
 
-	    <link href="{{ asset('css/app.css') }}?v=26" rel="stylesheet">
+	    <link href="{{ asset('css/app.css') }}?v=27" rel="stylesheet">
 
 	    <style>
 	        @media (min-width: 901px) {
@@ -2893,6 +2893,66 @@
             :root[data-theme="light"] html body #sidebar .nav-link.active,
             :root[data-theme="light"] html body #sidebar .nav-link.active span,
             :root[data-theme="light"] html body #sidebar .nav-link.active i {
+                color: #8d0000 !important;
+                font-weight: 800 !important;
+            }
+
+            :root[data-theme="light"] body #sidebar,
+            :root[data-theme="light"] body #sidebar:hover,
+            :root[data-theme="light"] body #sidebar:focus-within {
+                background: #fffaf5 !important;
+                border-right-color: rgba(31,25,20,.18) !important;
+                box-shadow: 18px 0 48px rgba(66,45,25,.16) !important;
+                color: #2c241e !important;
+            }
+
+            :root[data-theme="light"] body #sidebar::before {
+                background: #fffaf5 !important;
+            }
+
+            :root[data-theme="light"] body #sidebar .sidebar-brand,
+            :root[data-theme="light"] body #sidebar .sidebar-brand.sidebar-brand-logo,
+            :root[data-theme="light"] body #sidebar .sidebar-footer {
+                background: transparent !important;
+                border-color: rgba(31,25,20,.16) !important;
+                box-shadow: none !important;
+            }
+
+            :root[data-theme="light"] body #sidebar .brand-name,
+            :root[data-theme="light"] body #sidebar .nav-link,
+            :root[data-theme="light"] body #sidebar .nav-link span,
+            :root[data-theme="light"] body #sidebar .nav-link i,
+            :root[data-theme="light"] body #sidebar .user-info-name,
+            :root[data-theme="light"] body #sidebar .btn-logout {
+                color: #2c241e !important;
+                text-shadow: none !important;
+            }
+
+            :root[data-theme="light"] body #sidebar .brand-sub,
+            :root[data-theme="light"] body #sidebar .nav-label,
+            :root[data-theme="light"] body #sidebar .user-role-badge {
+                color: #6c5d50 !important;
+                text-shadow: none !important;
+            }
+
+            :root[data-theme="light"] body #sidebar .nav-link {
+                background: transparent !important;
+                border-color: transparent !important;
+            }
+
+            :root[data-theme="light"] body #sidebar .nav-link:hover {
+                background: rgba(176,0,0,.08) !important;
+                color: #17130f !important;
+            }
+
+            :root[data-theme="light"] body #sidebar .nav-link.active {
+                background: rgba(176,0,0,.12) !important;
+                border-left-color: var(--red-h) !important;
+            }
+
+            :root[data-theme="light"] body #sidebar .nav-link.active,
+            :root[data-theme="light"] body #sidebar .nav-link.active span,
+            :root[data-theme="light"] body #sidebar .nav-link.active i {
                 color: #8d0000 !important;
                 font-weight: 800 !important;
             }
