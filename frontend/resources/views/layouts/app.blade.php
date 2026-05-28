@@ -1306,7 +1306,7 @@
         }
     </style>
 
-	    <link href="{{ asset('css/app.css') }}?v=29" rel="stylesheet">
+	    <link href="{{ asset('css/app.css') }}?v=30" rel="stylesheet">
 
 	    <style>
 	        @media (min-width: 901px) {

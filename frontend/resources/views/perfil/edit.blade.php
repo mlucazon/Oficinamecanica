@@ -596,9 +596,9 @@
                     </span>
                 </div>
                 <div class="card-body">
-                    <div class="saved-card-summary">
+                    <div class="info-action-block">
                         <div class="d-flex align-items-center gap-3">
-                            <span class="saved-card-summary-icon">
+                            <span class="info-action-icon">
                                 <i class="bi bi-credit-card"></i>
                             </span>
                             <div>
@@ -612,7 +612,7 @@
                             </div>
                         </div>
 
-                        <div>
+                        <div class="info-action-actions">
                             @if($user->cartoes->isEmpty())
                                 <a href="{{ route('cartoes.create') }}" class="btn btn-primary">
                                     <i class="bi bi-plus-lg me-1"></i>Cadastrar cartao
@@ -628,15 +628,26 @@
             </div>
 
             <div class="card mt-3">
-                <div class="card-header">Senha</div>
-                <div class="card-body d-flex align-items-center justify-content-between gap-3 flex-wrap">
-                    <div>
+                <div class="card-header d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                    <span><i class="bi bi-key me-2 text-warning"></i>Senha</span>
+                    @if($user->password_change_requested_at)
+                        <span class="badge bg-secondary">Solicitada</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    <div class="info-action-block">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="info-action-icon">
+                            <i class="bi bi-key"></i>
+                        </span>
+                        <div>
                         <div class="fw-500">Troca de senha</div>
                         <div class="text-muted small">
                             {{ $user->password_change_requested_at ? 'Solicitada em '.$user->password_change_requested_at->format('d/m/Y H:i') : 'Solicite ao gerente uma alteração de senha.' }}
                         </div>
                     </div>
-	                    <div class="text-end">
+                    </div>
+	                    <div class="info-action-actions">
 	                        @if($user->password_change_requested_at)
 	                            <div class="d-flex flex-column align-items-end gap-2">
 	                                <button class="btn btn-outline-danger" disabled>
@@ -661,6 +672,7 @@
 	                        <button type="button" class="btn btn-link btn-sm text-danger text-decoration-none px-0 mt-1" id="btn-trocar-senha-manual">
 	                            ou trocar manualmente
 	                        </button>
+                        </div>
                     </div>
                 </div>
                 <div class="border-top px-3 py-3" id="painel-trocar-senha-manual" style="{{ $errors->passwordUpdate->any() ? '' : 'display:none;' }}">
