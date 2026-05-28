@@ -794,6 +794,33 @@
                     </form>
                 @endif
                 @if(auth()->user()->isCliente() && $ordemServico->status === 'aguardando_aprovacao')
+                    @if($ordemServico->usaGarantiaAtiva())
+                        <div class="payment-panel mt-3">
+                            <div class="alert alert-success mb-3">
+                                <div class="fw-semibold mb-1">
+                                    <i class="bi bi-shield-check me-1"></i>Garantia ativa acionada
+                                </div>
+                                <div class="small">
+                                    Esta OS foi aberta para o mesmo veiculo dentro do prazo de garantia. O atendimento sera coberto pela garantia, entao nao ha valor a pagar.
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                <div>
+                                    <div class="text-muted small">Valor coberto pela garantia</div>
+                                    <div class="font-mono fs-5 fw-bold">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</div>
+                                </div>
+                                <form method="POST" action="{{ route('os.cliente.aprovar', $ordemServico->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="metodo_pagamento" value="dinheiro">
+                                    <input type="hidden" name="garantia_opcao" value="sem">
+                                    <button class="btn btn-success" onclick="return confirm('Confirmar uso da garantia para esta OS?')">
+                                        <i class="bi bi-shield-check me-1"></i>Acionar garantia
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
                     @php
                         $valorGarantiaPagamento = $ordemServico->valorGarantiaAdicional();
                         $totalComGarantiaPagamento = (float) $ordemServico->valor_total + $valorGarantiaPagamento;
@@ -957,6 +984,7 @@
                             <input type="hidden" name="motivo_recusa" value="Cliente recusou o orcamento">
                         </form>
                     </div>
+                    @endif
                 @endif
             </div>
 	        </div>

@@ -79,6 +79,11 @@ class OrdemServico extends Model
         return round(min(450, max(60, $base * 0.12)), 2);
     }
 
+    public function usaGarantiaAtiva(): bool
+    {
+        return str_contains((string) $this->observacoes, 'garantia ativa do veiculo');
+    }
+
     public function statusLabel(): string
     {
         return match($this->status) {

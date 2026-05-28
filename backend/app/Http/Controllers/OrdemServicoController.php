@@ -338,7 +338,9 @@ class OrdemServicoController extends Controller
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'Seu orcamento da OS ' . $ordemServico->numero . ' esta pronto. Aprove e confirme o pagamento para a oficina finalizar a OS, ou recuse o servico.',
+                'mensagem' => $ordemServico->usaGarantiaAtiva()
+                    ? 'Seu diagnostico da OS ' . $ordemServico->numero . ' esta pronto. Confirme o acionamento da garantia para a oficina finalizar o servico sem cobranca.'
+                    : 'Seu orcamento da OS ' . $ordemServico->numero . ' esta pronto. Aprove e confirme o pagamento para a oficina finalizar a OS, ou recuse o servico.',
             ]);
         }
 
@@ -348,6 +350,7 @@ class OrdemServicoController extends Controller
     public function clienteAprovar(Request $request, $id)
     {
         $ordemServico = OrdemServico::with(['cliente', 'mecanico.user'])->findOrFail($id);
+        $usandoGarantiaAtiva = $ordemServico->usaGarantiaAtiva();
 
         if (!Auth::user()->isCliente() || $ordemServico->cliente?->user_id !== Auth::id()) {
             abort(403);
@@ -383,11 +386,13 @@ class OrdemServicoController extends Controller
             'status' => 'aguardando_finalizacao',
         ]);
 
-        $this->registrarEscolhaGarantiaNoPagamento(
-            $ordemServico,
-            $request->input('garantia_opcao'),
-            $request->input('metodo_pagamento')
-        );
+        if (! $usandoGarantiaAtiva) {
+            $this->registrarEscolhaGarantiaNoPagamento(
+                $ordemServico,
+                $request->input('garantia_opcao'),
+                $request->input('metodo_pagamento')
+            );
+        }
 
         Notificacao::where('user_id', Auth::id())
             ->where('os_id', $ordemServico->id)
@@ -403,7 +408,9 @@ class OrdemServicoController extends Controller
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ', efetuou o pagamento e vai comparecer na oficina. A OS aguarda finalizacao.',
+                'mensagem' => $usandoGarantiaAtiva
+                    ? 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ' usando a garantia ativa do veiculo. Nao ha cobranca para esta OS.'
+                    : 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ', efetuou o pagamento e vai comparecer na oficina. A OS aguarda finalizacao.',
             ]);
         });
 
@@ -415,11 +422,15 @@ class OrdemServicoController extends Controller
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ', efetuou o pagamento e vai comparecer na oficina. Finalize o servico quando estiver pronto.',
+                'mensagem' => $usandoGarantiaAtiva
+                    ? 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ' usando a garantia ativa do veiculo. Finalize o servico sem cobrar o cliente.'
+                    : 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ', efetuou o pagamento e vai comparecer na oficina. Finalize o servico quando estiver pronto.',
             ]);
         }
 
-        return back()->with('success', 'Pagamento confirmado. A OS agora esta aguardando finalizacao pela oficina.');
+        return back()->with('success', $usandoGarantiaAtiva
+            ? 'Garantia acionada. A OS agora esta aguardando finalizacao pela oficina.'
+            : 'Pagamento confirmado. A OS agora esta aguardando finalizacao pela oficina.');
     }
 
     public function clienteRecusar(Request $request, $id)
@@ -582,6 +593,10 @@ class OrdemServicoController extends Controller
     private function criarOfertaGarantia(OrdemServico $ordemServico): void
     {
         $ordemServico->loadMissing(['cliente.user', 'itens', 'garantias']);
+
+        if ($ordemServico->usaGarantiaAtiva()) {
+            return;
+        }
 
         if ($ordemServico->garantias()->exists()) {
             return;
