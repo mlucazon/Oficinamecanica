@@ -9,9 +9,9 @@ use App\Models\Mecanico;
 use App\Models\User;
 use App\Models\Notificacao;
 use App\Models\Garantia;
+use App\Support\CartoesClienteSchema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class OrdemServicoController extends Controller
@@ -223,7 +223,8 @@ class OrdemServicoController extends Controller
         $pecas     = \App\Models\Peca::where('ativo', true)->orderBy('nome')->get();
         $cartoesCliente = collect();
 
-        if (Auth::user()->isCliente() && Schema::hasTable('cartoes_cliente')) {
+        if (Auth::user()->isCliente()) {
+            CartoesClienteSchema::ensure();
             $cartoesCliente = Auth::user()->cartoes()->latest()->get();
         }
 
@@ -359,8 +360,9 @@ class OrdemServicoController extends Controller
         ]);
 
         if ($request->metodo_pagamento === 'cartao' && $request->cartao_opcao === 'salvo') {
+            CartoesClienteSchema::ensure();
+
             abort_unless(
-                Schema::hasTable('cartoes_cliente') &&
                 Auth::user()->cartoes()->whereKey($request->integer('cartao_salvo_id'))->exists(),
                 403
             );

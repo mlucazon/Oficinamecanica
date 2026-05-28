@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\Estado;
+use App\Support\CartoesClienteSchema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -16,7 +16,8 @@ class ProfileController extends Controller
     {
         $user = auth()->user()->load(['cliente', 'mecanico']);
 
-        if (Schema::hasTable('cartoes_cliente')) {
+        if ($user->isCliente()) {
+            CartoesClienteSchema::ensure();
             $user->load('cartoes');
         } else {
             $user->setRelation('cartoes', collect());

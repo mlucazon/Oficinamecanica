@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartaoCliente;
+use App\Support\CartoesClienteSchema;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 
 class CartaoClienteController extends Controller
 {
@@ -12,11 +12,7 @@ class CartaoClienteController extends Controller
     {
         abort_unless(auth()->user()->isCliente(), 403);
 
-        if (!Schema::hasTable('cartoes_cliente')) {
-            return redirect()
-                ->route('perfil.edit')
-                ->with('error', 'A area de cartoes ainda esta sendo preparada. Tente novamente em instantes.');
-        }
+        CartoesClienteSchema::ensure();
 
         $cartoes = auth()->user()
             ->cartoes()
@@ -30,11 +26,7 @@ class CartaoClienteController extends Controller
     {
         abort_unless(auth()->user()->isCliente(), 403);
 
-        if (!Schema::hasTable('cartoes_cliente')) {
-            return redirect()
-                ->route('perfil.edit')
-                ->with('error', 'A area de cartoes ainda esta sendo preparada. Tente novamente em instantes.');
-        }
+        CartoesClienteSchema::ensure();
 
         return view('cartoes.create');
     }
@@ -43,9 +35,7 @@ class CartaoClienteController extends Controller
     {
         abort_unless(auth()->user()->isCliente(), 403);
 
-        if (!Schema::hasTable('cartoes_cliente')) {
-            return back()->with('error', 'A area de cartoes ainda esta sendo preparada. Tente novamente em instantes.');
-        }
+        CartoesClienteSchema::ensure();
 
         $data = $request->validate([
             'tipo_cartao' => 'required|in:debito,credito',
