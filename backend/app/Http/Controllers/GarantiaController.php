@@ -12,7 +12,7 @@ class GarantiaController extends Controller
     {
         $user = auth()->user();
 
-        $query = Garantia::with('ordemServico.cliente')->orderByDesc('data_fim');
+        $query = Garantia::with(['ordemServico.cliente', 'ordemServico.veiculo'])->orderByDesc('data_fim');
 
         if ($user->isCliente()) {
             $query->whereHas('ordemServico.cliente', fn($q) => $q->where('user_id', $user->id));

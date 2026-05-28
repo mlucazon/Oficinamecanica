@@ -98,6 +98,7 @@
 @endpush
 
 @section('content')
+@php($mostrarVeiculo = auth()->user()->isCliente())
 <div class="card warranties-card">
     <div class="card-header">
         <i class="bi bi-shield-check me-2"></i>Garantias
@@ -109,7 +110,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>OS</th>
-                            <th>Cliente</th>
+                            <th>{{ $mostrarVeiculo ? 'Veiculo' : 'Cliente' }}</th>
                             <th>Descrição</th>
                             <th>Válida até</th>
                             <th>Situação</th>
@@ -120,7 +121,14 @@
                         @foreach($garantias as $g)
                             <tr>
                                 <td class="font-mono small">{{ $g->ordemServico->numero }}</td>
-                                <td>{{ $g->ordemServico->cliente->nome }}</td>
+                                <td>
+                                    @if($mostrarVeiculo)
+                                        {{ $g->ordemServico->veiculo->marca }} {{ $g->ordemServico->veiculo->modelo }}
+                                        <br><span class="badge bg-light text-dark font-mono">{{ $g->ordemServico->veiculo->placa }}</span>
+                                    @else
+                                        {{ $g->ordemServico->cliente->nome }}
+                                    @endif
+                                </td>
                                 <td>{{ $g->descricao }}</td>
                                 <td>{{ $g->data_fim->format('d/m/Y') }}</td>
                                 <td>
@@ -151,7 +159,14 @@
                         <div class="warranty-card-head">
                             <div>
                                 <strong class="font-mono">OS {{ $g->ordemServico->numero }}</strong>
-                                <div class="warranty-customer">{{ $g->ordemServico->cliente->nome }}</div>
+                                <div class="warranty-customer">
+                                    @if($mostrarVeiculo)
+                                        {{ $g->ordemServico->veiculo->marca }} {{ $g->ordemServico->veiculo->modelo }}
+                                        <span class="font-mono">({{ $g->ordemServico->veiculo->placa }})</span>
+                                    @else
+                                        {{ $g->ordemServico->cliente->nome }}
+                                    @endif
+                                </div>
                             </div>
                             <div>
                                 @if($g->acionada)
