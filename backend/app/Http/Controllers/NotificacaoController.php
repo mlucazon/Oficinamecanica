@@ -162,6 +162,26 @@ class NotificacaoController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function confirmar(Notificacao $notificacao)
+    {
+        if ($notificacao->user_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'Sem permissao.');
+        }
+
+        if (! auth()->user()->isCliente()) {
+            abort(403);
+        }
+
+        $notificacao->update([
+            'status' => 'aceita',
+            'lida' => true,
+        ]);
+
+        return redirect()
+            ->route('notificacoes.index')
+            ->with('success', 'Notificacao confirmada.');
+    }
+
     public function marcarTodasLidas()
     {
         Notificacao::where('user_id', auth()->id())

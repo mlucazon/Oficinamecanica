@@ -126,6 +126,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [NotificacaoController::class, 'index'])->name('index');
         Route::post('/{notificacao}/aceitar', [NotificacaoController::class, 'aceitar'])->name('aceitar');
 	    Route::post('/{notificacao}/recusar', [NotificacaoController::class, 'recusar'])->name('recusar');
+	    Route::post('/{notificacao}/confirmar', [NotificacaoController::class, 'confirmar'])->name('confirmar');
 	    Route::post('/{notificacao}/lida', [NotificacaoController::class, 'marcarLida'])->name('lida');
 	    Route::post('/marcar-todas-lidas', [NotificacaoController::class, 'marcarTodasLidas'])->name('marcar-todas-lidas');
 	    Route::delete('/limpar/todas', [NotificacaoController::class, 'limpar'])->name('limpar');

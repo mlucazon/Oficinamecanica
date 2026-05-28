@@ -546,6 +546,7 @@ class OrdemServicoController extends Controller
                         'lida' => true,
                     ]);
             }
+            $this->notificarClienteVeiculoPronto($ordemServico);
             $this->criarOfertaGarantia($ordemServico);
         }
 
@@ -591,9 +592,40 @@ class OrdemServicoController extends Controller
                 ]);
         }
 
+        $this->notificarClienteVeiculoPronto($ordemServico);
         $this->criarOfertaGarantia($ordemServico);
 
         return back()->with('success', 'Ordem de serviço finalizada com sucesso!');
+    }
+
+    private function notificarClienteVeiculoPronto(OrdemServico $ordemServico): void
+    {
+        $ordemServico->loadMissing(['cliente.user', 'veiculo']);
+
+        if (! $ordemServico->cliente?->user_id) {
+            return;
+        }
+
+        $jaExiste = Notificacao::where('user_id', $ordemServico->cliente->user_id)
+            ->where('os_id', $ordemServico->id)
+            ->where('status', 'pendente')
+            ->where('mensagem', 'like', '%buscar seu veiculo%')
+            ->exists();
+
+        if ($jaExiste) {
+            return;
+        }
+
+        $veiculo = trim(($ordemServico->veiculo?->marca ?? '') . ' ' . ($ordemServico->veiculo?->modelo ?? ''));
+        $veiculoTexto = $veiculo !== '' ? " ({$veiculo})" : '';
+
+        Notificacao::create([
+            'user_id' => $ordemServico->cliente->user_id,
+            'os_id' => $ordemServico->id,
+            'tipo' => 'atualizacao',
+            'status' => 'pendente',
+            'mensagem' => 'Sua OS ' . $ordemServico->numero . ' foi finalizada. Voce ja pode ir buscar seu veiculo' . $veiculoTexto . ' na oficina.',
+        ]);
     }
 
     private function criarOfertaGarantia(OrdemServico $ordemServico): void
