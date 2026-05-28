@@ -3227,6 +3227,106 @@
                     color: #6c5d50 !important;
                 }
             }
+
+            /* Global responsive polish: keeps dense admin screens readable on desktop and mobile. */
+            #content,
+            #content * {
+                min-width: 0;
+            }
+
+            #content img,
+            #content video,
+            #content canvas,
+            #content iframe {
+                max-width: 100%;
+            }
+
+            #content :where(.card, .alert, .info-block, .notification-card, .table-responsive, .modal-content) {
+                max-width: 100%;
+            }
+
+            #content :where(p, span, strong, small, label, td, th, dd, dt, .btn, .badge, .form-control, .form-select) {
+                overflow-wrap: anywhere;
+            }
+
+            #content :where(.btn, .badge) {
+                white-space: normal;
+            }
+
+            #content :where(.d-flex) {
+                min-width: 0;
+            }
+
+            #content :where(.table-responsive) {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            @media (min-width: 901px) {
+                #content {
+                    max-width: 100vw;
+                    overflow-x: hidden;
+                }
+
+                #content .card {
+                    overflow: hidden;
+                }
+            }
+
+            @media (max-width: 900px) {
+                #content {
+                    max-width: 100vw !important;
+                    overflow-x: hidden !important;
+                }
+
+                #content :where(.card-header, .card-body, .card-footer) {
+                    min-width: 0 !important;
+                }
+
+                #content :where(.card-body.p-0) {
+                    overflow-x: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
+                }
+
+                #content :where(.card-header.d-flex, .card-body.d-flex, .card-footer.d-flex) {
+                    align-items: stretch !important;
+                    flex-wrap: wrap !important;
+                }
+
+                #content :where(.card-header .btn, .card-body > .btn, .card-body > form > .btn) {
+                    max-width: 100%;
+                }
+
+                #content :where(.row) {
+                    max-width: 100% !important;
+                }
+
+                #content :where(input, select, textarea, button) {
+                    max-width: 100%;
+                }
+            }
+
+            @media (max-width: 576px) {
+                #content :where(.btn-group, .btn-toolbar) {
+                    display: grid !important;
+                    grid-template-columns: 1fr !important;
+                    width: 100% !important;
+                }
+
+                #content :where(.btn-group .btn, .btn-toolbar .btn) {
+                    width: 100% !important;
+                    border-radius: 8px !important;
+                }
+
+                #content :where(.table) {
+                    min-width: 620px;
+                }
+
+                #content :where(.modal-footer, .modal-header) {
+                    gap: .5rem;
+                    flex-wrap: wrap;
+                }
+            }
 	    </style>
 
 	    @stack('styles')
