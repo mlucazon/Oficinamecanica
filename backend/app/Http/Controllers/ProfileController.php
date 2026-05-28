@@ -13,7 +13,7 @@ class ProfileController extends Controller
 {
     public function edit()
     {
-        $user = auth()->user()->load(['cliente', 'mecanico']);
+        $user = auth()->user()->load(['cliente', 'mecanico', 'cartoes']);
         $estados = Estado::with('cidades')->orderBy('nome')->get();
         $ordensMecanico = collect();
 

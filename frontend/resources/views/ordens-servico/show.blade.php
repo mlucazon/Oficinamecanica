@@ -570,6 +570,9 @@
                                 <button class="btn btn-success" onclick="return confirm('Confirmar pagamento e aprovar esta OS?')">
                                     <i class="bi bi-credit-card me-1"></i>Aprovar e pagar
                                 </button>
+                                <button type="submit" class="btn btn-outline-secondary d-none" id="btn-salvar-cartao-os" formaction="{{ route('cartoes.store') }}">
+                                    <i class="bi bi-credit-card-2-front me-1"></i>Salvar cartao
+                                </button>
                                 <button type="submit" form="recusar-orcamento-form" class="btn btn-outline-danger">
                                     <i class="bi bi-x-circle me-1"></i>Recusar
                                 </button>
@@ -798,6 +801,7 @@ function atualizarPagamentoOs() {
     const metodo = document.getElementById('metodo-pagamento-os');
     const pix = document.getElementById('pagamento-pix-os');
     const cartao = document.getElementById('pagamento-cartao-os');
+    const salvarCartao = document.getElementById('btn-salvar-cartao-os');
     const tipoCartao = document.getElementById('tipo-cartao-os');
     const parcelasWrap = document.getElementById('parcelas-cartao-os');
     const parcelas = document.getElementById('parcelas-input-os');
@@ -811,6 +815,7 @@ function atualizarPagamentoOs() {
 
     pix?.classList.toggle('d-none', !usandoPix);
     cartao?.classList.toggle('d-none', !usandoCartao);
+    salvarCartao?.classList.toggle('d-none', !usandoCartao);
     parcelasWrap?.classList.toggle('d-none', !usandoCredito);
 
     cardFields.forEach((field) => {

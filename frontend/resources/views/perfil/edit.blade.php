@@ -287,6 +287,41 @@
         color: var(--text);
     }
 
+    .saved-card-list {
+        display: grid;
+        gap: .75rem;
+    }
+
+    .saved-card-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .9rem 1rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .saved-card-brand {
+        width: 42px;
+        height: 32px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--red-dim);
+        color: var(--red-h);
+        flex: 0 0 auto;
+    }
+
+    @media (max-width: 576px) {
+        .saved-card-item {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
     .photo-crop-stage {
         width: min(320px, 100%);
         aspect-ratio: 1;
@@ -472,6 +507,36 @@
         @endif
 
         @if($user->isCliente())
+            <div class="card mt-3">
+                <div class="card-header">
+                    <i class="bi bi-credit-card-2-front me-2 text-warning"></i>Meus cartoes
+                </div>
+                <div class="card-body">
+                    @if($user->cartoes->isEmpty())
+                        <p class="text-muted mb-0">Nenhum cartao salvo ainda. Voce pode salvar um cartao na hora de aprovar uma OS.</p>
+                    @else
+                        <div class="saved-card-list">
+                            @foreach($user->cartoes->sortByDesc('created_at') as $cartao)
+                                <div class="saved-card-item">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="saved-card-brand">
+                                            <i class="bi bi-credit-card"></i>
+                                        </span>
+                                        <div>
+                                            <div class="fw-semibold">{{ $cartao->bandeira }} final {{ $cartao->final }}</div>
+                                            <div class="small text-muted">
+                                                {{ ucfirst($cartao->tipo) }} - {{ $cartao->titular }} - validade {{ $cartao->validade }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-secondary">Salvo em {{ $cartao->created_at->format('d/m/Y') }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             <div class="card mt-3">
                 <div class="card-header">Senha</div>
                 <div class="card-body d-flex align-items-center justify-content-between gap-3 flex-wrap">

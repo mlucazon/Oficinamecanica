@@ -21,6 +21,7 @@ class User extends Authenticatable
 
     public function cliente()  { return $this->hasOne(Cliente::class); }
     public function mecanico() { return $this->hasOne(Mecanico::class); }
+    public function cartoes()  { return $this->hasMany(CartaoCliente::class); }
     public function solicitacoesAcessoContas() { return $this->hasMany(ContaAcessoSolicitacao::class, 'solicitante_id'); }
 
     public function isGerente():   bool { return $this->role === 'gerente'; }

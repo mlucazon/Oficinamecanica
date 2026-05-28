@@ -17,6 +17,7 @@ use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\RoleAccountController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AvaliacaoOsController;
+use App\Http\Controllers\CartaoClienteController;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/health', function () {
@@ -54,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [ProfileController::class, 'update'])->name('perfil.update');
     Route::patch('/perfil/senha', [ProfileController::class, 'updatePassword'])->name('perfil.password');
+    Route::middleware('role:cliente')->patch('/cartoes', [CartaoClienteController::class, 'store'])->name('cartoes.store');
     Route::get('/avaliacoes', [AvaliacaoOsController::class, 'index'])->name('avaliacoes.index');
     Route::middleware('role:cliente')->group(function () {
         Route::get('/avaliacoes/os/{ordemServico}/criar', [AvaliacaoOsController::class, 'create'])->name('avaliacoes.create');

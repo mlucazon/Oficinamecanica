@@ -314,6 +314,19 @@ CREATE TABLE notificacoes (
     CONSTRAINT notificacoes_os_id_foreign FOREIGN KEY (os_id) REFERENCES ordens_servico(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE cartoes_cliente (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    tipo ENUM('debito','credito') NOT NULL,
+    bandeira VARCHAR(30) NULL,
+    titular VARCHAR(120) NOT NULL,
+    final VARCHAR(4) NOT NULL,
+    validade VARCHAR(5) NOT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    CONSTRAINT cartoes_cliente_user_id_foreign FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE avaliacoes_os (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     os_id BIGINT UNSIGNED NOT NULL UNIQUE,
