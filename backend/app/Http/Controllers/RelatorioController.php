@@ -15,11 +15,25 @@ class RelatorioController extends Controller
 
     public function osPorStatus(Request $request)
     {
-        $dados = OrdemServico::selectRaw('status, COUNT(*) as total')
+        $filtros = $request->only(['mes', 'ano']);
+
+        $baseQuery = OrdemServico::query()
             ->when($request->mes, fn($q) => $q->whereMonth('created_at', $request->mes))
-            ->when($request->ano, fn($q) => $q->whereYear('created_at', $request->ano))
-            ->groupBy('status')->get();
-        return view('relatorios.os-status', compact('dados'));
+            ->when($request->ano, fn($q) => $q->whereYear('created_at', $request->ano));
+
+        $dados = (clone $baseQuery)
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->orderByDesc('total')
+            ->get();
+
+        $ordensPorStatus = (clone $baseQuery)
+            ->with(['cliente', 'veiculo', 'mecanico'])
+            ->latest()
+            ->get()
+            ->groupBy('status');
+
+        return view('relatorios.os-status', compact('dados', 'ordensPorStatus', 'filtros'));
     }
 
     public function faturamento(Request $request)

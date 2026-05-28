@@ -30,10 +30,18 @@
 
     .notification-main {
         display: grid;
-        grid-template-columns: 64px minmax(160px, .75fr) minmax(180px, .9fr) minmax(260px, 1.45fr);
+        grid-template-columns: 64px minmax(150px, .7fr) minmax(210px, 1fr) minmax(190px, .9fr) minmax(300px, 1.35fr);
         gap: 18px;
         align-items: center;
         min-width: 0;
+    }
+
+    .notification-main > .notification-message:nth-child(4) {
+        grid-column: 4 / -1;
+    }
+
+    .notification-main > .notification-message:nth-child(3) {
+        grid-column: 3 / -1;
     }
 
     .notification-icon {
@@ -137,6 +145,11 @@
         .notification-card,
         .notification-main {
             grid-template-columns: 1fr;
+        }
+
+        .notification-main > .notification-message:nth-child(3),
+        .notification-main > .notification-message:nth-child(4) {
+            grid-column: auto;
         }
 
         .notification-card {
