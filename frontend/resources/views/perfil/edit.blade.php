@@ -292,6 +292,25 @@
         gap: .75rem;
     }
 
+    .saved-card-form {
+        padding: 1rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .saved-card-form .btn {
+        min-height: 42px;
+    }
+
+    .saved-card-empty {
+        padding: 1rem;
+        border: 1px dashed var(--border2);
+        border-radius: 8px;
+        color: rgba(255,255,255,.68);
+        background: rgba(255,255,255,.018);
+    }
+
     .saved-card-item {
         display: flex;
         align-items: center;
@@ -315,10 +334,38 @@
         flex: 0 0 auto;
     }
 
+    .saved-card-meta {
+        min-width: 0;
+    }
+
+    .saved-card-meta .small {
+        overflow-wrap: anywhere;
+    }
+
+    :root[data-theme="light"] .saved-card-form,
+    :root[data-theme="light"] .saved-card-item {
+        background: rgba(255,255,255,.72);
+        border-color: rgba(31,25,20,.14);
+    }
+
+    :root[data-theme="light"] .saved-card-empty {
+        background: rgba(255,255,255,.55);
+        border-color: rgba(31,25,20,.18);
+        color: #4f4238;
+    }
+
     @media (max-width: 576px) {
         .saved-card-item {
             align-items: flex-start;
             flex-direction: column;
+        }
+
+        .saved-card-form {
+            padding: .85rem;
+        }
+
+        .saved-card-form .btn {
+            width: 100%;
         }
     }
 
@@ -508,23 +555,88 @@
 
         @if($user->isCliente())
             <div class="card mt-3">
-                <div class="card-header">
-                    <i class="bi bi-credit-card-2-front me-2 text-warning"></i>Meus cartoes
+                <div class="card-header d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                    <span><i class="bi bi-credit-card-2-front me-2 text-warning"></i>Meus cartoes</span>
+                    <span class="badge bg-secondary">
+                        {{ $user->cartoes->count() }} salvo{{ $user->cartoes->count() === 1 ? '' : 's' }}
+                    </span>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-                        @if($user->cartoes->isEmpty())
-                            <div class="text-muted">Nenhum cartao cadastrado?</div>
-                            <a href="{{ route('cartoes.create') }}" class="btn btn-outline-danger">
-                                <i class="bi bi-plus-lg me-1"></i>Adicionar cartao
-                            </a>
-                        @else
-                            <div class="fw-500">{{ $user->cartoes->count() }} cartao{{ $user->cartoes->count() > 1 ? 'es' : '' }} cadastrado{{ $user->cartoes->count() > 1 ? 's' : '' }}</div>
-                            <a href="{{ route('cartoes.index') }}" class="btn btn-outline-danger">
-                                <i class="bi bi-eye me-1"></i>Ver cartoes
-                            </a>
-                        @endif
-                    </div>
+                    <form method="POST" action="{{ route('cartoes.store') }}" class="row g-3 profile-pretty-form saved-card-form mb-3">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="redirect_to" value="perfil">
+
+                        <div class="col-md-3">
+                            <label class="form-label" for="perfil_tipo_cartao">
+                                <i class="bi bi-credit-card"></i>Tipo
+                            </label>
+                            <select name="tipo_cartao" id="perfil_tipo_cartao" class="form-select @error('tipo_cartao') is-invalid @enderror" required>
+                                <option value="debito" {{ old('tipo_cartao') === 'debito' ? 'selected' : '' }}>Debito</option>
+                                <option value="credito" {{ old('tipo_cartao') === 'credito' ? 'selected' : '' }}>Credito</option>
+                            </select>
+                            @error('tipo_cartao')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="col-md-5">
+                            <label class="form-label" for="perfil_cartao_numero">
+                                <i class="bi bi-123"></i>Numero
+                            </label>
+                            <input type="text" name="cartao_numero" id="perfil_cartao_numero" class="form-control @error('cartao_numero') is-invalid @enderror" inputmode="numeric" maxlength="24" placeholder="0000 0000 0000 0000" value="{{ old('cartao_numero') }}" required>
+                            @error('cartao_numero')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="perfil_cartao_validade">
+                                <i class="bi bi-calendar2-week"></i>Validade
+                            </label>
+                            <input type="text" name="cartao_validade" id="perfil_cartao_validade" class="form-control @error('cartao_validade') is-invalid @enderror" maxlength="5" placeholder="MM/AA" value="{{ old('cartao_validade') }}" required>
+                            @error('cartao_validade')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label" for="perfil_cartao_nome">
+                                <i class="bi bi-person-badge"></i>Nome impresso
+                            </label>
+                            <input type="text" name="cartao_nome" id="perfil_cartao_nome" class="form-control @error('cartao_nome') is-invalid @enderror" placeholder="Nome no cartao" value="{{ old('cartao_nome', $user->nome) }}" required>
+                            @error('cartao_nome')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-primary w-100">
+                                <i class="bi bi-check-lg me-1"></i>Salvar cartao
+                            </button>
+                        </div>
+
+                        <div class="col-12 small text-muted">
+                            O CVV e o numero completo nao ficam armazenados. O sistema salva apenas bandeira, titular, validade e os ultimos 4 digitos.
+                        </div>
+                    </form>
+
+                    @if($user->cartoes->isEmpty())
+                        <div class="saved-card-empty">
+                            Nenhum cartao cadastrado ainda. Adicione um cartao para ele aparecer automaticamente na hora de pagar uma OS.
+                        </div>
+                    @else
+                        <div class="saved-card-list">
+                            @foreach($user->cartoes->sortByDesc('created_at') as $cartao)
+                                <div class="saved-card-item">
+                                    <div class="d-flex align-items-center gap-3 w-100">
+                                        <span class="saved-card-brand">
+                                            <i class="bi bi-credit-card"></i>
+                                        </span>
+                                        <div class="saved-card-meta">
+                                            <div class="fw-semibold">{{ $cartao->bandeira }} final {{ $cartao->final }}</div>
+                                            <div class="small text-muted">
+                                                {{ ucfirst($cartao->tipo) }} - {{ $cartao->titular }} - validade {{ $cartao->validade }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-secondary">Salvo em {{ $cartao->created_at->format('d/m/Y') }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
 
