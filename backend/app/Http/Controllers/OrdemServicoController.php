@@ -487,8 +487,8 @@ class OrdemServicoController extends Controller
             return redirect()->route('conta.os')->with('success', 'OS finalizada apagada do seu histórico.');
         }
 
-        if ($ordemServico->aprovado_cliente) {
-            return back()->with('error', 'Não é possível excluir uma OS já aprovada.');
+        if (! in_array($ordemServico->status, ['aguardando_aceitacao', 'cancelada'], true)) {
+            return back()->with('error', 'Nao e possivel excluir uma OS depois que ela foi aceita.');
         }
         $ordemServico->delete();
         return redirect()->route('os.index')->with('success', 'OS removida.');
