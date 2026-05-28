@@ -311,9 +311,54 @@
     }
 
     .payment-method-field,
+    .payment-warranty-field,
     #pagamento-cartao-os,
     .payment-actions {
         grid-column: 1 / -1;
+    }
+
+    .payment-warranty-options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .75rem;
+    }
+
+    .payment-warranty-option {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: .75rem;
+        align-items: flex-start;
+        padding: 1rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+        cursor: pointer;
+        min-height: 112px;
+    }
+
+    .payment-warranty-option input {
+        margin-top: .2rem;
+    }
+
+    .payment-warranty-option strong {
+        display: block;
+        margin-bottom: .2rem;
+    }
+
+    .payment-warranty-option .small {
+        color: var(--text2);
+    }
+
+    .payment-warranty-price {
+        display: inline-flex;
+        margin-top: .45rem;
+        padding: .25rem .55rem;
+        border-radius: 999px;
+        background: var(--red-dim);
+        color: var(--text);
+        font-family: 'DM Mono', monospace;
+        font-weight: 800;
+        font-size: 12px;
     }
 
     .payment-actions {
@@ -345,6 +390,10 @@
         }
 
         .payment-form {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-warranty-options {
             grid-template-columns: 1fr;
         }
 
@@ -746,7 +795,9 @@
                 @endif
                 @if(auth()->user()->isCliente() && $ordemServico->status === 'aguardando_aprovacao')
                     @php
-                        $pixCopiaColaOs = \App\Support\PixBrCode::gerar(
+                        $valorGarantiaPagamento = $ordemServico->valorGarantiaAdicional();
+                        $totalComGarantiaPagamento = (float) $ordemServico->valor_total + $valorGarantiaPagamento;
+                        $pixCopiaColaOsSemGarantia = \App\Support\PixBrCode::gerar(
                             '090.507.633-83',
                             (float) $ordemServico->valor_total,
                             'AUTOTECH PRO',
@@ -754,27 +805,36 @@
                             'OS' . $ordemServico->id,
                             'OS ' . $ordemServico->numero
                         );
-                        $pixQrOsUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCopiaColaOs);
+                        $pixCopiaColaOsComGarantia = \App\Support\PixBrCode::gerar(
+                            '090.507.633-83',
+                            $totalComGarantiaPagamento,
+                            'AUTOTECH PRO',
+                            'FORTALEZA',
+                            'OSG' . $ordemServico->id,
+                            'OS ' . $ordemServico->numero . ' GAR'
+                        );
+                        $pixQrOsSemGarantiaUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCopiaColaOsSemGarantia);
+                        $pixQrOsComGarantiaUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCopiaColaOsComGarantia);
                     @endphp
                     <div class="alert alert-info mt-3 d-none" id="pagamento-pix-os">
                         <div class="row g-3 align-items-center">
                             <div class="col-md-auto text-center">
                                 <div style="display:inline-block;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff;">
-                                    <img src="{{ $pixQrOsUrl }}" alt="QR Code Pix da OS" width="180" height="180" style="display:block;max-width:100%;height:auto;">
+                                    <img src="{{ $pixQrOsSemGarantiaUrl }}" alt="QR Code Pix da OS" width="180" height="180" style="display:block;max-width:100%;height:auto;" id="pix-os-qrcode" data-sem="{{ $pixQrOsSemGarantiaUrl }}" data-com="{{ $pixQrOsComGarantiaUrl }}">
                                 </div>
                             </div>
                             <div class="col-md">
                                 <div class="fw-semibold mb-1">Aprovar orçamento e confirmar pagamento</div>
                                 <div class="small mb-2">
-                                    Total da OS: <span class="font-mono fw-bold">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>.
+                                    Total: <span class="font-mono fw-bold" id="pix-os-total" data-sem="R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}" data-com="R$ {{ number_format($totalComGarantiaPagamento, 2, ',', '.') }}">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>.
                                     Escaneie o QR Code ou copie o Pix copia e cola.
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard?.writeText(@js($pixCopiaColaOs))">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="pix-os-copy" data-sem="{{ $pixCopiaColaOsSemGarantia }}" data-com="{{ $pixCopiaColaOsComGarantia }}" onclick="navigator.clipboard?.writeText(this.dataset.current || this.dataset.sem)">
                                         <i class="bi bi-clipboard me-1"></i>Copiar Pix
                                     </button>
                                 </div>
-                                <textarea class="form-control font-mono small mt-2" rows="3" readonly>{{ $pixCopiaColaOs }}</textarea>
+                                <textarea class="form-control font-mono small mt-2" rows="3" readonly id="pix-os-code">{{ $pixCopiaColaOsSemGarantia }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -782,6 +842,27 @@
                         <form method="POST" action="{{ route('os.cliente.aprovar', $ordemServico->id) }}" class="payment-form">
                             @csrf
                             @method('PATCH')
+                            <div class="payment-warranty-field">
+                                <label class="form-label">Garantia adicional</label>
+                                <div class="payment-warranty-options">
+                                    <label class="payment-warranty-option">
+                                        <input type="radio" name="garantia_opcao" value="sem" checked required>
+                                        <span>
+                                            <strong>Pagar sem garantia</strong>
+                                            <span class="small">Confirmar somente o valor da OS.</span>
+                                            <span class="payment-warranty-price">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>
+                                        </span>
+                                    </label>
+                                    <label class="payment-warranty-option">
+                                        <input type="radio" name="garantia_opcao" value="com" required>
+                                        <span>
+                                            <strong>Pagar com garantia</strong>
+                                            <span class="small">Adicionar 60 dias de garantia por 12% do valor da OS.</span>
+                                            <span class="payment-warranty-price">Total R$ {{ number_format($totalComGarantiaPagamento, 2, ',', '.') }}</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
                             <div class="payment-method-field">
                                 <label class="form-label">Forma de pagamento</label>
                                 <select name="metodo_pagamento" id="metodo-pagamento-os" class="form-select" required>
@@ -1083,10 +1164,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const metodoPagamento = document.getElementById('metodo-pagamento-os');
     const tipoCartao = document.getElementById('tipo-cartao-os');
     const cartaoOpcao = document.getElementById('cartao-opcao-os');
+    const garantiaOpcoes = document.querySelectorAll('input[name="garantia_opcao"]');
     if (metodoPagamento) {
         metodoPagamento.addEventListener('change', atualizarPagamentoOs);
         tipoCartao?.addEventListener('change', atualizarPagamentoOs);
         cartaoOpcao?.addEventListener('change', atualizarPagamentoOs);
+        garantiaOpcoes.forEach((opcao) => opcao.addEventListener('change', atualizarPagamentoOs));
         atualizarPagamentoOs();
     }
 
@@ -1163,6 +1246,33 @@ function atualizarPagamentoOs() {
     if (parcelas) {
         parcelas.disabled = !usandoCredito;
         parcelas.required = usandoCredito;
+    }
+
+    atualizarPixOs();
+}
+
+function atualizarPixOs() {
+    const garantia = document.querySelector('input[name="garantia_opcao"]:checked')?.value || 'sem';
+    const modo = garantia === 'com' ? 'com' : 'sem';
+    const qr = document.getElementById('pix-os-qrcode');
+    const total = document.getElementById('pix-os-total');
+    const copy = document.getElementById('pix-os-copy');
+    const code = document.getElementById('pix-os-code');
+
+    if (qr?.dataset[modo]) {
+        qr.src = qr.dataset[modo];
+    }
+
+    if (total?.dataset[modo]) {
+        total.textContent = total.dataset[modo];
+    }
+
+    if (copy?.dataset[modo]) {
+        copy.dataset.current = copy.dataset[modo];
+    }
+
+    if (code && copy?.dataset[modo]) {
+        code.value = copy.dataset[modo];
     }
 }
 

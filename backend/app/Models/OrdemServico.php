@@ -64,6 +64,21 @@ class OrdemServico extends Model
         return (int) $primeiraOsId === (int) $this->id;
     }
 
+    public function valorGarantiaAdicional(): float
+    {
+        $base = (float) $this->valor_total;
+
+        if ($base <= 0 && $this->relationLoaded('itens')) {
+            $base = (float) $this->itens->sum('valor_total');
+        }
+
+        if ($base <= 0) {
+            $base = (float) $this->itens()->sum('valor_total');
+        }
+
+        return round(min(450, max(60, $base * 0.12)), 2);
+    }
+
     public function statusLabel(): string
     {
         return match($this->status) {

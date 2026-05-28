@@ -355,6 +355,7 @@ class OrdemServicoController extends Controller
 
         $request->validate([
             'metodo_pagamento' => 'required|in:pix,cartao,dinheiro',
+            'garantia_opcao' => 'required|in:sem,com',
             'cartao_opcao' => 'nullable|required_if:metodo_pagamento,cartao|in:salvo,novo',
             'cartao_salvo_id' => 'nullable|required_if:cartao_opcao,salvo|integer',
             'tipo_cartao' => 'nullable|required_if:cartao_opcao,novo|in:debito,credito',
@@ -381,6 +382,12 @@ class OrdemServicoController extends Controller
             'data_aprovacao' => now(),
             'status' => 'aguardando_finalizacao',
         ]);
+
+        $this->registrarEscolhaGarantiaNoPagamento(
+            $ordemServico,
+            $request->input('garantia_opcao'),
+            $request->input('metodo_pagamento')
+        );
 
         Notificacao::where('user_id', Auth::id())
             ->where('os_id', $ordemServico->id)
@@ -576,18 +583,11 @@ class OrdemServicoController extends Controller
     {
         $ordemServico->loadMissing(['cliente.user', 'itens', 'garantias']);
 
-        if ($ordemServico->garantias()
-            ->whereIn('status', ['pendente', 'aceita'])
-            ->exists()) {
+        if ($ordemServico->garantias()->exists()) {
             return;
         }
 
-        $base = (float) $ordemServico->valor_total;
-        if ($base <= 0) {
-            $base = (float) $ordemServico->itens->sum('valor_total');
-        }
-
-        $valorGarantia = round(min(450, max(60, $base * 0.12)), 2);
+        $valorGarantia = $ordemServico->valorGarantiaAdicional();
 
         $garantia = $ordemServico->garantias()->create([
             'descricao' => 'Oferta de garantia adicional de 60 dias para serviços e peças desta OS.',
@@ -610,6 +610,38 @@ class OrdemServicoController extends Controller
     }
 
     // Autorização do cliente via link/token (RF004)
+    private function registrarEscolhaGarantiaNoPagamento(OrdemServico $ordemServico, string $opcao, string $metodoPagamento): void
+    {
+        $garantia = $ordemServico->garantias()->firstOrNew([]);
+        $metodo = match ($metodoPagamento) {
+            'pix' => 'Pix',
+            'cartao' => 'Cartao',
+            default => 'Dinheiro/presencial',
+        };
+
+        if ($opcao === 'com') {
+            $garantia->fill([
+                'descricao' => 'Garantia adicional de 60 dias para servicos e pecas desta OS.',
+                'valor' => $ordemServico->valorGarantiaAdicional(),
+                'status' => 'aceita',
+                'data_inicio' => today(),
+                'data_fim' => today()->addDays(60),
+                'observacao' => 'Cliente escolheu e pagou a garantia junto com a OS via ' . $metodo . '.',
+            ])->save();
+
+            return;
+        }
+
+        $garantia->fill([
+            'descricao' => 'Garantia adicional de 60 dias para servicos e pecas desta OS.',
+            'valor' => $ordemServico->valorGarantiaAdicional(),
+            'status' => 'recusada',
+            'data_inicio' => today(),
+            'data_fim' => today()->addDays(60),
+            'observacao' => 'Cliente optou por pagar somente a OS, sem garantia adicional.',
+        ])->save();
+    }
+
     public function showAutorizacao(string $token)
     {
         $os = OrdemServico::where('numero', $token)
