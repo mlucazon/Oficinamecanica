@@ -12,7 +12,7 @@ php artisan config:clear --no-interaction || true
 php artisan route:clear --no-interaction || true
 php artisan view:clear --no-interaction || true
 
-if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
+if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     php artisan migrate --force --no-interaction
 fi
 
