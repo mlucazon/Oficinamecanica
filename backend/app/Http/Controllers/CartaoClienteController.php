@@ -8,6 +8,19 @@ use Illuminate\Support\Facades\Schema;
 
 class CartaoClienteController extends Controller
 {
+    public function create()
+    {
+        abort_unless(auth()->user()->isCliente(), 403);
+
+        if (!Schema::hasTable('cartoes_cliente')) {
+            return redirect()
+                ->route('perfil.edit')
+                ->with('error', 'A area de cartoes ainda esta sendo preparada. Tente novamente em instantes.');
+        }
+
+        return view('cartoes.create');
+    }
+
     public function store(Request $request)
     {
         abort_unless(auth()->user()->isCliente(), 403);
@@ -43,6 +56,10 @@ class CartaoClienteController extends Controller
                 'titular' => $data['cartao_nome'],
             ]
         );
+
+        if ($request->input('redirect_to') === 'perfil') {
+            return redirect()->route('perfil.edit')->with('success', 'Cartao salvo no seu perfil.');
+        }
 
         return back()->with('success', 'Cartao salvo no seu perfil.');
     }

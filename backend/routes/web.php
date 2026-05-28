@@ -55,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [ProfileController::class, 'update'])->name('perfil.update');
     Route::patch('/perfil/senha', [ProfileController::class, 'updatePassword'])->name('perfil.password');
+    Route::middleware('role:cliente')->get('/cartoes/create', [CartaoClienteController::class, 'create'])->name('cartoes.create');
     Route::middleware('role:cliente')->patch('/cartoes', [CartaoClienteController::class, 'store'])->name('cartoes.store');
     Route::get('/avaliacoes', [AvaliacaoOsController::class, 'index'])->name('avaliacoes.index');
     Route::middleware('role:cliente')->group(function () {
