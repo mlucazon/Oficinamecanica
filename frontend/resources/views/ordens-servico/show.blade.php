@@ -271,14 +271,14 @@
 	                        <p class="small mb-1" style="color: var(--text2);">Sintomas:</p>
                         <p class="mb-0" id="sintomas-texto">{{ $ordemServico->sintomas ?: '—' }}</p>
                     </div>
-                    @if(auth()->user()->isCliente())
+                    @if(auth()->user()->isCliente() && $ordemServico->status === 'aberta')
                         <button type="button" class="btn btn-sm btn-outline-primary no-print" id="btn-editar-sintomas" onclick="editarSintomas()">
                             <i class="bi bi-pencil me-1"></i>Editar
                         </button>
                     @endif
                 </div>
 
-                @if(auth()->user()->isCliente())
+                @if(auth()->user()->isCliente() && $ordemServico->status === 'aberta')
                     <form method="POST" action="{{ route('os.update', $ordemServico->id) }}" class="no-print" id="sintomas-form" style="display:none;">
                         @csrf
                         @method('PUT')

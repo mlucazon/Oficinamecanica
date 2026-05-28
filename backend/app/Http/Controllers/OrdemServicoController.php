@@ -249,6 +249,11 @@ class OrdemServicoController extends Controller
                 abort(403);
             }
 
+            if ($ordemServico->status !== 'aberta') {
+                return redirect()->route('os.show', $ordemServico->id)
+                    ->with('error', 'Para alterar os sintomas, cancele o envio e abra uma nova OS.');
+            }
+
             $data = $request->validate([
                 'sintomas' => 'required|string|max:2000',
             ]);
