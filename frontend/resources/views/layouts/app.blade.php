@@ -781,6 +781,58 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
         }
 
+        .report-chart {
+            display: grid;
+            gap: .85rem;
+        }
+
+        .report-chart-row {
+            display: grid;
+            grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) auto;
+            align-items: center;
+            gap: .85rem;
+        }
+
+        .report-chart-label {
+            color: var(--text);
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .report-chart-track {
+            height: 14px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(255,255,255,.08);
+            border: 1px solid var(--border2);
+        }
+
+        .report-chart-bar {
+            display: block;
+            height: 100%;
+            min-width: 6px;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--red), var(--red-h));
+            box-shadow: 0 0 22px var(--red-glow);
+        }
+
+        .report-chart-value {
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .report-chart-muted {
+            color: var(--text2);
+            font-size: .86rem;
+        }
+
+        :root[data-theme="light"] .report-chart-track {
+            background: rgba(31,25,20,.08);
+            border-color: rgba(31,25,20,.12);
+        }
+
         .stat-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -2067,6 +2119,15 @@
                 .info-block-actions form,
                 .info-block-actions button {
                     width: 100% !important;
+                }
+
+                .report-chart-row {
+                    grid-template-columns: 1fr !important;
+                    gap: .45rem !important;
+                }
+
+                .report-chart-track {
+                    height: 16px !important;
                 }
 
 	            .row {

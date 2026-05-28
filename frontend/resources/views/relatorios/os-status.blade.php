@@ -110,6 +110,21 @@
                 @endforeach
             </div>
 
+            @php($maiorStatus = max((int) $dados->max('total'), 1))
+            <div class="report-chart mb-4">
+                @foreach($dados as $d)
+                    @php($statusOrdens = $ordensPorStatus->get($d->status, collect()))
+                    @php($primeiraOs = $statusOrdens->first())
+                    <div class="report-chart-row">
+                        <div class="report-chart-label">{{ $primeiraOs?->statusLabel() ?? ucfirst(str_replace('_',' ',$d->status)) }}</div>
+                        <div class="report-chart-track">
+                            <span class="report-chart-bar" style="width: {{ max(4, ($d->total / $maiorStatus) * 100) }}%"></span>
+                        </div>
+                        <div class="report-chart-value">{{ $d->total }} OS</div>
+                    </div>
+                @endforeach
+            </div>
+
             <div class="info-block-list">
                 @foreach($dados as $d)
                     @php($statusOrdens = $ordensPorStatus->get($d->status, collect()))
