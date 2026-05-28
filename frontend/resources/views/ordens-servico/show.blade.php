@@ -15,6 +15,14 @@
             <i class="bi bi-printer me-1"></i>Imprimir
         </a>
         @endif
+        @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id() && in_array($ordemServico->status, ['aguardando_aceitacao', 'solicitacao_aceita', 'solicitacao_recusada']))
+        <form method="POST" action="{{ route('os.destroy', $ordemServico->id) }}" style="display:inline;">
+            @csrf @method('DELETE')
+            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancelar o envio desta OS? Esta acao nao pode ser desfeita.')">
+                <i class="bi bi-x-circle me-1"></i>Cancelar envio
+            </button>
+        </form>
+        @endif
         @if(!$ordemServico->aprovado_cliente && auth()->user()->isGerente())
         <form method="POST" action="{{ route('os.aprovar', $ordemServico->id) }}">
             @csrf @method('PATCH')

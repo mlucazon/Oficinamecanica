@@ -165,6 +165,14 @@
                                     <a href="{{ route('os.show', $os->id) }}" class="btn btn-sm btn-outline-secondary" title="Visualizar OS">
                                         <i class="bi bi-eye"></i>
                                     </a>
+                                    @if(in_array($os->status, ['aguardando_aceitacao', 'solicitacao_aceita', 'solicitacao_recusada']))
+                                        <form method="POST" action="{{ route('os.destroy', $os->id) }}" class="d-inline" onsubmit="return confirm('Cancelar o envio desta OS? Esta acao nao pode ser desfeita.')">
+                                            @csrf @method('DELETE')
+                                            <button class="btn btn-sm btn-outline-danger" title="Cancelar envio">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                     @if($os->status === 'finalizada')
                                         @if(!$os->avaliacao)
                                             <a href="{{ route('avaliacoes.create', $os) }}" class="btn btn-sm btn-outline-warning" title="Avaliar OS">
@@ -227,6 +235,14 @@
                             <a href="{{ route('os.show', $os->id) }}" class="btn btn-sm btn-outline-secondary">
                                 <i class="bi bi-eye me-1"></i>Ver
                             </a>
+                            @if(in_array($os->status, ['aguardando_aceitacao', 'solicitacao_aceita', 'solicitacao_recusada']))
+                                <form method="POST" action="{{ route('os.destroy', $os->id) }}" onsubmit="return confirm('Cancelar o envio desta OS? Esta acao nao pode ser desfeita.')">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                                        <i class="bi bi-x-circle me-1"></i>Cancelar envio
+                                    </button>
+                                </form>
+                            @endif
                             @if($os->status === 'finalizada')
                                 @if(!$os->avaliacao)
                                     <a href="{{ route('avaliacoes.create', $os) }}" class="btn btn-sm btn-outline-warning">

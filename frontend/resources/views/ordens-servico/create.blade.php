@@ -72,11 +72,13 @@
 
             </div>
 
-            <div class="mt-4 d-flex gap-2">
+            <div class="mt-4 d-flex gap-2 flex-wrap">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-clipboard2-check me-1"></i>Abrir OS
                 </button>
-                <a href="{{ route('os.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                <a href="{{ route('conta.os') }}" class="btn btn-outline-danger" onclick="return confirm('Cancelar o envio desta OS? As informacoes preenchidas serao perdidas.')">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar envio
+                </a>
             </div>
         </form>
     </div>

@@ -436,6 +436,11 @@ class OrdemServicoController extends Controller
                 abort(403);
             }
 
+            if (in_array($ordemServico->status, ['aguardando_aceitacao', 'solicitacao_aceita', 'solicitacao_recusada'], true)) {
+                $ordemServico->delete();
+                return redirect()->route('conta.os')->with('success', 'Envio da OS cancelado com sucesso.');
+            }
+
             if ($ordemServico->status !== 'finalizada') {
                 return back()->with('error', 'Você só pode apagar OS finalizadas.');
             }
