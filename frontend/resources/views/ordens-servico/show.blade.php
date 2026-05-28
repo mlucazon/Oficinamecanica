@@ -374,7 +374,7 @@
                         $pixCobrancaOsUrl = 'https://nubank.com.br/cobrar/1htzrg/6a17451a-654b-4b18-b315-a5d43bb81b02';
                         $pixQrOsUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCobrancaOsUrl);
                     @endphp
-                    <div class="alert alert-info mt-3">
+                    <div class="alert alert-info mt-3 d-none" id="pagamento-pix-os">
                         <div class="row g-3 align-items-center">
                             <div class="col-md-auto text-center">
                                 <div style="display:inline-block;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff;">
@@ -404,11 +404,53 @@
                             @method('PATCH')
                             <div class="col-md-5 col-lg-4">
                                 <label class="form-label">Forma de pagamento</label>
-                                <select name="metodo_pagamento" class="form-select" required>
+                                <select name="metodo_pagamento" id="metodo-pagamento-os" class="form-select" required>
+                                    <option value="">Selecione...</option>
                                     <option value="pix">Pix</option>
                                     <option value="cartao">Cartao</option>
                                     <option value="dinheiro">Dinheiro/presencial</option>
                                 </select>
+                            </div>
+                            <div class="col-12 d-none" id="pagamento-cartao-os">
+                                <div class="alert alert-info mb-0">
+                                    <div class="fw-semibold mb-2">Dados do cartao</div>
+                                    <div class="row g-2">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Tipo</label>
+                                            <select name="tipo_cartao" id="tipo-cartao-os" class="form-select payment-card-field">
+                                                <option value="debito">Debito</option>
+                                                <option value="credito">Credito</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">Numero do cartao</label>
+                                            <input type="text" name="cartao_numero" class="form-control payment-card-field" inputmode="numeric" maxlength="24" placeholder="0000 0000 0000 0000">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Nome impresso</label>
+                                            <input type="text" name="cartao_nome" class="form-control payment-card-field" placeholder="Nome no cartao">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Validade</label>
+                                            <input type="text" name="cartao_validade" class="form-control payment-card-field" maxlength="5" placeholder="MM/AA">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">CVV</label>
+                                            <input type="text" name="cartao_cvv" class="form-control payment-card-field" inputmode="numeric" maxlength="4" placeholder="123">
+                                        </div>
+                                        <div class="col-md-4 d-none" id="parcelas-cartao-os">
+                                            <label class="form-label">Parcelas</label>
+                                            <select name="parcelas" class="form-select" id="parcelas-input-os">
+                                                @for($parcela = 1; $parcela <= 6; $parcela++)
+                                                    <option value="{{ $parcela }}">{{ $parcela }}x de R$ {{ number_format($ordemServico->valor_total / $parcela, 2, ',', '.') }}</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                        <div class="col-12 small">
+                                            Para cartao de credito, o parcelamento esta disponivel em ate 6x.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-auto">
                                 <button class="btn btn-success" onclick="return confirm('Confirmar pagamento e aprovar esta OS?')">
@@ -620,7 +662,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemForm = document.getElementById('orcamento-item-form');
     if (itemForm) itemForm.addEventListener('submit', sincronizarDiagnosticoNoItem);
     sincronizarDiagnosticoNoItem();
+
+    const metodoPagamento = document.getElementById('metodo-pagamento-os');
+    const tipoCartao = document.getElementById('tipo-cartao-os');
+    if (metodoPagamento) {
+        metodoPagamento.addEventListener('change', atualizarPagamentoOs);
+        tipoCartao?.addEventListener('change', atualizarPagamentoOs);
+        atualizarPagamentoOs();
+    }
 });
+
+function atualizarPagamentoOs() {
+    const metodo = document.getElementById('metodo-pagamento-os');
+    const pix = document.getElementById('pagamento-pix-os');
+    const cartao = document.getElementById('pagamento-cartao-os');
+    const tipoCartao = document.getElementById('tipo-cartao-os');
+    const parcelasWrap = document.getElementById('parcelas-cartao-os');
+    const parcelas = document.getElementById('parcelas-input-os');
+    const cardFields = document.querySelectorAll('.payment-card-field');
+
+    if (!metodo) return;
+
+    const usandoPix = metodo.value === 'pix';
+    const usandoCartao = metodo.value === 'cartao';
+    const usandoCredito = usandoCartao && tipoCartao?.value === 'credito';
+
+    pix?.classList.toggle('d-none', !usandoPix);
+    cartao?.classList.toggle('d-none', !usandoCartao);
+    parcelasWrap?.classList.toggle('d-none', !usandoCredito);
+
+    cardFields.forEach((field) => {
+        field.disabled = !usandoCartao;
+        field.required = usandoCartao;
+    });
+
+    if (parcelas) {
+        parcelas.disabled = !usandoCredito;
+        parcelas.required = usandoCredito;
+    }
+}
 
 function editarSintomas() {
     const texto = document.getElementById('sintomas-texto');

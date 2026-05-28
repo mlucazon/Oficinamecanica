@@ -342,6 +342,12 @@ class OrdemServicoController extends Controller
 
         $request->validate([
             'metodo_pagamento' => 'required|in:pix,cartao,dinheiro',
+            'tipo_cartao' => 'nullable|required_if:metodo_pagamento,cartao|in:debito,credito',
+            'cartao_numero' => 'nullable|required_if:metodo_pagamento,cartao|string|max:24',
+            'cartao_nome' => 'nullable|required_if:metodo_pagamento,cartao|string|max:120',
+            'cartao_validade' => ['nullable', 'required_if:metodo_pagamento,cartao', 'regex:/^\d{2}\/\d{2}$/'],
+            'cartao_cvv' => 'nullable|required_if:metodo_pagamento,cartao|string|min:3|max:4',
+            'parcelas' => 'nullable|required_if:tipo_cartao,credito|integer|min:1|max:6',
         ]);
 
         $ordemServico->update([
