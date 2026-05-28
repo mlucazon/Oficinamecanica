@@ -130,7 +130,9 @@
 @endpush
 
 @section('content')
-@php($mostrarVeiculo = auth()->user()->isCliente())
+@php
+    $mostrarVeiculo = auth()->user()->isCliente();
+@endphp
 <div class="card warranties-card">
     <div class="card-header d-flex align-items-center justify-content-between">
         <span><i class="bi bi-shield-check me-2"></i>Garantias</span>
