@@ -4,12 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\CartaoCliente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class CartaoClienteController extends Controller
 {
     public function store(Request $request)
     {
         abort_unless(auth()->user()->isCliente(), 403);
+
+        if (!Schema::hasTable('cartoes_cliente')) {
+            return back()->with('error', 'A area de cartoes ainda esta sendo preparada. Tente novamente em instantes.');
+        }
 
         $data = $request->validate([
             'tipo_cartao' => 'required|in:debito,credito',

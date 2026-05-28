@@ -6,6 +6,7 @@ use App\Models\Cliente;
 use App\Models\Estado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -13,7 +14,13 @@ class ProfileController extends Controller
 {
     public function edit()
     {
-        $user = auth()->user()->load(['cliente', 'mecanico', 'cartoes']);
+        $user = auth()->user()->load(['cliente', 'mecanico']);
+
+        if (Schema::hasTable('cartoes_cliente')) {
+            $user->load('cartoes');
+        } else {
+            $user->setRelation('cartoes', collect());
+        }
         $estados = Estado::with('cidades')->orderBy('nome')->get();
         $ordensMecanico = collect();
 
