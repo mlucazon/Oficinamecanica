@@ -55,6 +55,241 @@
         padding: 1.15rem 1.25rem;
     }
 
+    .os-detail-grid {
+        display: grid;
+        gap: .75rem;
+    }
+
+    .os-detail-item {
+        display: grid;
+        grid-template-columns: 38px 1fr;
+        gap: .75rem;
+        align-items: center;
+        padding: .8rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .os-detail-icon,
+    .os-media-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--red-dim);
+        color: var(--red-h);
+        flex: 0 0 auto;
+    }
+
+    .os-detail-label {
+        display: block;
+        color: var(--text3);
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: .15rem;
+    }
+
+    .os-detail-value {
+        color: var(--text);
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .os-symptom-text {
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.55;
+        margin: 0;
+    }
+
+    .os-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: .85rem;
+    }
+
+    .os-media-tile {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+        aspect-ratio: 4 / 3;
+    }
+
+    .os-media-tile img,
+    .os-media-tile video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .os-empty-state {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: 1rem;
+        border: 1px dashed var(--border2);
+        border-radius: 8px;
+        color: var(--text2);
+        background: rgba(255,255,255,.018);
+    }
+
+    .os-form-panel {
+        padding: 1rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .os-budget-total {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .35rem .7rem;
+        border-radius: 999px;
+        background: var(--red-dim);
+        color: var(--text);
+        font-weight: 800;
+    }
+
+    :root[data-theme="light"] .os-detail-item,
+    :root[data-theme="light"] .os-media-tile,
+    :root[data-theme="light"] .os-form-panel,
+    :root[data-theme="light"] .os-empty-state {
+        background: rgba(255,255,255,.72);
+        border-color: rgba(31,25,20,.14);
+    }
+
+    .os-show-page .card {
+        border-radius: 10px;
+        border-color: var(--border2);
+        box-shadow: 0 18px 50px rgba(0,0,0,.16);
+    }
+
+    .os-show-page .card-header {
+        font-weight: 800;
+    }
+
+    .os-show-page .btn {
+        border-radius: 8px;
+        font-weight: 800;
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .2rem;
+    }
+
+    .os-show-page dl.row {
+        display: grid;
+        grid-template-columns: minmax(118px, .55fr) 1fr;
+        gap: .55rem 0;
+    }
+
+    .os-show-page dl.row dt,
+    .os-show-page dl.row dd {
+        margin: 0;
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        border-top: 1px solid var(--border2);
+        border-bottom: 1px solid var(--border2);
+        background: rgba(255,255,255,.025);
+    }
+
+    .os-show-page dl.row dt {
+        padding: .65rem .25rem .65rem .8rem;
+        border-left: 1px solid var(--border2);
+        border-radius: 8px 0 0 8px;
+        color: var(--text3) !important;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .os-show-page dl.row dd {
+        padding: .65rem .8rem .65rem .25rem;
+        border-right: 1px solid var(--border2);
+        border-radius: 0 8px 8px 0;
+        color: var(--text);
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .os-show-page #sintomas-texto {
+        padding: 1rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.55;
+    }
+
+    .os-show-page .card-body > .row.g-2.mb-0 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: .85rem;
+    }
+
+    .os-show-page .card-body > .row.g-2.mb-0 > [class*="col-"] {
+        width: auto;
+        max-width: none;
+        padding: 0;
+    }
+
+    .os-show-page .card-body > .row.g-2.mb-0 .position-relative {
+        overflow: hidden;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+        aspect-ratio: 4 / 3;
+    }
+
+    .os-show-page .card-body > .row.g-2.mb-0 img,
+    .os-show-page .card-body > .row.g-2.mb-0 video {
+        height: 100% !important;
+        width: 100% !important;
+        object-fit: cover;
+        display: block;
+    }
+
+    .os-show-page form.row,
+    .os-show-page #orcamento-item-form {
+        padding: 1rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .os-show-page .table-responsive {
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        overflow: hidden;
+        background: rgba(255,255,255,.018);
+    }
+
+    :root[data-theme="light"] .os-show-page dl.row dt,
+    :root[data-theme="light"] .os-show-page dl.row dd,
+    :root[data-theme="light"] .os-show-page #sintomas-texto,
+    :root[data-theme="light"] .os-show-page .card-body > .row.g-2.mb-0 .position-relative,
+    :root[data-theme="light"] .os-show-page form.row,
+    :root[data-theme="light"] .os-show-page #orcamento-item-form,
+    :root[data-theme="light"] .os-show-page .table-responsive {
+        background: rgba(255,255,255,.72);
+        border-color: rgba(31,25,20,.14);
+    }
+
     .payment-panel {
         padding: 1rem;
         border: 1px solid var(--border2);
@@ -105,6 +340,31 @@
 
         .payment-form {
             grid-template-columns: 1fr;
+        }
+
+        .os-detail-item {
+            grid-template-columns: 34px 1fr;
+        }
+
+        .os-show-page dl.row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .os-show-page dl.row dt {
+            border-radius: 8px 8px 0 0;
+            border-right: 1px solid var(--border2);
+            border-bottom: 0;
+            min-height: auto;
+            padding-bottom: .25rem;
+        }
+
+        .os-show-page dl.row dd {
+            border-radius: 0 0 8px 8px;
+            border-left: 1px solid var(--border2);
+            border-top: 0;
+            margin-bottom: .55rem;
+            padding-top: .25rem;
         }
     }
 </style>
@@ -260,7 +520,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header d-flex justify-content-between">
-                Sintomas
+                <span><i class="bi bi-chat-square-text me-2 text-warning"></i>Sintomas</span>
                 {{-- Botão do cabeçalho removido para evitar duplicidade; edição agora é feita via botão inline abaixo --}}
             </div>
 
@@ -352,7 +612,7 @@
 	        <div class="card">
 	            <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <span><i class="bi bi-clipboard2-pulse me-2 text-warning"></i>Orcamento e diagnostico</span>
-                <span class="font-mono">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>
+                <span class="os-budget-total"><i class="bi bi-cash-coin"></i>R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>
             </div>
             <div class="card-body">
                 @if(auth()->user()->isMecanico() && $ordemServico->mecanico_id === auth()->user()->mecanico?->id && in_array($ordemServico->status, ['em_diagnostico', 'orcamento_enviado_atendente']))
