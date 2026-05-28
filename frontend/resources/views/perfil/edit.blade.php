@@ -512,6 +512,38 @@
                     <i class="bi bi-credit-card-2-front me-2 text-warning"></i>Meus cartoes
                 </div>
                 <div class="card-body">
+                    <form method="POST" action="{{ route('cartoes.store') }}" class="row g-2 profile-pretty-form mb-3">
+                        @csrf
+                        @method('PATCH')
+                        <div class="col-md-3">
+                            <label class="form-label"><i class="bi bi-credit-card"></i>Tipo</label>
+                            <select name="tipo_cartao" class="form-select" required>
+                                <option value="debito">Debito</option>
+                                <option value="credito">Credito</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label"><i class="bi bi-123"></i>Numero</label>
+                            <input type="text" name="cartao_numero" class="form-control" inputmode="numeric" maxlength="24" placeholder="0000 0000 0000 0000" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="bi bi-person-badge"></i>Nome impresso</label>
+                            <input type="text" name="cartao_nome" class="form-control" placeholder="Nome no cartao" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label"><i class="bi bi-calendar2"></i>Validade</label>
+                            <input type="text" name="cartao_validade" class="form-control" maxlength="5" placeholder="MM/AA" required>
+                        </div>
+                        <div class="col-md-9 d-flex align-items-end justify-content-end">
+                            <button class="btn btn-outline-danger">
+                                <i class="bi bi-plus-lg me-1"></i>Adicionar cartao
+                            </button>
+                        </div>
+                        <div class="col-12 small text-muted">
+                            Por seguranca, o sistema salva apenas o final do cartao. O CVV e o numero completo nao ficam armazenados.
+                        </div>
+                    </form>
+
                     @if($user->cartoes->isEmpty())
                         <p class="text-muted mb-0">Nenhum cartao salvo ainda. Voce pode salvar um cartao na hora de aprovar uma OS.</p>
                     @else

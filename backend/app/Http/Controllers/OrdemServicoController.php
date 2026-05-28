@@ -11,6 +11,7 @@ use App\Models\Notificacao;
 use App\Models\Garantia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class OrdemServicoController extends Controller
@@ -220,8 +221,13 @@ class OrdemServicoController extends Controller
 
         $servicos  = \App\Models\Servico::where('ativo', true)->orderBy('nome')->get();
         $pecas     = \App\Models\Peca::where('ativo', true)->orderBy('nome')->get();
+        $cartoesCliente = collect();
 
-        return view('ordens-servico.show', compact('ordemServico','servicos','pecas'));
+        if (Auth::user()->isCliente() && Schema::hasTable('cartoes_cliente')) {
+            $cartoesCliente = Auth::user()->cartoes()->latest()->get();
+        }
+
+        return view('ordens-servico.show', compact('ordemServico','servicos','pecas','cartoesCliente'));
     }
 
     public function edit($id)
@@ -342,13 +348,23 @@ class OrdemServicoController extends Controller
 
         $request->validate([
             'metodo_pagamento' => 'required|in:pix,cartao,dinheiro',
-            'tipo_cartao' => 'nullable|required_if:metodo_pagamento,cartao|in:debito,credito',
-            'cartao_numero' => 'nullable|required_if:metodo_pagamento,cartao|string|max:24',
-            'cartao_nome' => 'nullable|required_if:metodo_pagamento,cartao|string|max:120',
-            'cartao_validade' => ['nullable', 'required_if:metodo_pagamento,cartao', 'regex:/^\d{2}\/\d{2}$/'],
-            'cartao_cvv' => 'nullable|required_if:metodo_pagamento,cartao|string|min:3|max:4',
+            'cartao_opcao' => 'nullable|required_if:metodo_pagamento,cartao|in:salvo,novo',
+            'cartao_salvo_id' => 'nullable|required_if:cartao_opcao,salvo|integer',
+            'tipo_cartao' => 'nullable|required_if:cartao_opcao,novo|in:debito,credito',
+            'cartao_numero' => 'nullable|required_if:cartao_opcao,novo|string|max:24',
+            'cartao_nome' => 'nullable|required_if:cartao_opcao,novo|string|max:120',
+            'cartao_validade' => ['nullable', 'required_if:cartao_opcao,novo', 'regex:/^\d{2}\/\d{2}$/'],
+            'cartao_cvv' => 'nullable|required_if:cartao_opcao,novo|string|min:3|max:4',
             'parcelas' => 'nullable|required_if:tipo_cartao,credito|integer|min:1|max:6',
         ]);
+
+        if ($request->metodo_pagamento === 'cartao' && $request->cartao_opcao === 'salvo') {
+            abort_unless(
+                Schema::hasTable('cartoes_cliente') &&
+                Auth::user()->cartoes()->whereKey($request->integer('cartao_salvo_id'))->exists(),
+                403
+            );
+        }
 
         $ordemServico->update([
             'aprovado_cliente' => true,

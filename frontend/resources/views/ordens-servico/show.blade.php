@@ -528,6 +528,31 @@
                             <div class="col-12 d-none" id="pagamento-cartao-os">
                                 <div class="alert alert-info mb-0">
                                     <div class="fw-semibold mb-2">Dados do cartao</div>
+                                    @if($cartoesCliente->isNotEmpty())
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-md-4">
+                                                <label class="form-label">Usar cartao</label>
+                                                <select name="cartao_opcao" id="cartao-opcao-os" class="form-select">
+                                                    <option value="salvo">Cartao salvo</option>
+                                                    <option value="novo">Adicionar novo cartao</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-8" id="cartao-salvo-wrap-os">
+                                                <label class="form-label">Cartao cadastrado</label>
+                                                <select name="cartao_salvo_id" id="cartao-salvo-os" class="form-select">
+                                                    @foreach($cartoesCliente as $cartao)
+                                                        <option value="{{ $cartao->id }}">
+                                                            {{ $cartao->bandeira }} final {{ $cartao->final }} - {{ ucfirst($cartao->tipo) }} - validade {{ $cartao->validade }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <input type="hidden" name="cartao_opcao" id="cartao-opcao-os" value="novo">
+                                        <p class="small mb-2">Nenhum cartao salvo. Cadastre um cartao para usar nesta OS.</p>
+                                    @endif
+                                    <div id="cartao-novo-wrap-os">
                                     <div class="row g-2">
                                         <div class="col-md-3">
                                             <label class="form-label">Tipo</label>
@@ -563,6 +588,7 @@
                                         <div class="col-12 small">
                                             Para cartao de credito, o parcelamento esta disponivel em ate 6x.
                                         </div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -790,9 +816,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const metodoPagamento = document.getElementById('metodo-pagamento-os');
     const tipoCartao = document.getElementById('tipo-cartao-os');
+    const cartaoOpcao = document.getElementById('cartao-opcao-os');
     if (metodoPagamento) {
         metodoPagamento.addEventListener('change', atualizarPagamentoOs);
         tipoCartao?.addEventListener('change', atualizarPagamentoOs);
+        cartaoOpcao?.addEventListener('change', atualizarPagamentoOs);
         atualizarPagamentoOs();
     }
 });
@@ -802,6 +830,10 @@ function atualizarPagamentoOs() {
     const pix = document.getElementById('pagamento-pix-os');
     const cartao = document.getElementById('pagamento-cartao-os');
     const salvarCartao = document.getElementById('btn-salvar-cartao-os');
+    const cartaoOpcao = document.getElementById('cartao-opcao-os');
+    const cartaoSalvoWrap = document.getElementById('cartao-salvo-wrap-os');
+    const cartaoSalvo = document.getElementById('cartao-salvo-os');
+    const cartaoNovoWrap = document.getElementById('cartao-novo-wrap-os');
     const tipoCartao = document.getElementById('tipo-cartao-os');
     const parcelasWrap = document.getElementById('parcelas-cartao-os');
     const parcelas = document.getElementById('parcelas-input-os');
@@ -811,17 +843,25 @@ function atualizarPagamentoOs() {
 
     const usandoPix = metodo.value === 'pix';
     const usandoCartao = metodo.value === 'cartao';
-    const usandoCredito = usandoCartao && tipoCartao?.value === 'credito';
+    const usandoCartaoNovo = usandoCartao && (!cartaoOpcao || cartaoOpcao.value === 'novo');
+    const usandoCredito = usandoCartaoNovo && tipoCartao?.value === 'credito';
 
     pix?.classList.toggle('d-none', !usandoPix);
     cartao?.classList.toggle('d-none', !usandoCartao);
-    salvarCartao?.classList.toggle('d-none', !usandoCartao);
+    cartaoSalvoWrap?.classList.toggle('d-none', !usandoCartao || cartaoOpcao?.value !== 'salvo');
+    cartaoNovoWrap?.classList.toggle('d-none', !usandoCartaoNovo);
+    salvarCartao?.classList.toggle('d-none', !usandoCartaoNovo);
     parcelasWrap?.classList.toggle('d-none', !usandoCredito);
 
     cardFields.forEach((field) => {
-        field.disabled = !usandoCartao;
-        field.required = usandoCartao;
+        field.disabled = !usandoCartaoNovo;
+        field.required = usandoCartaoNovo;
     });
+
+    if (cartaoSalvo) {
+        cartaoSalvo.disabled = !usandoCartao || cartaoOpcao?.value !== 'salvo';
+        cartaoSalvo.required = usandoCartao && cartaoOpcao?.value === 'salvo';
+    }
 
     if (parcelas) {
         parcelas.disabled = !usandoCredito;
