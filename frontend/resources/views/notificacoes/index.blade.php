@@ -19,24 +19,26 @@
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 16px;
         align-items: center;
-        border: 1px solid var(--border);
+        border: 1px solid var(--border2);
         border-radius: 8px;
-        padding: 16px 18px;
-        background: rgba(255,255,255,.025);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+        padding: 18px 20px;
+        background:
+            linear-gradient(135deg, rgba(255,255,255,.035), rgba(255,255,255,.012)),
+            rgba(255,255,255,.018);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
     }
 
     .notification-main {
         display: grid;
-        grid-template-columns: 56px minmax(160px, .75fr) minmax(180px, .9fr) minmax(260px, 1.45fr);
-        gap: 16px;
+        grid-template-columns: 64px minmax(160px, .75fr) minmax(180px, .9fr) minmax(260px, 1.45fr);
+        gap: 18px;
         align-items: center;
         min-width: 0;
     }
 
     .notification-icon {
-        width: 56px;
-        height: 56px;
+        width: 64px;
+        height: 64px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -117,6 +119,14 @@
         padding: 28px 16px;
         color: var(--text2);
         text-align: center;
+    }
+
+    :root[data-theme="light"] .notification-card {
+        background:
+            linear-gradient(135deg, rgba(255,255,255,.82), rgba(255,255,255,.52)),
+            rgba(255,255,255,.58);
+        border-color: rgba(31,25,20,.14);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
     }
 
     @media (max-width: 767.98px) {

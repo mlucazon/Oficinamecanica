@@ -191,8 +191,21 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="alert alert-danger m-3">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Voce ainda nao possui veiculos cadastrados.
+                    <div class="p-3">
+                        <div class="info-block">
+                            <span class="info-block-icon warning">
+                                <i class="bi bi-car-front"></i>
+                            </span>
+                            <div>
+                                <div class="info-block-title">Voce ainda nao possui veiculos cadastrados.</div>
+                                <div class="info-block-text">Cadastre seu primeiro veiculo para conseguir abrir uma OS.</div>
+                            </div>
+                            <div class="info-block-actions">
+                                <a href="{{ route('veiculos.create') }}" class="btn btn-primary">
+                                    <i class="bi bi-plus-lg me-1"></i>Cadastrar veiculo
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 @endif
             </div>

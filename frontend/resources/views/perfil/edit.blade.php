@@ -287,122 +287,6 @@
         color: var(--text);
     }
 
-    .saved-card-list {
-        display: grid;
-        gap: .75rem;
-    }
-
-    .saved-card-form {
-        padding: 1rem;
-        border: 1px solid var(--border2);
-        border-radius: 8px;
-        background: rgba(255,255,255,.025);
-    }
-
-    .saved-card-form .btn {
-        min-height: 42px;
-    }
-
-    .saved-card-empty {
-        padding: 1rem;
-        border: 1px dashed var(--border2);
-        border-radius: 8px;
-        color: rgba(255,255,255,.68);
-        background: rgba(255,255,255,.018);
-    }
-
-    .saved-card-summary {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: 1rem;
-        border: 1px solid var(--border2);
-        border-radius: 8px;
-        background: rgba(255,255,255,.025);
-    }
-
-    .saved-card-summary-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 8px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 auto;
-        background: var(--red-dim);
-        color: var(--red-h);
-        font-size: 20px;
-    }
-
-    .saved-card-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: .9rem 1rem;
-        border: 1px solid var(--border2);
-        border-radius: 8px;
-        background: rgba(255,255,255,.025);
-    }
-
-    .saved-card-brand {
-        width: 42px;
-        height: 32px;
-        border-radius: 6px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--red-dim);
-        color: var(--red-h);
-        flex: 0 0 auto;
-    }
-
-    .saved-card-meta {
-        min-width: 0;
-    }
-
-    .saved-card-meta .small {
-        overflow-wrap: anywhere;
-    }
-
-    :root[data-theme="light"] .saved-card-form,
-    :root[data-theme="light"] .saved-card-summary,
-    :root[data-theme="light"] .saved-card-item {
-        background: rgba(255,255,255,.72);
-        border-color: rgba(31,25,20,.14);
-    }
-
-    :root[data-theme="light"] .saved-card-empty {
-        background: rgba(255,255,255,.55);
-        border-color: rgba(31,25,20,.18);
-        color: #4f4238;
-    }
-
-    @media (max-width: 576px) {
-        .saved-card-item {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .saved-card-summary {
-            align-items: stretch;
-            flex-direction: column;
-        }
-
-        .saved-card-summary .btn {
-            width: 100%;
-        }
-
-        .saved-card-form {
-            padding: .85rem;
-        }
-
-        .saved-card-form .btn {
-            width: 100%;
-        }
-    }
-
     .photo-crop-stage {
         width: min(320px, 100%);
         aspect-ratio: 1;
@@ -596,23 +480,21 @@
                     </span>
                 </div>
                 <div class="card-body">
-                    <div class="info-action-block">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="info-action-icon">
+                    <div class="info-block">
+                        <span class="info-block-icon">
                                 <i class="bi bi-credit-card"></i>
-                            </span>
-                            <div>
+                        </span>
+                        <div>
                                 @if($user->cartoes->isEmpty())
-                                    <div class="fw-500">Adicione um cartao para facilitar seus pagamentos.</div>
-                                    <div class="text-muted small">Quando voce aprovar uma OS, o cartao cadastrado podera ser escolhido na hora do pagamento.</div>
+                                    <div class="info-block-title">Adicione um cartao para facilitar seus pagamentos.</div>
+                                    <div class="info-block-text">Quando voce aprovar uma OS, o cartao cadastrado podera ser escolhido na hora do pagamento.</div>
                                 @else
-                                    <div class="fw-500">{{ $user->cartoes->count() }} cartao{{ $user->cartoes->count() > 1 ? 'es' : '' }} cadastrado{{ $user->cartoes->count() > 1 ? 's' : '' }}</div>
-                                    <div class="text-muted small">Veja seus cartoes salvos ou cadastre um novo quando precisar.</div>
+                                    <div class="info-block-title">{{ $user->cartoes->count() }} cartao{{ $user->cartoes->count() > 1 ? 'es' : '' }} cadastrado{{ $user->cartoes->count() > 1 ? 's' : '' }}</div>
+                                    <div class="info-block-text">Veja seus cartoes salvos ou cadastre um novo quando precisar.</div>
                                 @endif
-                            </div>
                         </div>
 
-                        <div class="info-action-actions">
+                        <div class="info-block-actions">
                             @if($user->cartoes->isEmpty())
                                 <a href="{{ route('cartoes.create') }}" class="btn btn-primary">
                                     <i class="bi bi-plus-lg me-1"></i>Cadastrar cartao
@@ -635,19 +517,17 @@
                     @endif
                 </div>
                 <div class="card-body">
-                    <div class="info-action-block">
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="info-action-icon">
+                    <div class="info-block">
+                        <span class="info-block-icon">
                             <i class="bi bi-key"></i>
                         </span>
                         <div>
-                        <div class="fw-500">Troca de senha</div>
-                        <div class="text-muted small">
+                        <div class="info-block-title">Troca de senha</div>
+                        <div class="info-block-text">
                             {{ $user->password_change_requested_at ? 'Solicitada em '.$user->password_change_requested_at->format('d/m/Y H:i') : 'Solicite ao gerente uma alteração de senha.' }}
                         </div>
-                    </div>
-                    </div>
-	                    <div class="info-action-actions">
+                        </div>
+	                    <div class="info-block-actions">
 	                        @if($user->password_change_requested_at)
 	                            <div class="d-flex flex-column align-items-end gap-2">
 	                                <button class="btn btn-outline-danger" disabled>

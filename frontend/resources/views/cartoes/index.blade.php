@@ -14,24 +14,36 @@
             </div>
             <div class="card-body">
                 @if($cartoes->isEmpty())
-                    <p class="text-muted mb-0">Nenhum cartao cadastrado.</p>
+                    <div class="info-block">
+                        <span class="info-block-icon">
+                            <i class="bi bi-credit-card"></i>
+                        </span>
+                        <div>
+                            <div class="info-block-title">Nenhum cartao cadastrado.</div>
+                            <div class="info-block-text">Cadastre um cartao para ele aparecer como opcao na hora de pagar uma OS.</div>
+                        </div>
+                        <div class="info-block-actions">
+                            <a href="{{ route('cartoes.create') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-lg me-1"></i>Adicionar cartao
+                            </a>
+                        </div>
+                    </div>
                 @else
-                    <div class="saved-card-list">
+                    <div class="info-block-list">
                         @foreach($cartoes as $cartao)
-                            <div class="saved-card-item">
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="saved-card-brand">
-                                        <i class="bi bi-credit-card"></i>
-                                    </span>
-                                    <div>
-                                        <div class="fw-semibold">{{ $cartao->bandeira }} final {{ $cartao->final }}</div>
-                                        <div class="small text-muted">
-                                            {{ ucfirst($cartao->tipo) }} - {{ $cartao->titular }} - validade {{ $cartao->validade }}
-                                        </div>
+                            <div class="info-block">
+                                <span class="info-block-icon">
+                                    <i class="bi bi-credit-card"></i>
+                                </span>
+                                <div>
+                                    <span class="info-block-kicker">{{ ucfirst($cartao->tipo) }}</span>
+                                    <div class="info-block-title">{{ $cartao->bandeira }} final {{ $cartao->final }}</div>
+                                    <div class="info-block-text">{{ $cartao->titular }} - validade {{ $cartao->validade }}</div>
+                                    <div class="info-block-meta">
+                                        <span class="badge bg-secondary">Salvo em {{ $cartao->created_at->format('d/m/Y') }}</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
-                                    <span class="badge bg-secondary">Salvo em {{ $cartao->created_at->format('d/m/Y') }}</span>
+                                <div class="info-block-actions">
                                     <form method="POST" action="{{ route('cartoes.destroy', $cartao) }}" onsubmit="return confirm('Remover este cartao?')">
                                         @csrf
                                         @method('DELETE')
