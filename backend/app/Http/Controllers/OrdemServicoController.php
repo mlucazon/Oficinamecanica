@@ -391,17 +391,19 @@ class OrdemServicoController extends Controller
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' aprovou e confirmou o pagamento da OS ' . $ordemServico->numero . '. A OS aguarda finalizacao.',
+                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ', efetuou o pagamento e vai comparecer na oficina. A OS aguarda finalizacao.',
             ]);
         });
 
-        if ($ordemServico->mecanico?->user_id) {
+        $mecanico = $ordemServico->mecanico()->with('user')->first();
+
+        if ($mecanico?->user_id) {
             Notificacao::create([
-                'user_id' => $ordemServico->mecanico->user_id,
+                'user_id' => $mecanico->user_id,
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'O cliente aprovou e confirmou o pagamento da OS ' . $ordemServico->numero . '. Finalize o servico quando estiver pronto.',
+                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ', efetuou o pagamento e vai comparecer na oficina. Finalize o servico quando estiver pronto.',
             ]);
         }
 

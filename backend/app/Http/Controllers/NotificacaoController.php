@@ -26,6 +26,7 @@ class NotificacaoController extends Controller
                     })->orWhereHas('os', fn($os) => $os->whereIn('status', [
                         'orcamento_enviado_atendente',
                         'aguardando_aprovacao',
+                        'aguardando_finalizacao',
                     ]));
                 });
             })
@@ -64,6 +65,7 @@ class NotificacaoController extends Controller
                         ->whereHas('os', fn($os) => $os->whereNotIn('status', [
                             'orcamento_enviado_atendente',
                             'aguardando_aprovacao',
+                            'aguardando_finalizacao',
                         ]));
                 });
             })

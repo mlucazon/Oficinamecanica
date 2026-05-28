@@ -260,6 +260,7 @@
                                     <th>OS</th>
                                     <th>Cliente</th>
                                     <th>Veiculo</th>
+                                    <th>Aviso</th>
                                     <th>Data</th>
                                     <th>Acoes</th>
                                 </tr>
@@ -275,6 +276,9 @@
                                             <small>{{ $notif->os->veiculo->marca }} {{ $notif->os->veiculo->modelo }}</small>
                                             <br>
                                             <span class="badge bg-light text-dark font-mono">{{ $notif->os->veiculo->placa }}</span>
+                                        </td>
+                                        <td>
+                                            <small>{{ $notif->mensagem ?: 'Nova atualizacao de OS.' }}</small>
                                         </td>
                                         <td>
                                             <small>{{ $notif->created_at->format('d/m H:i') }}</small>
@@ -300,9 +304,15 @@
                                                         </button>
                                                     </form>
                                                 @else
-                                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">
-                                                        Aguardando resposta do cliente
-                                                    </span>
+                                                    @if($notif->os->status === 'aguardando_finalizacao')
+                                                        <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle px-3 py-2">
+                                                            Cliente confirmou
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">
+                                                            Aguardando resposta do cliente
+                                                        </span>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </td>
@@ -339,6 +349,10 @@
                                         <span>Tipo</span>
                                         <strong>{{ $notif->tipo === 'solicitacao_os' ? 'Solicitacao de OS' : 'Atualizacao' }}</strong>
                                     </div>
+                                    <div class="notification-mobile-field">
+                                        <span>Aviso</span>
+                                        <small>{{ $notif->mensagem ?: 'Nova atualizacao de OS.' }}</small>
+                                    </div>
                                 </div>
 
                                 <div class="notification-mobile-actions">
@@ -361,9 +375,15 @@
                                             </button>
                                         </form>
                                     @else
-                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">
-                                            Aguardando cliente
-                                        </span>
+                                        @if($notif->os->status === 'aguardando_finalizacao')
+                                            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle px-3 py-2">
+                                                Cliente confirmou
+                                            </span>
+                                        @else
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">
+                                                Aguardando cliente
+                                            </span>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
