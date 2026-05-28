@@ -2,11 +2,120 @@
 @section('title', $ordemServico->numero)
 @section('breadcrumb', 'OS / ' . $ordemServico->numero)
 
+@push('styles')
+<style>
+    .os-show-page {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .os-show-header {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        flex-wrap: wrap;
+        padding: .25rem 0 .35rem;
+    }
+
+    .os-show-header h5 {
+        font-size: .95rem;
+    }
+
+    .os-show-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: .5rem;
+        flex-wrap: wrap;
+        margin-left: auto;
+    }
+
+    .os-show-actions form {
+        margin: 0;
+    }
+
+    .os-show-grid {
+        --bs-gutter-x: 1rem;
+        --bs-gutter-y: 1rem;
+    }
+
+    .os-show-page .card {
+        overflow: hidden;
+    }
+
+    .os-show-page .card-header {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .os-show-page .card-body {
+        padding: 1.15rem 1.25rem;
+    }
+
+    .payment-panel {
+        padding: 1rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .payment-form {
+        display: grid;
+        grid-template-columns: minmax(260px, 420px) 1fr;
+        gap: .9rem;
+        align-items: end;
+    }
+
+    .payment-method-field,
+    #pagamento-cartao-os,
+    .payment-actions {
+        grid-column: 1 / -1;
+    }
+
+    .payment-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: .6rem;
+        flex-wrap: wrap;
+        padding-top: .2rem;
+    }
+
+    #pagamento-pix-os,
+    #pagamento-cartao-os .alert {
+        border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .os-show-header,
+        .os-show-actions,
+        .payment-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .os-show-actions,
+        .os-show-actions .btn,
+        .os-show-actions form,
+        .payment-actions .btn {
+            width: 100%;
+        }
+
+        .payment-form {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+<div class="os-show-page">
+<div class="os-show-header">
 	    <h5 class="mb-0 font-mono">{{ $ordemServico->numero }}</h5>
 	    <span class="badge badge-{{ $ordemServico->status }} fs-6">{{ $ordemServico->statusLabel() }}</span>
-	    <div class="ms-auto d-flex gap-2 flex-wrap no-print">
+	    <div class="os-show-actions no-print">
 	        <a href="{{ auth()->user()->isCliente() ? route('conta.os') : route('os.index') }}" class="btn btn-sm btn-outline-secondary">
 	            <i class="bi bi-arrow-left me-1"></i>Voltar às OS
 	        </a>
@@ -71,7 +180,7 @@
     </div>
 </div>
 
-<div class="row g-3">
+<div class="row g-3 os-show-grid">
 
     @if(str_contains((string) $ordemServico->observacoes, 'garantia ativa do veiculo'))
         <div class="col-12">
@@ -398,11 +507,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex gap-2 justify-content-end mt-3 flex-wrap">
-                        <form method="POST" action="{{ route('os.cliente.aprovar', $ordemServico->id) }}" class="row g-2 align-items-end flex-grow-1 justify-content-end">
+                    <div class="payment-panel mt-3">
+                        <form method="POST" action="{{ route('os.cliente.aprovar', $ordemServico->id) }}" class="payment-form">
                             @csrf
                             @method('PATCH')
-                            <div class="col-md-5 col-lg-4">
+                            <div class="payment-method-field">
                                 <label class="form-label">Forma de pagamento</label>
                                 <select name="metodo_pagamento" id="metodo-pagamento-os" class="form-select" required>
                                     <option value="">Selecione...</option>
@@ -452,17 +561,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-auto">
+                            <div class="payment-actions">
                                 <button class="btn btn-success" onclick="return confirm('Confirmar pagamento e aprovar esta OS?')">
                                     <i class="bi bi-credit-card me-1"></i>Aprovar e pagar
                                 </button>
+                                <button type="submit" form="recusar-orcamento-form" class="btn btn-outline-danger">
+                                    <i class="bi bi-x-circle me-1"></i>Recusar
+                                </button>
                             </div>
                         </form>
-                        <form method="POST" action="{{ route('os.cliente.recusar', $ordemServico->id) }}">
+                        <form method="POST" action="{{ route('os.cliente.recusar', $ordemServico->id) }}" id="recusar-orcamento-form" class="d-none">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="motivo_recusa" value="Cliente recusou o orcamento">
-                            <button class="btn btn-outline-danger"><i class="bi bi-x-circle me-1"></i>Recusar</button>
                         </form>
                     </div>
                 @endif
@@ -610,6 +721,7 @@
 	    @endif
 	
 	</div>
+</div>
 	@endsection
 
 @push('scripts')
