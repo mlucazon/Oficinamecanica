@@ -160,6 +160,16 @@ class NotificacaoController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function marcarTodasLidas()
+    {
+        Notificacao::where('user_id', auth()->id())
+            ->where('lida', false)
+            ->where('status', 'pendente')
+            ->update(['lida' => true]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function limpar()
     {
         Notificacao::where('user_id', auth()->id())

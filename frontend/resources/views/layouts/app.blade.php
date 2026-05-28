@@ -3033,7 +3033,7 @@
 	            <i class="bi bi-sun theme-dark-icon"></i>
 	            <i class="bi bi-moon-stars theme-light-icon"></i>
 	        </button>
-	        <button class="topbar-btn no-print" title="Notificações" type="button" onclick="toggleMiniNotifs()">
+	        <button class="topbar-btn no-print" title="Notificações" type="button" onclick="toggleMiniNotifs()" data-mark-read-url="{{ route('notificacoes.marcar-todas-lidas') }}">
 	            <i class="bi bi-bell"></i>
                 @php
                     $topbarNaoLidasCount = \App\Models\Notificacao::where('user_id', auth()->id())
@@ -3234,6 +3234,32 @@ function toggleMiniNotifs() {
     if (!el) return;
     const isHidden = el.style.display === 'none' || !el.style.display;
     el.style.display = isHidden ? 'block' : 'none';
+
+    if (!isHidden) {
+        markMiniNotifsViewed();
+    }
+}
+
+function markMiniNotifsViewed() {
+    const btn = document.querySelector('.topbar-btn.no-print[title="Notificações"]');
+    const url = btn?.dataset.markReadUrl;
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    if (!btn || !url || btn.dataset.markingRead === '1') return;
+
+    btn.dataset.markingRead = '1';
+    btn.querySelector('.notif-dot')?.remove();
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': token || '',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+    }).finally(() => {
+        btn.dataset.markingRead = '0';
+    });
 }
 
 function toggleProfileMenu() {
@@ -3246,7 +3272,11 @@ document.addEventListener('click', (e) => {
     const el = document.getElementById('mini-notificacoes');
     const btn = e.target.closest('.topbar-btn.no-print[title="Notificações"]');
     if (el && !btn && !el.contains(e.target)) {
+        const wasOpen = el.style.display !== 'none' && !!el.style.display;
         el.style.display = 'none';
+        if (wasOpen) {
+            markMiniNotifsViewed();
+        }
     }
 
     const profileMenu = document.getElementById('profile-dropdown');
