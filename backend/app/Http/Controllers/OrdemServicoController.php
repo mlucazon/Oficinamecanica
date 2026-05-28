@@ -14,6 +14,7 @@ use App\Support\OrdemServicoSchema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class OrdemServicoController extends Controller
 {
@@ -356,17 +357,22 @@ class OrdemServicoController extends Controller
             abort(403);
         }
 
+        $pagandoComCartao = $request->input('metodo_pagamento') === 'cartao';
+        $usandoCartaoSalvo = $pagandoComCartao && $request->input('cartao_opcao') === 'salvo';
+        $usandoCartaoNovo = $pagandoComCartao && $request->input('cartao_opcao') === 'novo';
+        $usandoCredito = $usandoCartaoNovo && $request->input('tipo_cartao') === 'credito';
+
         $request->validate([
             'metodo_pagamento' => 'required|in:pix,cartao,dinheiro',
             'garantia_opcao' => 'required|in:sem,com',
             'cartao_opcao' => 'nullable|required_if:metodo_pagamento,cartao|in:salvo,novo',
-            'cartao_salvo_id' => 'nullable|required_if:cartao_opcao,salvo|integer',
-            'tipo_cartao' => 'nullable|required_if:cartao_opcao,novo|in:debito,credito',
-            'cartao_numero' => 'nullable|required_if:cartao_opcao,novo|string|max:24',
-            'cartao_nome' => 'nullable|required_if:cartao_opcao,novo|string|max:120',
-            'cartao_validade' => ['nullable', 'required_if:cartao_opcao,novo', 'regex:/^\d{2}\/\d{2}$/'],
-            'cartao_cvv' => 'nullable|required_if:cartao_opcao,novo|string|min:3|max:4',
-            'parcelas' => 'nullable|required_if:tipo_cartao,credito|integer|min:1|max:6',
+            'cartao_salvo_id' => ['nullable', Rule::requiredIf($usandoCartaoSalvo), 'integer'],
+            'tipo_cartao' => ['nullable', Rule::requiredIf($usandoCartaoNovo), 'in:debito,credito'],
+            'cartao_numero' => ['nullable', Rule::requiredIf($usandoCartaoNovo), 'string', 'max:24'],
+            'cartao_nome' => ['nullable', Rule::requiredIf($usandoCartaoNovo), 'string', 'max:120'],
+            'cartao_validade' => ['nullable', Rule::requiredIf($usandoCartaoNovo), 'regex:/^\d{2}\/\d{2}$/'],
+            'cartao_cvv' => ['nullable', Rule::requiredIf($usandoCartaoNovo), 'string', 'min:3', 'max:4'],
+            'parcelas' => ['nullable', Rule::requiredIf($usandoCredito), 'integer', 'min:1', 'max:6'],
         ]);
 
         if ($request->metodo_pagamento === 'cartao' && $request->cartao_opcao === 'salvo') {
