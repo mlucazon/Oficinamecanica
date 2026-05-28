@@ -57,15 +57,21 @@ class DefaultUserAccounts
         );
 
         if ($data['role'] === 'mecanico') {
-            Mecanico::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'nome' => $data['name'],
-                    'cpf' => $data['cpf'],
-                    'telefone' => $data['telefone'],
-                    'ativo' => true,
-                ]
-            );
+            $mecanico = Mecanico::where('user_id', $user->id)
+                ->orWhere('cpf', $data['cpf'])
+                ->first();
+
+            if (! $mecanico) {
+                $mecanico = new Mecanico();
+            }
+
+            $mecanico->fill([
+                'user_id' => $user->id,
+                'nome' => $data['name'],
+                'cpf' => $data['cpf'],
+                'telefone' => $data['telefone'],
+                'ativo' => true,
+            ])->save();
         }
     }
 }
