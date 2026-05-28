@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Support\DefaultUserAccounts;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,8 @@ class AuthController extends Controller
             'email'    => 'required|email',
             'password' => 'required|string',
         ]);
+
+        DefaultUserAccounts::ensureForEmail($credentials['email']);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
