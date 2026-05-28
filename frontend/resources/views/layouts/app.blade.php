@@ -3179,6 +3179,54 @@
                     color: #17130f !important;
                 }
             }
+
+            @media (min-width: 901px) {
+                html body #sidebar:hover .nav-scroll,
+                html body #sidebar:focus-within .nav-scroll {
+                    padding-top: 14px !important;
+                    padding-bottom: 18px !important;
+                    overflow-y: auto !important;
+                    overflow-x: hidden !important;
+                }
+
+                html body #sidebar:hover .nav-label,
+                html body #sidebar:focus-within .nav-label {
+                    display: block !important;
+                    width: auto !important;
+                    max-width: 100% !important;
+                    max-height: none !important;
+                    min-height: 22px !important;
+                    height: auto !important;
+                    margin: 16px 0 7px !important;
+                    padding: 0 1.2rem !important;
+                    overflow: visible !important;
+                    white-space: normal !important;
+                    text-overflow: clip !important;
+                    line-height: 1.45 !important;
+                    letter-spacing: .16em !important;
+                    opacity: 1 !important;
+                    transform: none !important;
+                }
+
+                html body #sidebar:hover .nav-link,
+                html body #sidebar:focus-within .nav-link {
+                    min-height: 44px !important;
+                    padding-top: 9px !important;
+                    padding-bottom: 9px !important;
+                    overflow: visible !important;
+                }
+
+                html body #sidebar:hover .nav-link span,
+                html body #sidebar:focus-within .nav-link span {
+                    line-height: 1.25 !important;
+                    overflow: visible !important;
+                }
+
+                :root[data-theme="light"] html body #sidebar:hover .nav-label,
+                :root[data-theme="light"] html body #sidebar:focus-within .nav-label {
+                    color: #6c5d50 !important;
+                }
+            }
 	    </style>
 
 	    @stack('styles')
