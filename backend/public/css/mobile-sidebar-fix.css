@@ -17,8 +17,8 @@
         left: 0 !important;
         right: auto !important;
         bottom: auto !important;
-        width: min(86vw, 320px) !important;
-        max-width: min(86vw, 320px) !important;
+        width: min(84vw, 312px) !important;
+        max-width: min(84vw, 312px) !important;
         min-width: 0 !important;
         height: 100dvh !important;
         min-height: 100dvh !important;
@@ -87,9 +87,9 @@
         flex: 0 0 58px !important;
         width: 100% !important;
         max-width: 100% !important;
-        height: 58px !important;
-        min-height: 58px !important;
-        padding: 0 12px !important;
+        height: 64px !important;
+        min-height: 64px !important;
+        padding: 0 16px !important;
         align-items: center !important;
         justify-content: flex-start !important;
         gap: 10px !important;
@@ -115,16 +115,16 @@
     #sidebar:focus-within .nav-scroll,
     #sidebar:not(:hover):not(:focus-within) .nav-scroll {
         position: absolute !important;
-        top: 58px !important;
+        top: 64px !important;
         left: 0 !important;
         right: 0 !important;
         bottom: 0 !important;
         display: block !important;
         flex: none !important;
-        height: calc(100dvh - 58px) !important;
-        min-height: calc(100dvh - 58px) !important;
+        height: calc(100dvh - 64px) !important;
+        min-height: calc(100dvh - 64px) !important;
         width: 100% !important;
-        padding: 8px 9px calc(120px + env(safe-area-inset-bottom)) !important;
+        padding: 12px 14px calc(132px + env(safe-area-inset-bottom)) !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
@@ -150,11 +150,11 @@
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 38px !important;
-        margin: 1px 0 !important;
-        padding: 8px 10px !important;
+        min-height: 46px !important;
+        margin: 2px 0 !important;
+        padding: 10px 12px !important;
         border-radius: 8px !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         box-sizing: border-box !important;
         opacity: 1 !important;
         visibility: visible !important;
@@ -188,7 +188,7 @@
         transform: none !important;
         pointer-events: auto !important;
         font-size: 13px !important;
-        line-height: 1.2 !important;
+        line-height: 1.28 !important;
         letter-spacing: 0 !important;
     }
 
@@ -199,18 +199,20 @@
         display: block !important;
         width: auto !important;
         max-width: 100% !important;
+        min-height: 18px !important;
         height: auto !important;
-        margin: 7px 0 2px !important;
-        padding: 0 10px !important;
+        margin: 16px 0 7px !important;
+        padding: 0 12px !important;
         opacity: 1 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        white-space: normal !important;
         transform: none !important;
         pointer-events: auto !important;
-        font-size: 9px !important;
-        line-height: 1.2 !important;
-        letter-spacing: .14em !important;
+        font-size: 10px !important;
+        line-height: 1.45 !important;
+        letter-spacing: .16em !important;
+        font-weight: 800 !important;
     }
 }
 

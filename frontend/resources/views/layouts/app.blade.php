@@ -3121,8 +3121,8 @@
 	    </style>
 
 	    @stack('styles')
-        <link href="/css/mobile-sidebar-fix.css?v=6" rel="stylesheet">
-        <script src="/js/mobile-sidebar-fix.js?v=4" defer></script>
+        <link href="/css/mobile-sidebar-fix.css?v=7" rel="stylesheet">
+        <script src="/js/mobile-sidebar-fix.js?v=5" defer></script>
 </head>
 <body>
 

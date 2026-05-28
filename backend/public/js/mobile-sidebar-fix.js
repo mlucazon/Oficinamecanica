@@ -45,7 +45,7 @@
             position: 'fixed',
             top: '0',
             left: '0',
-            width: 'min(86vw, 320px)',
+            width: 'min(84vw, 312px)',
             height: '100dvh',
             background: 'linear-gradient(180deg, #02050c, #06080d)',
             color: '#f5f5f5',
@@ -65,9 +65,9 @@
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                minHeight: '58px',
-                height: '58px',
-                padding: '0 12px',
+                minHeight: '64px',
+                height: '64px',
+                padding: '0 16px',
                 borderBottom: '1px solid rgba(255,255,255,.08)',
                 boxSizing: 'border-box'
             });
@@ -116,7 +116,7 @@
                 minHeight: '0',
                 overflowY: 'auto',
                 overflowX: 'hidden',
-                padding: '8px 9px 120px',
+                padding: '12px 14px 132px',
                 boxSizing: 'border-box',
                 WebkitOverflowScrolling: 'touch'
             });
@@ -127,14 +127,19 @@
                 display: 'block',
                 opacity: '1',
                 color: 'rgba(255,255,255,.58)',
-                fontSize: '9px',
+                fontSize: '10px',
                 textTransform: 'uppercase',
-                letterSpacing: '.14em',
-                margin: '8px 0 3px',
-                padding: '0 10px',
+                letterSpacing: '.16em',
+                lineHeight: '1.45',
+                fontWeight: '800',
+                margin: '16px 0 7px',
+                padding: '0 12px',
                 transform: 'none',
                 maxWidth: '100%',
-                height: 'auto'
+                minHeight: '18px',
+                height: 'auto',
+                overflow: 'visible',
+                whiteSpace: 'normal'
             });
         });
 
@@ -145,15 +150,16 @@
                 justifyContent: 'flex-start',
                 gap: '10px',
                 width: '100%',
-                minHeight: '38px',
-                margin: '1px 0',
-                padding: '8px 10px',
+                minHeight: '46px',
+                margin: '2px 0',
+                padding: '10px 12px',
                 borderRadius: '8px',
                 color: '#d8d8d8',
                 textDecoration: 'none',
                 boxSizing: 'border-box',
                 opacity: '1',
-                transform: 'none'
+                transform: 'none',
+                overflow: 'visible'
             });
         });
 
@@ -180,6 +186,7 @@
                 opacity: '1',
                 transform: 'none',
                 fontSize: '13px',
+                lineHeight: '1.28',
                 letterSpacing: '0',
                 color: 'inherit'
             });
