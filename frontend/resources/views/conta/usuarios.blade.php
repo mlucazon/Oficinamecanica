@@ -2,8 +2,54 @@
 @section('title', 'Gestao de Cargos')
 @section('breadcrumb', 'Gestao de Cargos')
 
+@push('styles')
+<style>
+    .accounts-role-title {
+        color: var(--text);
+        font-family: 'Syne', sans-serif;
+        font-size: .9rem;
+        font-weight: 800;
+        letter-spacing: .04em;
+        margin-bottom: .85rem;
+    }
+
+    .accounts-role-title::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin-right: .45rem;
+        border-radius: 50%;
+        background: var(--red-h);
+        box-shadow: 0 0 0 4px var(--red-dim);
+        vertical-align: middle;
+    }
+
+    .accounts-area .form-label,
+    .accounts-area h5,
+    .accounts-area p,
+    .accounts-area td,
+    .accounts-area .fw-semibold {
+        color: var(--text);
+    }
+
+    .accounts-area .text-muted,
+    .accounts-area .small.text-muted {
+        color: var(--text2) !important;
+    }
+
+    .accounts-area .table {
+        color: var(--text);
+    }
+
+    :root[data-theme="light"] .accounts-area .table-light th {
+        color: #4a3325;
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="card">
+<div class="card accounts-area">
     <div class="card-header d-flex align-items-center justify-content-between">
         <span><i class="bi bi-person-badge me-2"></i>Gestao de Cargos</span>
     </div>
@@ -105,7 +151,7 @@
 
                     @foreach($order as $roleKey => $roleLabel)
                         <div class="mb-4">
-                            <h6 class="text-white mb-3">{{ $roleLabel }}</h6>
+                            <h6 class="accounts-role-title">{{ $roleLabel }}</h6>
 
                             @if(isset($groups[$roleKey]) && $groups[$roleKey]->isNotEmpty())
                                 <div class="table-responsive">
