@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Notificacao;
 use App\Models\Garantia;
 use App\Support\CartoesClienteSchema;
+use App\Support\OrdemServicoSchema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -368,6 +369,8 @@ class OrdemServicoController extends Controller
             );
         }
 
+        OrdemServicoSchema::ensureStatusEnum();
+
         $ordemServico->update([
             'aprovado_cliente' => true,
             'data_aprovacao' => now(),
@@ -495,6 +498,8 @@ class OrdemServicoController extends Controller
         if ($request->status === 'finalizada' && ! $ordemServico->aprovado_cliente) {
             return back()->with('error', 'A OS só pode ser finalizada depois que o cliente aceitar fazer o serviço.');
         }
+
+        OrdemServicoSchema::ensureStatusEnum();
 
         $ordemServico->update(['status' => $request->status]);
 
