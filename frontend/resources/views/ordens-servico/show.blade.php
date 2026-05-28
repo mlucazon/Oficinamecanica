@@ -82,7 +82,7 @@
         </div>
     @endif
 
-    @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id() && $ordemServico->aprovado_cliente && in_array($ordemServico->status, ['em_execucao', 'aprovada']))
+    @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id() && $ordemServico->aprovado_cliente && in_array($ordemServico->status, ['em_execucao', 'aprovada', 'aguardando_finalizacao']))
         <div class="col-12">
             <div class="alert alert-warning d-flex align-items-start justify-content-between gap-3 flex-wrap mb-0">
                 <div>
@@ -232,6 +232,7 @@
                 'aguardando_aprovacao',
                 'aprovada',
                 'em_execucao',
+                'aguardando_finalizacao',
                 'aguardando_pecas',
                 'finalizada',
             ]);
@@ -369,11 +370,51 @@
                     </form>
                 @endif
                 @if(auth()->user()->isCliente() && $ordemServico->status === 'aguardando_aprovacao')
+                    @php
+                        $pixCobrancaOsUrl = 'https://nubank.com.br/cobrar/1htzrg/6a17451a-654b-4b18-b315-a5d43bb81b02';
+                        $pixQrOsUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCobrancaOsUrl);
+                    @endphp
+                    <div class="alert alert-info mt-3">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-auto text-center">
+                                <div style="display:inline-block;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff;">
+                                    <img src="{{ $pixQrOsUrl }}" alt="QR Code Pix da OS" width="180" height="180" style="display:block;max-width:100%;height:auto;">
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="fw-semibold mb-1">Aprovar orçamento e confirmar pagamento</div>
+                                <div class="small mb-2">
+                                    Total da OS: <span class="font-mono fw-bold">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>.
+                                    Escaneie o Pix ou escolha a forma de pagamento abaixo.
+                                </div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="{{ $pixCobrancaOsUrl }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-qr-code me-1"></i>Abrir cobranca Pix
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="navigator.clipboard?.writeText('{{ $pixCobrancaOsUrl }}')">
+                                        <i class="bi bi-clipboard me-1"></i>Copiar link
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="d-flex gap-2 justify-content-end mt-3 flex-wrap">
-                        <form method="POST" action="{{ route('os.cliente.aprovar', $ordemServico->id) }}">
+                        <form method="POST" action="{{ route('os.cliente.aprovar', $ordemServico->id) }}" class="row g-2 align-items-end flex-grow-1 justify-content-end">
                             @csrf
                             @method('PATCH')
-                            <button class="btn btn-success"><i class="bi bi-check2-circle me-1"></i>Aprovar e prosseguir</button>
+                            <div class="col-md-5 col-lg-4">
+                                <label class="form-label">Forma de pagamento</label>
+                                <select name="metodo_pagamento" class="form-select" required>
+                                    <option value="pix">Pix</option>
+                                    <option value="cartao">Cartao</option>
+                                    <option value="dinheiro">Dinheiro/presencial</option>
+                                </select>
+                            </div>
+                            <div class="col-md-auto">
+                                <button class="btn btn-success" onclick="return confirm('Confirmar pagamento e aprovar esta OS?')">
+                                    <i class="bi bi-credit-card me-1"></i>Aprovar e pagar
+                                </button>
+                            </div>
                         </form>
                         <form method="POST" action="{{ route('os.cliente.recusar', $ordemServico->id) }}">
                             @csrf

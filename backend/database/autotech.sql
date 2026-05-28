@@ -226,6 +226,7 @@ CREATE TABLE ordens_servico (
         'aguardando_aprovacao',
         'aprovada',
         'em_execucao',
+        'aguardando_finalizacao',
         'aguardando_pecas',
         'finalizada',
         'cancelada',

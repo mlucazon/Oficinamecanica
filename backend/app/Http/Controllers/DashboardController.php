@@ -37,7 +37,7 @@ class DashboardController extends Controller
 
         $stats = [
             'os_abertas'      => (clone $ordensQuery)->whereIn('status', ['aguardando_aceitacao', 'solicitacao_aceita', 'aberta'])->count(),
-            'os_em_execucao'  => (clone $ordensQuery)->whereIn('status', ['em_execucao','em_diagnostico'])->count(),
+            'os_em_execucao'  => (clone $ordensQuery)->whereIn('status', ['em_execucao','em_diagnostico','aguardando_finalizacao'])->count(),
             'os_aguardando'   => (clone $ordensQuery)->where('status', 'aguardando_aprovacao')->count(),
             'os_finalizadas_mes' => (clone $ordensQuery)->where('status', 'finalizada')
                                     ->whereMonth('data_conclusao', now()->month)->count(),

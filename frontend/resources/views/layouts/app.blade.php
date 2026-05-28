@@ -851,6 +851,8 @@
         .badge-aprovada::before     { background: var(--info); }
         .badge-em_execucao          { background: var(--danger-bg);  color: var(--danger-text); }
         .badge-em_execucao::before  { background: var(--red); animation: pulse-dot 1.4s ease infinite; }
+        .badge-aguardando_finalizacao { background: var(--warning-bg); color: var(--warning-text); }
+        .badge-aguardando_finalizacao::before { background: var(--warning); animation: pulse-dot 1.4s ease infinite; }
         .badge-aguardando_pecas     { background: rgba(253,126,20,.12); color: #FD9B52; }
         .badge-aguardando_pecas::before { background: #fd7e14; }
         .badge-finalizada           { background: var(--success-bg); color: var(--success-text); }
@@ -1304,7 +1306,7 @@
         }
     </style>
 
-	    <link href="{{ asset('css/app.css') }}?v=28" rel="stylesheet">
+	    <link href="{{ asset('css/app.css') }}?v=29" rel="stylesheet">
 
 	    <style>
 	        @media (min-width: 901px) {

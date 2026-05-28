@@ -128,7 +128,7 @@
             <div class="col-md-3">
                 <select name="status" class="form-select">
                     <option value="">Todos os status</option>
-                    @foreach(['aberta','em_diagnostico','aguardando_aprovacao','aprovada','em_execucao','aguardando_pecas','finalizada','cancelada'] as $s)
+                    @foreach(['aberta','em_diagnostico','aguardando_aprovacao','aprovada','em_execucao','aguardando_finalizacao','aguardando_pecas','finalizada','cancelada'] as $s)
                     <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$s)) }}</option>
                     @endforeach
                 </select>

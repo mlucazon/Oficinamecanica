@@ -325,14 +325,14 @@ class OrdemServicoController extends Controller
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'Seu orcamento da OS ' . $ordemServico->numero . ' esta pronto. Aprove para prosseguir ou recuse o servico.',
+                'mensagem' => 'Seu orcamento da OS ' . $ordemServico->numero . ' esta pronto. Aprove e confirme o pagamento para a oficina finalizar a OS, ou recuse o servico.',
             ]);
         }
 
         return back()->with('success', 'Orcamento enviado para o cliente decidir.');
     }
 
-    public function clienteAprovar($id)
+    public function clienteAprovar(Request $request, $id)
     {
         $ordemServico = OrdemServico::with(['cliente', 'mecanico.user'])->findOrFail($id);
 
@@ -340,10 +340,14 @@ class OrdemServicoController extends Controller
             abort(403);
         }
 
+        $request->validate([
+            'metodo_pagamento' => 'required|in:pix,cartao,dinheiro',
+        ]);
+
         $ordemServico->update([
             'aprovado_cliente' => true,
             'data_aprovacao' => now(),
-            'status' => 'em_execucao',
+            'status' => 'aguardando_finalizacao',
         ]);
 
         Notificacao::where('user_id', Auth::id())
@@ -360,7 +364,7 @@ class OrdemServicoController extends Controller
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' aprovou prosseguir com a OS ' . $ordemServico->numero . '.',
+                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' aprovou e confirmou o pagamento da OS ' . $ordemServico->numero . '. A OS aguarda finalizacao.',
             ]);
         });
 
@@ -370,11 +374,11 @@ class OrdemServicoController extends Controller
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'O cliente aprovou a OS ' . $ordemServico->numero . '. Voce pode prosseguir com o servico.',
+                'mensagem' => 'O cliente aprovou e confirmou o pagamento da OS ' . $ordemServico->numero . '. Finalize o servico quando estiver pronto.',
             ]);
         }
 
-        return back()->with('success', 'Orcamento aprovado. O mecanico solicitou sua presenca com o veiculo na oficina. Veja a localizacao para combinar a entrega.');
+        return back()->with('success', 'Pagamento confirmado. A OS agora esta aguardando finalizacao pela oficina.');
     }
 
     public function clienteRecusar(Request $request, $id)
@@ -461,7 +465,7 @@ class OrdemServicoController extends Controller
     {
         $ordemServico = OrdemServico::findOrFail($id);
         $request->validate([
-            'status' => 'required|in:aberta,em_diagnostico,aguardando_aprovacao,aprovada,em_execucao,aguardando_pecas,finalizada,cancelada',
+            'status' => 'required|in:aberta,em_diagnostico,aguardando_aprovacao,aprovada,em_execucao,aguardando_finalizacao,aguardando_pecas,finalizada,cancelada',
         ]);
 
         if ($request->status === 'finalizada' && ! $ordemServico->aprovado_cliente) {

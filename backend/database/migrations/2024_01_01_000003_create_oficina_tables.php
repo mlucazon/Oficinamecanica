@@ -43,7 +43,7 @@ return new class extends Migration {
             $table->foreignId('mecanico_id')->nullable()->constrained('mecanicos')->nullOnDelete();
             $table->enum('status', [
                 'aguardando_aceitacao','aberta','em_diagnostico','aguardando_aprovacao',
-                'aprovada','em_execucao','aguardando_pecas','finalizada','cancelada'
+                'aprovada','em_execucao','aguardando_finalizacao','aguardando_pecas','finalizada','cancelada'
             ])->default('aguardando_aceitacao');
             $table->text('sintomas')->nullable();
             $table->text('diagnostico')->nullable();
