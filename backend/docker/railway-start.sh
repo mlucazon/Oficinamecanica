@@ -16,6 +16,10 @@ if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     php artisan migrate --force --no-interaction
 fi
 
+if [ "${RUN_DEFAULT_USERS:-true}" = "true" ]; then
+    php artisan db:seed --class=UserSeeder --force --no-interaction
+fi
+
 php artisan storage:link --force --no-interaction || true
 
 echo "Starting Laravel on 0.0.0.0:${PORT}..."
