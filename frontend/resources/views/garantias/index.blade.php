@@ -4,94 +4,126 @@
 
 @push('styles')
 <style>
-    .warranties-table {
-        display: block;
-    }
-
-    .warranties-mobile {
-        display: none;
+    .warranty-list {
+        display: grid;
+        gap: 12px;
+        padding: 14px;
     }
 
     .warranty-card {
-        border: 1px solid var(--border2);
-        border-radius: 10px;
-        padding: 1rem;
-        background: var(--surface2);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px 18px;
+        background: rgba(255,255,255,.025);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
     }
 
-    .warranty-card-head {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: .75rem;
-        margin-bottom: .85rem;
-    }
-
-    .warranty-card-head > div,
-    .warranty-desc,
-    .warranty-value {
+    .warranty-main {
+        display: grid;
+        grid-template-columns: 56px minmax(150px, .7fr) minmax(180px, .95fr) minmax(240px, 1.35fr);
+        gap: 16px;
+        align-items: center;
         min-width: 0;
+    }
+
+    .warranty-icon {
+        width: 56px;
+        height: 56px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(34, 197, 94, .14);
+        color: #4ade80;
+        font-size: 22px;
+    }
+
+    .warranty-card.is-used .warranty-icon {
+        background: rgba(245, 158, 11, .16);
+        color: #fbbf24;
+    }
+
+    .warranty-card.is-expired .warranty-icon {
+        background: rgba(148, 163, 184, .14);
+        color: #cbd5e1;
+    }
+
+    .warranty-kicker {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--text3);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .warranty-title,
+    .warranty-value {
+        display: block;
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.3;
         overflow-wrap: anywhere;
     }
 
-    .warranty-customer {
+    .warranty-title {
+        font-family: var(--font-mono);
+    }
+
+    .warranty-desc,
+    .warranty-note {
         color: var(--text2);
         font-size: 14px;
-        line-height: 1.25;
-        margin-top: .15rem;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
     }
 
-    .warranty-grid {
+    .warranty-meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+    }
+
+    .warranty-status {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: .75rem;
+        justify-items: end;
+        gap: 8px;
+        min-width: 190px;
+        text-align: right;
     }
 
-    .warranty-field {
-        min-width: 0;
+    .warranty-note {
+        max-width: 260px;
     }
 
-    .warranty-label {
-        color: var(--text3);
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        margin-bottom: .18rem;
+    .warranty-empty {
+        margin: 0;
+        padding: 28px 16px;
+        color: var(--text2);
+        text-align: center;
     }
 
-    .warranty-value {
-        color: var(--text);
-        font-size: 14px;
-        line-height: 1.3;
-    }
-
-    .warranty-desc {
-        grid-column: 1 / -1;
-    }
-
-    .warranty-actions {
-        margin-top: .9rem;
-    }
-
-    .warranty-actions .btn {
-        width: 100%;
-        min-height: 42px;
-    }
-
-    @media (max-width: 576px) {
-        .warranties-table {
-            display: none;
+    @media (max-width: 900px) {
+        .warranty-card,
+        .warranty-main {
+            grid-template-columns: 1fr;
         }
 
-        .warranties-mobile {
-            display: grid;
-            gap: .75rem;
-            padding: 1rem;
+        .warranty-status {
+            justify-items: start;
+            min-width: 0;
+            text-align: left;
         }
 
-        .warranties-card .card-footer {
-            padding: .75rem 1rem;
+        .warranty-note {
+            max-width: none;
         }
     }
 </style>
@@ -100,151 +132,90 @@
 @section('content')
 @php($mostrarVeiculo = auth()->user()->isCliente())
 <div class="card warranties-card">
-    <div class="card-header">
-        <i class="bi bi-shield-check me-2"></i>Garantias
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <span><i class="bi bi-shield-check me-2"></i>Garantias</span>
+        @if($garantias->count() > 0)
+            <span class="badge bg-secondary">{{ $garantias->total() }} registradas</span>
+        @endif
     </div>
     <div class="card-body p-0">
         @if($garantias->count() > 0)
-            <div class="warranties-table table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>OS</th>
-                            <th>{{ $mostrarVeiculo ? 'Veiculo' : 'Cliente' }}</th>
-                            <th>Descrição</th>
-                            <th>Válida até</th>
-                            <th>Situação</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($garantias as $g)
-                            <tr>
-                                <td class="font-mono small">{{ $g->ordemServico->numero }}</td>
-                                <td>
-                                    @if($mostrarVeiculo)
-                                        {{ $g->ordemServico->veiculo->marca }} {{ $g->ordemServico->veiculo->modelo }}
-                                        <br><span class="badge bg-light text-dark font-mono">{{ $g->ordemServico->veiculo->placa }}</span>
-                                    @else
-                                        {{ $g->ordemServico->cliente->nome }}
-                                    @endif
-                                </td>
-                                <td>{{ $g->descricao }}</td>
-                                <td>{{ $g->data_fim->format('d/m/Y') }}</td>
-                                <td>
-                                    @if($g->acionada)
-                                        <span class="badge bg-warning text-dark">Acionada</span>
-                                    @elseif($g->expirada())
-                                        <span class="badge bg-secondary">Expirada</span>
-                                    @else
-                                        <span class="badge bg-success">Ativa</span>
-                                    @endif
-                                </td>
-                                <td class="text-end">
-                                    @if($g->ativa())
-                                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal-{{ $g->id }}">
-                                            <i class="bi bi-lightning me-1"></i>Acionar
-                                        </button>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="warranties-mobile">
+            <div class="warranty-list">
                 @foreach($garantias as $g)
-                    <div class="warranty-card">
-                        <div class="warranty-card-head">
-                            <div>
-                                <strong class="font-mono">OS {{ $g->ordemServico->numero }}</strong>
-                                <div class="warranty-customer">
-                                    @if($mostrarVeiculo)
-                                        {{ $g->ordemServico->veiculo->marca }} {{ $g->ordemServico->veiculo->modelo }}
-                                        <span class="font-mono">({{ $g->ordemServico->veiculo->placa }})</span>
-                                    @else
-                                        {{ $g->ordemServico->cliente->nome }}
-                                    @endif
-                                </div>
-                            </div>
-                            <div>
+                    @php
+                        $expirada = $g->expirada();
+                        $ativa = $g->ativa();
+                        $situacao = $g->acionada ? 'Acionada' : ($expirada ? 'Expirada' : ($ativa ? 'Ativa' : ucfirst(str_replace('_', ' ', $g->status))));
+                        $cardClass = $g->acionada ? 'is-used' : ($expirada ? 'is-expired' : '');
+                    @endphp
+
+                    <div class="warranty-card {{ $cardClass }}">
+                        <div class="warranty-main">
+                            <div class="warranty-icon">
                                 @if($g->acionada)
-                                    <span class="badge bg-warning text-dark">Acionada</span>
-                                @elseif($g->expirada())
-                                    <span class="badge bg-secondary">Expirada</span>
+                                    <i class="bi bi-lightning-charge"></i>
+                                @elseif($expirada)
+                                    <i class="bi bi-shield-x"></i>
                                 @else
-                                    <span class="badge bg-success">Ativa</span>
+                                    <i class="bi bi-shield-check"></i>
                                 @endif
                             </div>
-                        </div>
 
-                        <div class="warranty-grid">
-                            <div class="warranty-field warranty-desc">
-                                <div class="warranty-label">Descrição</div>
-                                <div class="warranty-value">{{ $g->descricao }}</div>
-                            </div>
-                            <div class="warranty-field">
-                                <div class="warranty-label">Válida até</div>
-                                <div class="warranty-value">{{ $g->data_fim->format('d/m/Y') }}</div>
-                            </div>
-                            <div class="warranty-field">
-                                <div class="warranty-label">Situação</div>
-                                <div class="warranty-value">
-                                    @if($g->acionada)
-                                        Acionada
-                                    @elseif($g->expirada())
-                                        Expirada
-                                    @else
-                                        Ativa
-                                    @endif
+                            <div>
+                                <span class="warranty-kicker">OS</span>
+                                <strong class="warranty-title">{{ $g->ordemServico->numero }}</strong>
+                                <div class="warranty-meta">
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">Ate {{ $g->data_fim->format('d/m/Y') }}</span>
                                 </div>
                             </div>
+
+                            <div>
+                                <span class="warranty-kicker">{{ $mostrarVeiculo ? 'Veiculo' : 'Cliente' }}</span>
+                                @if($mostrarVeiculo)
+                                    <strong class="warranty-value">{{ $g->ordemServico->veiculo->marca }} {{ $g->ordemServico->veiculo->modelo }}</strong>
+                                    <div class="warranty-meta">
+                                        <span class="badge bg-light text-dark font-mono">{{ $g->ordemServico->veiculo->placa }}</span>
+                                    </div>
+                                @else
+                                    <strong class="warranty-value">{{ $g->ordemServico->cliente->nome }}</strong>
+                                    <div class="warranty-meta">
+                                        <span class="badge bg-light text-dark font-mono">{{ $g->ordemServico->veiculo->placa }}</span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div>
+                                <span class="warranty-kicker">Descricao</span>
+                                <div class="warranty-desc">{{ $g->descricao }}</div>
+                            </div>
                         </div>
 
-                        @if($g->ativa())
-                            <div class="warranty-actions">
-                                <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modal-{{ $g->id }}">
-                                    <i class="bi bi-lightning me-1"></i>Acionar garantia
-                                </button>
-                            </div>
-                        @endif
+                        <div class="warranty-status">
+                            @if($g->acionada)
+                                <span class="badge bg-warning text-dark px-3 py-2">Acionada</span>
+                                <div class="warranty-note">
+                                    Usada automaticamente em {{ optional($g->data_acionamento)->format('d/m/Y H:i') ?? 'nova OS' }}.
+                                </div>
+                            @elseif($expirada)
+                                <span class="badge bg-secondary px-3 py-2">Expirada</span>
+                                <div class="warranty-note">Prazo encerrado em {{ $g->data_fim->format('d/m/Y') }}.</div>
+                            @elseif($ativa)
+                                <span class="badge bg-success px-3 py-2">Ativa</span>
+                                <div class="warranty-note">Sera acionada automaticamente quando o cliente abrir uma nova OS para este veiculo.</div>
+                            @else
+                                <span class="badge bg-info text-dark px-3 py-2">{{ $situacao }}</span>
+                                <div class="warranty-note">Aguardando conclusao do fluxo da garantia.</div>
+                            @endif
+                        </div>
                     </div>
                 @endforeach
             </div>
         @else
-            <div class="text-center text-muted py-4">Nenhuma garantia registrada.</div>
+            <p class="warranty-empty">Nenhuma garantia registrada.</p>
         @endif
     </div>
     @if($garantias->hasPages())
         <div class="card-footer">{{ $garantias->links() }}</div>
     @endif
 </div>
-
-@foreach($garantias as $g)
-    @if($g->ativa())
-        <div class="modal fade" id="modal-{{ $g->id }}" tabindex="-1" aria-labelledby="modal-title-{{ $g->id }}" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modal-title-{{ $g->id }}">Acionar Garantia</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                    </div>
-                    <form method="POST" action="{{ route('garantias.acionar',$g) }}">
-                        @csrf
-                        @method('PATCH')
-                        <div class="modal-body">
-                            <label class="form-label">Descreva o motivo *</label>
-                            <textarea name="observacao" class="form-control" rows="4" required></textarea>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button class="btn btn-warning">Confirmar Acionamento</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    @endif
-@endforeach
 @endsection
