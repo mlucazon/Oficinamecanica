@@ -11,4 +11,12 @@ class Mecanico extends Model
 
     public function user()   { return $this->belongsTo(User::class); }
     public function ordens() { return $this->hasMany(OrdemServico::class); }
+
+    public function scopeLivres($query)
+    {
+        return $query->where('ativo', true)
+            ->whereDoesntHave('ordens', function ($q) {
+                $q->whereIn('status', OrdemServico::statusOcupamMecanico());
+            });
+    }
 }

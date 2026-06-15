@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         // Corrige o ENUM do campo status para incluir 'aguardando_aceitacao'
         // (o banco atual não aceita esse valor, gerando truncation e falha no INSERT).
         DB::statement("ALTER TABLE ordens_servico MODIFY status ENUM('aberta','em_diagnostico','aguardando_aprovacao','aprovada','em_execucao','aguardando_pecas','finalizada','cancelada','aguardando_aceitacao') NOT NULL DEFAULT 'aberta'");
@@ -24,6 +28,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         // Reverte o ENUM para o estado original (sem aguardando_aceitacao)
         DB::statement("ALTER TABLE ordens_servico MODIFY status ENUM('aberta','em_diagnostico','aguardando_aprovacao','aprovada','em_execucao','aguardando_pecas','finalizada','cancelada') NOT NULL DEFAULT 'aberta'");
     }

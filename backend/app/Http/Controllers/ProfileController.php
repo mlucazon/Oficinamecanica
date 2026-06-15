@@ -14,7 +14,7 @@ class ProfileController extends Controller
 {
     public function edit()
     {
-        $user = auth()->user()->load(['cliente', 'mecanico']);
+        $user = auth()->user()->load('cliente');
 
         if ($user->isCliente()) {
             CartoesClienteSchema::ensure();
@@ -23,22 +23,13 @@ class ProfileController extends Controller
             $user->setRelation('cartoes', collect());
         }
         $estados = Estado::with('cidades')->orderBy('nome')->get();
-        $ordensMecanico = collect();
 
-        if ($user->isMecanico() && $user->mecanico) {
-            $ordensMecanico = \App\Models\OrdemServico::with(['cliente', 'veiculo'])
-                ->where('mecanico_id', $user->mecanico->id)
-                ->latest()
-                ->limit(6)
-                ->get();
-        }
-
-        return view('perfil.edit', compact('user', 'estados', 'ordensMecanico'));
+        return view('perfil.edit', compact('user', 'estados'));
     }
 
     public function update(Request $request)
     {
-        $user = auth()->user()->load(['cliente', 'mecanico']);
+        $user = auth()->user()->load('cliente');
 
         $rules = [
             'name' => ['required', 'string', 'max:150'],
@@ -53,14 +44,6 @@ class ProfileController extends Controller
                 'endereco' => ['nullable', 'string', 'max:255'],
                 'cidade' => ['nullable', 'string', 'max:100'],
                 'estado' => ['nullable', 'string', 'size:2'],
-            ];
-        }
-
-        if ($user->isMecanico()) {
-            $rules += [
-                'cpf' => ['nullable', 'string', 'max:14', Rule::unique('mecanicos', 'cpf')->ignore($user->mecanico?->id)],
-                'telefone' => ['nullable', 'string', 'max:20'],
-                'especialidade' => ['nullable', 'string', 'max:100'],
             ];
         }
 
@@ -105,15 +88,6 @@ class ProfileController extends Controller
                 'endereco' => $data['endereco'] ?? null,
                 'cidade' => $data['cidade'] ?? null,
                 'estado' => $data['estado'] ?? null,
-            ]);
-        }
-
-        if ($user->mecanico) {
-            $user->mecanico->update([
-                'nome' => $data['name'],
-                'cpf' => $data['cpf'] ?? null,
-                'telefone' => $data['telefone'] ?? null,
-                'especialidade' => $data['especialidade'] ?? null,
             ]);
         }
 

@@ -130,7 +130,6 @@
                                 <option value="">Todos</option>
                                 <option value="gerente" @selected(old('role', $filterRole ?? '') === 'gerente')>Gerente</option>
                                 <option value="atendente" @selected(old('role', $filterRole ?? '') === 'atendente')>Atendente</option>
-                                <option value="mecanico" @selected(old('role', $filterRole ?? '') === 'mecanico')>Mecanico</option>
                                 <option value="cliente" @selected(old('role', $filterRole ?? '') === 'cliente')>Cliente</option>
                             </select>
                         </div>
@@ -146,7 +145,7 @@
 
                     @php
                         $groups = $users->groupBy('role');
-                        $order = ['gerente' => 'Gerente', 'atendente' => 'Atendente', 'mecanico' => 'Mecanico', 'cliente' => 'Cliente'];
+                        $order = ['gerente' => 'Gerente', 'atendente' => 'Atendente', 'cliente' => 'Cliente'];
                     @endphp
 
                     @foreach($order as $roleKey => $roleLabel)
@@ -228,7 +227,6 @@
                                 <option value="">Todos</option>
                                 <option value="gerente" @selected(old('role', $filterRole ?? '') === 'gerente')>Gerente</option>
                                 <option value="atendente" @selected(old('role', $filterRole ?? '') === 'atendente')>Atendente</option>
-                                <option value="mecanico" @selected(old('role', $filterRole ?? '') === 'mecanico')>Mecanico</option>
                                 <option value="cliente" @selected(old('role', $filterRole ?? '') === 'cliente')>Cliente</option>
                             </select>
                         </div>
@@ -271,21 +269,26 @@
                 </div>
             @else
             <div class="mb-4">
-                <h5 class="mb-3">Solicitacao de Acesso</h5>
-                <p>O assistente necessita de autorizacao do gerente para acessar a gestao de cargos.</p>
-                <form method="POST" action="{{ route('conta.usuarios.solicitar') }}">
+                <h5 class="mb-3">Confirmar acesso</h5>
+                <p>Digite sua senha para acessar a gestao de contas.</p>
+
+                @if($accessError ?? false)
+                    <div class="alert alert-danger">{{ $accessError }}</div>
+                @endif
+
+                <form method="POST" action="{{ route('conta.usuarios.autorizar') }}" class="row g-3">
                     @csrf
-                    <button class="btn btn-primary" @disabled($solicitado)>
-                        {{ $solicitado ? 'Autorizacao ja solicitada' : 'Solicitar autorizacao' }}
-                    </button>
+                    <div class="col-md-6">
+                        <label for="senha-atendente" class="form-label">Senha do atendente</label>
+                        <input type="password" name="senha" id="senha-atendente" class="form-control" required autocomplete="current-password">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-unlock me-1"></i>Acessar contas
+                        </button>
+                    </div>
                 </form>
             </div>
-
-            @if($solicitado)
-                <div class="alert alert-info">
-                    Solicitacao enviada. Aguarde a autorizacao do gerente para acessar esta area.
-                </div>
-            @endif
             @endif
         @endif
     </div>

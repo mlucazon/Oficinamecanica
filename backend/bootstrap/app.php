@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\UpdateLastSeenAt::class,
+            \App\Http\Middleware\ClearContaAccessWhenLeaving::class,
         ]);
 
         // Middleware aliases

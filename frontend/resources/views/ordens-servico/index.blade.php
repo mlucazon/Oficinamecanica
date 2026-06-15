@@ -100,7 +100,11 @@
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between gap-2 flex-wrap">
         <span><i class="bi bi-clipboard2-check me-2"></i>Ordens de Servico</span>
-        @if(auth()->user()->isCliente())
+        @if(auth()->user()->isAtendente() || auth()->user()->isGerente())
+            <a href="{{ route('os.create') }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-person-workspace me-1"></i>Atendimento presencial
+            </a>
+        @elseif(auth()->user()->isCliente())
             @if($temVeiculos)
                 <a href="{{ route('os.create') }}" class="btn btn-sm btn-primary">
                     <i class="bi bi-plus-lg me-1"></i>Abrir OS

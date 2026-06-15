@@ -3,6 +3,13 @@
 @section('breadcrumb', isset($cliente) ? 'Editar Cliente' : 'Novo Cliente')
 
 @section('content')
+@php
+    $voltarUrl = url()->previous();
+
+    if ($voltarUrl === url()->current()) {
+        $voltarUrl = route('clientes.index');
+    }
+@endphp
 <div class="row justify-content-center">
 <div class="col-lg-7">
 <div class="card">
@@ -54,7 +61,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-check-lg me-1"></i>Salvar
                 </button>
-                <a href="{{ route('clientes.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                <a href="{{ $voltarUrl }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
             </div>
         </form>
     </div>

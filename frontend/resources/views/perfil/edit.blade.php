@@ -227,6 +227,72 @@
         border-color: rgba(255,255,255,.09);
     }
 
+    .searchable-select {
+        position: relative;
+    }
+
+    .searchable-select .form-control {
+        padding-right: 2.35rem;
+    }
+
+    .searchable-select::after {
+        content: '\F282';
+        font-family: 'bootstrap-icons';
+        position: absolute;
+        right: .85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text2);
+        pointer-events: none;
+        font-size: .9rem;
+    }
+
+    .searchable-options {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 6px);
+        max-height: 230px;
+        overflow-y: auto;
+        display: none;
+        padding: .35rem;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 0 18px 42px rgba(0,0,0,.36);
+        z-index: 40;
+    }
+
+    .searchable-options.show {
+        display: grid;
+        gap: .25rem;
+    }
+
+    .searchable-option {
+        width: 100%;
+        border: 0;
+        border-radius: 6px;
+        padding: .62rem .7rem;
+        background: transparent;
+        color: var(--text);
+        text-align: left;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .searchable-option:hover,
+    .searchable-option:focus {
+        background: var(--red-dim);
+        color: var(--text);
+        outline: none;
+    }
+
+    .searchable-empty {
+        padding: .65rem .7rem;
+        color: var(--text2);
+        font-size: .9rem;
+    }
+
     :root[data-theme="light"] .profile-pretty-form .form-label {
         color: #3b332b;
     }
@@ -380,40 +446,41 @@
                         <div class="col-md-6">
                             <label class="form-label"><i class="bi bi-map"></i>Estado</label>
                             @php $estadoSelecionado = old('estado', $user->cliente?->estado); @endphp
-                            <select name="estado" id="estado-select" class="form-select js-profile-field @error('estado') is-invalid @enderror">
-                                <option value="">Selecione...</option>
-                                @foreach($estados as $estado)
-                                    <option value="{{ $estado->uf }}" @selected($estadoSelecionado === $estado->uf)>{{ $estado->nome }} / {{ $estado->uf }}</option>
-                                @endforeach
-                            </select>
+                            @php $estadoAtual = $estados->firstWhere('uf', $estadoSelecionado); @endphp
+                            <input type="hidden" name="estado" id="estado-select" value="{{ $estadoSelecionado }}">
+                            <div class="searchable-select">
+                                <input
+                                    type="text"
+                                    id="estado-search"
+                                    class="form-control js-profile-field @error('estado') is-invalid @enderror"
+                                    value="{{ $estadoAtual ? $estadoAtual->nome . ' / ' . $estadoAtual->uf : '' }}"
+                                    placeholder="Digite ou selecione..."
+                                    autocomplete="off"
+                                >
+                                <div id="estado-options" class="searchable-options"></div>
+                            </div>
                             @error('estado')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label"><i class="bi bi-geo-alt"></i>Cidade</label>
                             @php $cidadeSelecionada = old('cidade', $user->cliente?->cidade); @endphp
-                            <select name="cidade" id="cidade-select" class="form-select js-profile-field" data-selected="{{ $cidadeSelecionada }}">
-                                <option value="">Selecione um estado primeiro...</option>
-                            </select>
+                            <div class="searchable-select">
+                                <input
+                                    type="text"
+                                    name="cidade"
+                                    id="cidade-select"
+                                    class="form-control js-profile-field"
+                                    value="{{ $cidadeSelecionada }}"
+                                    data-selected="{{ $cidadeSelecionada }}"
+                                    placeholder="Digite ou selecione..."
+                                    autocomplete="off"
+                                >
+                                <div id="cidade-options" class="searchable-options"></div>
+                            </div>
                         </div>
                         <div class="col-12">
                             <label class="form-label"><i class="bi bi-house-door"></i>Endereço</label>
                             <input type="text" name="endereco" class="form-control js-profile-field" value="{{ old('endereco', $user->cliente?->endereco) }}">
-                        </div>
-                    @endif
-
-                    @if($user->isMecanico())
-                        <div class="col-md-4">
-                            <label class="form-label"><i class="bi bi-card-text"></i>CPF</label>
-                            <input type="text" name="cpf" class="form-control js-profile-field @error('cpf') is-invalid @enderror" value="{{ old('cpf', $user->mecanico?->cpf) }}">
-                            @error('cpf')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label"><i class="bi bi-telephone"></i>Telefone</label>
-                            <input type="text" name="telefone" class="form-control js-profile-field" value="{{ old('telefone', $user->mecanico?->telefone) }}">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label"><i class="bi bi-tools"></i>Especialidade</label>
-                            <input type="text" name="especialidade" class="form-control js-profile-field" value="{{ old('especialidade', $user->mecanico?->especialidade) }}">
                         </div>
                     @endif
 
@@ -426,50 +493,6 @@
             </div>
         </div>
 
-        @if($user->isMecanico())
-            <div class="card mt-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <span><i class="bi bi-tools me-2 text-warning"></i>Minhas OS recebidas</span>
-                    <a href="{{ route('os.index') }}" class="btn btn-sm btn-outline-secondary">Ver todas</a>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>OS</th>
-                                    <th>Cliente</th>
-                                    <th>Veiculo</th>
-                                    <th>Status</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($ordensMecanico as $os)
-                                    <tr>
-                                        <td><span class="font-mono small">{{ $os->numero }}</span></td>
-                                        <td>{{ $os->cliente->nome }}</td>
-                                        <td>{{ $os->veiculo->marca }} {{ $os->veiculo->modelo }}<br><span class="badge bg-light text-dark font-mono">{{ $os->veiculo->placa }}</span></td>
-                                        <td><span class="badge badge-{{ $os->status }}">{{ $os->statusLabel() }}</span></td>
-                                        <td class="text-end">
-                                            <a href="{{ route('os.show', $os->id) }}" class="btn btn-sm btn-outline-secondary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">
-                                            Nenhuma OS foi encaminhada para voce ainda.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        @endif
 
         @if($user->isCliente())
             <div class="card mt-3">
@@ -637,7 +660,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const zoomInput = document.getElementById('photo_zoom');
     const confirmPhotoButton = document.getElementById('btn-confirmar-foto');
     const estadoSelect = document.getElementById('estado-select');
+    const estadoSearch = document.getElementById('estado-search');
     const cidadeSelect = document.getElementById('cidade-select');
+    const estadoOptions = document.getElementById('estado-options');
+    const cidadeOptions = document.getElementById('cidade-options');
     const editButton = document.getElementById('btn-editar-perfil');
     const profileActions = document.getElementById('perfil-actions');
     const profileFields = document.querySelectorAll('.js-profile-field');
@@ -650,6 +676,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const manualPassword = document.getElementById('manual_password');
     const manualPasswordConfirmation = document.getElementById('manual_password_confirmation');
     const cidadesPorEstado = @json($estados->mapWithKeys(fn($estado) => [$estado->uf => $estado->cidades->pluck('nome')->values()]));
+    const estadosOpcoes = @json($estados->map(fn($estado) => ['uf' => $estado->uf, 'nome' => $estado->nome, 'label' => $estado->nome . ' / ' . $estado->uf])->values());
     let cropImage = null;
     let cropObjectUrl = null;
     let cropScale = 1;
@@ -864,6 +891,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (profileForm) {
         profileForm.addEventListener('submit', function () {
+            sincronizarEstadoSelecionado();
             profileFields.forEach((field) => {
                 if (field.tagName === 'SELECT') {
                     field.classList.remove('pe-none');
@@ -875,31 +903,133 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function carregarCidades() {
-        if (!estadoSelect || !cidadeSelect) {
+    function sincronizarEstadoSelecionado(permitirParcial = false) {
+        if (!estadoSearch || !estadoSelect) {
             return;
         }
 
-        const uf = estadoSelect.value;
-        const selected = cidadeSelect.dataset.selected || '';
-        const cidades = cidadesPorEstado[uf] || [];
+        const typed = estadoSearch.value.trim().toLowerCase();
+        const encontrado = estadosOpcoes.find((estado) =>
+            estado.label.toLowerCase() === typed
+            || estado.nome.toLowerCase() === typed
+            || estado.uf.toLowerCase() === typed
+            || (permitirParcial && estado.label.toLowerCase().startsWith(typed))
+        );
 
-        cidadeSelect.innerHTML = '<option value="">Selecione...</option>';
-
-        cidades.forEach((cidade) => {
-            const option = document.createElement('option');
-            option.value = cidade;
-            option.textContent = cidade;
-            option.selected = cidade === selected;
-            cidadeSelect.appendChild(option);
-        });
+        estadoSelect.value = encontrado ? encontrado.uf : '';
+        if (encontrado) {
+            estadoSearch.value = encontrado.label;
+        }
     }
 
-    if (estadoSelect && cidadeSelect) {
-        carregarCidades();
-        estadoSelect.addEventListener('change', function () {
+    function filtrarOpcoes(opcoes, termo) {
+        const busca = termo.trim().toLowerCase();
+        if (!busca) {
+            return opcoes;
+        }
+
+        return opcoes.filter((opcao) => opcao.label.toLowerCase().includes(busca));
+    }
+
+    function renderizarOpcoes(menu, opcoes, selecionar) {
+        if (!menu) {
+            return;
+        }
+
+        menu.innerHTML = '';
+
+        if (!opcoes.length) {
+            const vazio = document.createElement('div');
+            vazio.className = 'searchable-empty';
+            vazio.textContent = 'Nenhuma opcao encontrada.';
+            menu.appendChild(vazio);
+            menu.classList.add('show');
+            return;
+        }
+
+        opcoes.slice(0, 80).forEach((opcao) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'searchable-option';
+            button.textContent = opcao.label;
+            button.addEventListener('mousedown', function (event) {
+                event.preventDefault();
+                selecionar(opcao);
+                fecharOpcoes();
+            });
+            menu.appendChild(button);
+        });
+
+        menu.classList.add('show');
+    }
+
+    function fecharOpcoes() {
+        estadoOptions?.classList.remove('show');
+        cidadeOptions?.classList.remove('show');
+    }
+
+    function opcoesDeCidade() {
+        const uf = estadoSelect?.value || '';
+        return (cidadesPorEstado[uf] || []).map((cidade) => ({ label: cidade, value: cidade }));
+    }
+
+    function selecionarEstado(opcao) {
+        estadoSelect.value = opcao.uf;
+        estadoSearch.value = opcao.label;
+        cidadeSelect.value = '';
+        cidadeSelect.dataset.selected = '';
+        renderizarOpcoes(cidadeOptions, opcoesDeCidade(), selecionarCidade);
+    }
+
+    function selecionarCidade(opcao) {
+        cidadeSelect.value = opcao.value;
+        cidadeSelect.dataset.selected = opcao.value;
+    }
+
+    if (estadoSelect && estadoSearch && cidadeSelect && estadoOptions && cidadeOptions) {
+        const estadoLista = estadosOpcoes.map((estado) => ({
+            label: estado.label,
+            value: estado.uf,
+            uf: estado.uf,
+        }));
+
+        estadoSearch.addEventListener('focus', function () {
+            if (this.readOnly) {
+                setProfileEditing(true);
+            }
+
+            renderizarOpcoes(estadoOptions, estadoLista, selecionarEstado);
+        });
+
+        estadoSearch.addEventListener('input', function () {
+            sincronizarEstadoSelecionado();
+            cidadeSelect.value = '';
             cidadeSelect.dataset.selected = '';
-            carregarCidades();
+            renderizarOpcoes(estadoOptions, filtrarOpcoes(estadoLista, this.value), selecionarEstado);
+        });
+
+        cidadeSelect.addEventListener('focus', function () {
+            if (this.readOnly) {
+                setProfileEditing(true);
+            }
+
+            renderizarOpcoes(cidadeOptions, opcoesDeCidade(), selecionarCidade);
+        });
+
+        cidadeSelect.addEventListener('input', function () {
+            renderizarOpcoes(cidadeOptions, filtrarOpcoes(opcoesDeCidade(), this.value), selecionarCidade);
+        });
+
+        document.addEventListener('mousedown', function (event) {
+            if (!event.target.closest('.searchable-select')) {
+                fecharOpcoes();
+            }
+        });
+
+        estadoSearch.addEventListener('blur', function () {
+            window.setTimeout(function () {
+                sincronizarEstadoSelecionado(true);
+            }, 120);
         });
     }
 

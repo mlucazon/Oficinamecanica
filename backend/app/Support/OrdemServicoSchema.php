@@ -9,7 +9,7 @@ class OrdemServicoSchema
 {
     public static function ensureStatusEnum(): void
     {
-        if (! Schema::hasTable('ordens_servico')) {
+        if (DB::getDriverName() !== 'mysql' || ! Schema::hasTable('ordens_servico')) {
             return;
         }
 

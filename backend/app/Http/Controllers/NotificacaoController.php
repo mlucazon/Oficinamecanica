@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Mecanico;
 use App\Models\Notificacao;
-use App\Models\OrdemServico;
-use App\Models\Peca;
 use Illuminate\Http\Request;
 
 class NotificacaoController extends Controller
@@ -39,10 +37,8 @@ class NotificacaoController extends Controller
             ->limit(10)
             ->get();
 
-        $mecanicos = Mecanico::where('ativo', true)->orderBy('nome')->get();
-        $pecas_criticas = auth()->user()->isMecanico()
-            ? Peca::whereColumn('estoque', '<=', 'estoque_minimo')->orderBy('estoque')->get()
-            : collect();
+        $mecanicos = Mecanico::livres()->orderBy('nome')->get();
+        $pecas_criticas = collect();
 
         return view('notificacoes.index', compact('notificacoes_pendentes', 'notificacoes_respondidas', 'mecanicos', 'pecas_criticas'));
     }
@@ -95,13 +91,8 @@ class NotificacaoController extends Controller
 
         $mecanico = Mecanico::findOrFail($data['mecanico_id']);
 
-        if (!$mecanico) {
-            $defaultEmail = env('OS_DEFAULT_MECANICO_EMAIL', 'jose@autotech.com');
-            $mecanico = Mecanico::whereHas('user', fn($q) => $q->where('email', $defaultEmail))->first();
-
-            if (!$mecanico) {
-                return redirect()->back()->with('error', 'Nenhum mecânico disponível para receber esta OS.');
-            }
+        if (! Mecanico::livres()->whereKey($mecanico->id)->exists()) {
+            return redirect()->back()->with('error', 'Este mecanico nao esta livre no momento. Escolha outro ou avise o cliente sobre a indisponibilidade.');
         }
 
         $notificacao->os->update([
@@ -109,18 +100,34 @@ class NotificacaoController extends Controller
             'mecanico_id' => $mecanico->id,
         ]);
 
-        if ($mecanico->user_id) {
+        return redirect()->route('os.show', $notificacao->os)
+            ->with('success', 'OS aceita! Mecanico responsavel: ' . $mecanico->nome . '.');
+    }
+
+    public function avisarSemMecanico(Notificacao $notificacao)
+    {
+        if (!auth()->user()->isAtendente() && !auth()->user()->isGerente()) {
+            abort(403);
+        }
+
+        if ($notificacao->user_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'Sem permissao');
+        }
+
+        $notificacao->loadMissing('os.cliente.user');
+
+        if ($notificacao->os?->cliente?->user_id) {
             Notificacao::create([
-                'user_id' => $mecanico->user_id,
+                'user_id' => $notificacao->os->cliente->user_id,
                 'os_id' => $notificacao->os->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => 'O atendente encaminhou para voce a OS ' . $notificacao->os->numero . ' do cliente ' . $notificacao->os->cliente->nome . '. Faca o diagnostico e monte o orcamento.',
+                'mensagem' => 'No momento todos os mecanicos estao ocupados. Voce pode deixar o carro na oficina para ser avaliado assim que houver disponibilidade, ou deixar para trazer depois.',
             ]);
         }
 
-        return redirect()->route('os.show', $notificacao->os)
-            ->with('success', 'OS aceita! Encaminhada para o mecânico ' . $mecanico->nome . '.');
+        return redirect()->route('notificacoes.index')
+            ->with('success', 'Cliente avisado sobre a indisponibilidade de mecanicos.');
     }
 
     // Recusar OS

@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         // ── Usuários ────────────────────────────────────────────
         $this->call(UserSeeder::class);
+        $this->call(EstadoCidadeSeeder::class);
 
         // ── Marcas e Modelos de Veículos ────────────────────────
         $marcas = [
@@ -89,6 +90,8 @@ class DatabaseSeeder extends Seeder
                 array_merge($p, ['ativo' => true])
             );
         }
+
+        $this->call(PecasCompatibilidadeSeeder::class);
 
     }
 }

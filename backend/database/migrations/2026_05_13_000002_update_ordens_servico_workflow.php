@@ -9,7 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE ordens_servico MODIFY status ENUM('aguardando_aceitacao','solicitacao_aceita','solicitacao_recusada','em_diagnostico','orcamento_enviado_atendente','aguardando_aprovacao','aprovada','em_execucao','aguardando_pecas','finalizada','cancelada','aberta') NOT NULL DEFAULT 'aguardando_aceitacao'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE ordens_servico MODIFY status ENUM('aguardando_aceitacao','solicitacao_aceita','solicitacao_recusada','em_diagnostico','orcamento_enviado_atendente','aguardando_aprovacao','aprovada','em_execucao','aguardando_pecas','finalizada','cancelada','aberta') NOT NULL DEFAULT 'aguardando_aceitacao'");
+        }
 
         Schema::table('ordens_servico', function (Blueprint $table) {
             $table->string('motivo_recusa', 120)->nullable()->after('observacoes');
@@ -23,6 +25,8 @@ return new class extends Migration
             $table->dropColumn(['motivo_recusa', 'detalhes_recusa']);
         });
 
-        DB::statement("ALTER TABLE ordens_servico MODIFY status ENUM('aberta','em_diagnostico','aguardando_aprovacao','aprovada','em_execucao','aguardando_pecas','finalizada','cancelada','aguardando_aceitacao') NOT NULL DEFAULT 'aberta'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE ordens_servico MODIFY status ENUM('aberta','em_diagnostico','aguardando_aprovacao','aprovada','em_execucao','aguardando_pecas','finalizada','cancelada','aguardando_aceitacao') NOT NULL DEFAULT 'aberta'");
+        }
     }
 };

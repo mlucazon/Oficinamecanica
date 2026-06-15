@@ -497,15 +497,6 @@
 
 <div class="row g-3 os-show-grid">
 
-    @if(str_contains((string) $ordemServico->observacoes, 'garantia ativa do veiculo'))
-        <div class="col-12">
-            <div class="alert alert-success mb-0">
-                <i class="bi bi-shield-check me-1"></i>
-                Esta OS foi aberta usando uma garantia ativa deste veiculo.
-            </div>
-        </div>
-    @endif
-
     @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id() && $ordemServico->aprovado_cliente && in_array($ordemServico->status, ['em_execucao', 'aprovada', 'aguardando_finalizacao']))
         <div class="col-12">
             <div class="alert alert-warning d-flex align-items-start justify-content-between gap-3 flex-wrap mb-0">
@@ -514,7 +505,7 @@
                         <i class="bi bi-geo-alt-fill me-1"></i>Compareca a oficina com o veiculo
                     </div>
                     <div class="small">
-                        O mecanico solicitou sua presenca com o veiculo na oficina para prosseguir com o servico aprovado.
+                        A oficina solicitou sua presenca com o veiculo para prosseguir com o servico aprovado.
                     </div>
                 </div>
                 <a href="{{ route('localizacao') }}" class="btn btn-sm btn-outline-danger">
@@ -670,7 +661,7 @@
                 <span class="os-budget-total"><i class="bi bi-cash-coin"></i>R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>
             </div>
             <div class="card-body">
-                @if(auth()->user()->isMecanico() && $ordemServico->mecanico_id === auth()->user()->mecanico?->id && in_array($ordemServico->status, ['em_diagnostico', 'orcamento_enviado_atendente']))
+                @if((auth()->user()->isAtendente() || auth()->user()->isGerente()) && in_array($ordemServico->status, ['em_diagnostico', 'orcamento_enviado_atendente']))
                     <form method="POST" action="{{ route('os.update', $ordemServico->id) }}" class="row g-3 mb-3">
                         @csrf
                         @method('PUT')
@@ -735,11 +726,11 @@
                             <button class="btn btn-outline-danger w-100"><i class="bi bi-plus-lg me-1"></i>Adicionar</button>
                         </div>
                     </form>
-                    <form method="POST" action="{{ route('os.orcamento.atendente', $ordemServico->id) }}" class="text-end mb-3">
+                    <form method="POST" action="{{ route('os.orcamento.cliente', $ordemServico->id) }}" class="text-end mb-3">
                         @csrf
                         @method('PATCH')
-                        <button class="btn btn-success" onclick="return confirm('Enviar este orcamento para o atendente?')">
-                            <i class="bi bi-send me-1"></i>Enviar orcamento ao atendente
+                        <button class="btn btn-success" onclick="return confirm('Enviar este orcamento para o cliente?')">
+                            <i class="bi bi-send me-1"></i>Enviar orcamento ao cliente
                         </button>
                     </form>
                 @endif
@@ -786,45 +777,9 @@
                         </div>
                     </div>
                 @endif
-                @if((auth()->user()->isAtendente() || auth()->user()->isGerente()) && $ordemServico->status === 'orcamento_enviado_atendente')
-                    <form method="POST" action="{{ route('os.orcamento.cliente', $ordemServico->id) }}" class="text-end mt-3">
-                        @csrf
-                        @method('PATCH')
-                        <button class="btn btn-warning"><i class="bi bi-send me-1"></i>Enviar orcamento ao cliente</button>
-                    </form>
-                @endif
                 @if(auth()->user()->isCliente() && $ordemServico->status === 'aguardando_aprovacao')
-                    @if($ordemServico->usaGarantiaAtiva())
-                        <div class="payment-panel mt-3">
-                            <div class="alert alert-success mb-3">
-                                <div class="fw-semibold mb-1">
-                                    <i class="bi bi-shield-check me-1"></i>Garantia ativa acionada
-                                </div>
-                                <div class="small">
-                                    Esta OS foi aberta para o mesmo veiculo dentro do prazo de garantia. O atendimento sera coberto pela garantia, entao nao ha valor a pagar.
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-                                <div>
-                                    <div class="text-muted small">Valor coberto pela garantia</div>
-                                    <div class="font-mono fs-5 fw-bold">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</div>
-                                </div>
-                                <form method="POST" action="{{ route('os.cliente.aprovar', $ordemServico->id) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="metodo_pagamento" value="dinheiro">
-                                    <input type="hidden" name="garantia_opcao" value="sem">
-                                    <button class="btn btn-success" onclick="return confirm('Confirmar uso da garantia para esta OS?')">
-                                        <i class="bi bi-shield-check me-1"></i>Acionar garantia
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @else
                     @php
-                        $valorGarantiaPagamento = $ordemServico->valorGarantiaAdicional();
-                        $totalComGarantiaPagamento = (float) $ordemServico->valor_total + $valorGarantiaPagamento;
-                        $pixCopiaColaOsSemGarantia = \App\Support\PixBrCode::gerar(
+                        $pixCopiaColaOs = \App\Support\PixBrCode::gerar(
                             '090.507.633-83',
                             (float) $ordemServico->valor_total,
                             'AUTOTECH PRO',
@@ -832,36 +787,27 @@
                             'OS' . $ordemServico->id,
                             'OS ' . $ordemServico->numero
                         );
-                        $pixCopiaColaOsComGarantia = \App\Support\PixBrCode::gerar(
-                            '090.507.633-83',
-                            $totalComGarantiaPagamento,
-                            'AUTOTECH PRO',
-                            'FORTALEZA',
-                            'OSG' . $ordemServico->id,
-                            'OS ' . $ordemServico->numero . ' GAR'
-                        );
-                        $pixQrOsSemGarantiaUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCopiaColaOsSemGarantia);
-                        $pixQrOsComGarantiaUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCopiaColaOsComGarantia);
+                        $pixQrOsUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($pixCopiaColaOs);
                     @endphp
                     <div class="alert alert-info mt-3 d-none" id="pagamento-pix-os">
                         <div class="row g-3 align-items-center">
                             <div class="col-md-auto text-center">
                                 <div style="display:inline-block;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff;">
-                                    <img src="{{ $pixQrOsSemGarantiaUrl }}" alt="QR Code Pix da OS" width="180" height="180" style="display:block;max-width:100%;height:auto;" id="pix-os-qrcode" data-sem="{{ $pixQrOsSemGarantiaUrl }}" data-com="{{ $pixQrOsComGarantiaUrl }}">
+                                    <img src="{{ $pixQrOsUrl }}" alt="QR Code Pix da OS" width="180" height="180" style="display:block;max-width:100%;height:auto;">
                                 </div>
                             </div>
                             <div class="col-md">
                                 <div class="fw-semibold mb-1">Aprovar orçamento e confirmar pagamento</div>
                                 <div class="small mb-2">
-                                    Total: <span class="font-mono fw-bold" id="pix-os-total" data-sem="R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}" data-com="R$ {{ number_format($totalComGarantiaPagamento, 2, ',', '.') }}">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>.
+                                    Total: <span class="font-mono fw-bold">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>.
                                     Escaneie o QR Code ou copie o Pix copia e cola.
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" id="pix-os-copy" data-sem="{{ $pixCopiaColaOsSemGarantia }}" data-com="{{ $pixCopiaColaOsComGarantia }}" onclick="navigator.clipboard?.writeText(this.dataset.current || this.dataset.sem)">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard?.writeText(@js($pixCopiaColaOs))">
                                         <i class="bi bi-clipboard me-1"></i>Copiar Pix
                                     </button>
                                 </div>
-                                <textarea class="form-control font-mono small mt-2" rows="3" readonly id="pix-os-code">{{ $pixCopiaColaOsSemGarantia }}</textarea>
+                                <textarea class="form-control font-mono small mt-2" rows="3" readonly>{{ $pixCopiaColaOs }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -869,27 +815,6 @@
                         <form method="POST" action="{{ route('os.cliente.aprovar', $ordemServico->id) }}" class="payment-form">
                             @csrf
                             @method('PATCH')
-                            <div class="payment-warranty-field">
-                                <label class="form-label">Garantia adicional</label>
-                                <div class="payment-warranty-options">
-                                    <label class="payment-warranty-option">
-                                        <input type="radio" name="garantia_opcao" value="sem" checked required>
-                                        <span>
-                                            <strong>Pagar sem garantia</strong>
-                                            <span class="small">Confirmar somente o valor da OS.</span>
-                                            <span class="payment-warranty-price">R$ {{ number_format($ordemServico->valor_total, 2, ',', '.') }}</span>
-                                        </span>
-                                    </label>
-                                    <label class="payment-warranty-option">
-                                        <input type="radio" name="garantia_opcao" value="com" required>
-                                        <span>
-                                            <strong>Pagar com garantia</strong>
-                                            <span class="small">Adicionar 60 dias de garantia por 12% do valor da OS.</span>
-                                            <span class="payment-warranty-price">Total R$ {{ number_format($totalComGarantiaPagamento, 2, ',', '.') }}</span>
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
                             <div class="payment-method-field">
                                 <label class="form-label">Forma de pagamento</label>
                                 <select name="metodo_pagamento" id="metodo-pagamento-os" class="form-select" required>
@@ -984,156 +909,12 @@
                             <input type="hidden" name="motivo_recusa" value="Cliente recusou o orcamento">
                         </form>
                     </div>
-                    @endif
                 @endif
             </div>
 	        </div>
 	    </div>
     @endif
 
-	    @php
-	        $garantiaPendente = $ordemServico->garantias->firstWhere('status', 'pendente');
-	        $garantiaPagamento = $ordemServico->garantias->firstWhere('status', 'aguardando_pagamento');
-	        $garantiaAceita = $ordemServico->garantias->firstWhere('status', 'aceita');
-	        $garantiaRecusada = $ordemServico->garantias->firstWhere('status', 'recusada');
-	    @endphp
-
-	    @if($garantiaPendente || $garantiaPagamento || $garantiaAceita || $garantiaRecusada)
-	        <div class="col-12">
-	            <div class="card">
-	                <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-	                    <span><i class="bi bi-shield-check me-2 text-warning"></i>Garantia adicional</span>
-	                    @if($garantiaPendente)
-	                        <span class="badge bg-warning text-dark">Aguardando decisão do cliente</span>
-	                    @elseif($garantiaPagamento)
-	                        <span class="badge bg-warning text-dark">Aguardando pagamento</span>
-	                    @elseif($garantiaAceita)
-	                        <span class="badge bg-success">Garantia ativa</span>
-	                    @else
-	                        <span class="badge bg-secondary">Garantia recusada</span>
-	                    @endif
-	                </div>
-	                <div class="card-body">
-	                    @if($garantiaPendente)
-	                        <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-	                            <div>
-	                                <div class="fw-semibold">60 dias de garantia para esta OS</div>
-	                                <div class="small" style="color: var(--text2);">
-	                                    Valor calculado para manter o serviço equilibrado com peças e mão de obra.
-	                                </div>
-	                            </div>
-	                            <div class="text-end">
-	                                <div class="font-mono fs-5">R$ {{ number_format($garantiaPendente->valor, 2, ',', '.') }}</div>
-	                                <div class="small" style="color: var(--text2);">válida até {{ $garantiaPendente->data_fim->format('d/m/Y') }}</div>
-	                            </div>
-	                        </div>
-
-	                        @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id())
-	                            <div class="d-flex justify-content-end gap-2 mt-3 flex-wrap">
-	                                <form method="POST" action="{{ route('garantias.recusar-oferta', $garantiaPendente) }}">
-	                                    @csrf
-	                                    @method('PATCH')
-	                                    <button class="btn btn-outline-danger" onclick="return confirm('Recusar a garantia adicional?')">
-	                                        <i class="bi bi-x-circle me-1"></i>Recusar garantia
-	                                    </button>
-	                                </form>
-	                                <form method="POST" action="{{ route('garantias.aceitar-oferta', $garantiaPendente) }}">
-	                                    @csrf
-	                                    @method('PATCH')
-	                                    <button class="btn btn-success" onclick="return confirm('Adicionar esta garantia de 60 dias?')">
-	                                        <i class="bi bi-check2-circle me-1"></i>Adicionar garantia
-	                                    </button>
-	                                </form>
-		                            </div>
-		                        @endif
-		                    @elseif($garantiaPagamento)
-                                @php
-                                    $pixGarantiaCopiaCola = \App\Support\PixBrCode::gerar(
-                                        '090.507.633-83',
-                                        (float) $garantiaPagamento->valor,
-                                        'AUTOTECH PRO',
-                                        'FORTALEZA',
-                                        'GAR' . $garantiaPagamento->id,
-                                        'GARANTIA OS ' . $ordemServico->numero
-                                    );
-                                    $pixQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . urlencode($pixGarantiaCopiaCola);
-                                @endphp
-		                        <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
-		                            <div>
-		                                <div class="fw-semibold">Pagamento da garantia de 60 dias</div>
-		                                <div class="small" style="color: var(--text2);">
-		                                    Confirme uma forma de pagamento para ativar a garantia nesta OS.
-		                                </div>
-		                            </div>
-		                            <div class="text-end">
-		                                <div class="font-mono fs-5">R$ {{ number_format($garantiaPagamento->valor, 2, ',', '.') }}</div>
-		                                <div class="small" style="color: var(--text2);">60 dias após confirmação</div>
-		                            </div>
-		                        </div>
-
-		                        @if(auth()->user()->isCliente() && $ordemServico->cliente?->user_id === auth()->id())
-                                    <div class="row g-3 align-items-center mb-3">
-                                        <div class="col-md-auto text-center">
-                                            <div style="display:inline-block;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff;">
-                                                <img src="{{ $pixQrUrl }}" alt="QR Code Pix Nubank" width="220" height="220" style="display:block;max-width:100%;height:auto;">
-                                            </div>
-                                        </div>
-                                        <div class="col-md">
-                                            <div class="fw-semibold mb-1">Pague pelo Pix</div>
-                                            <div class="small mb-2" style="color: var(--text2);">
-                                                Escaneie o QR Code ou abra o link de cobranca. Depois confirme o pagamento abaixo para ativar a garantia.
-                                            </div>
-                                            <div class="d-flex gap-2 flex-wrap">
-                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard?.writeText(@js($pixGarantiaCopiaCola))">
-                                                    <i class="bi bi-clipboard me-1"></i>Copiar Pix
-                                                </button>
-                                            </div>
-                                            <textarea class="form-control font-mono small mt-2" rows="3" readonly>{{ $pixGarantiaCopiaCola }}</textarea>
-                                        </div>
-                                    </div>
-		                            <form method="POST" action="{{ route('garantias.pagar-oferta', $garantiaPagamento) }}" class="row g-3 align-items-end">
-		                                @csrf
-		                                @method('PATCH')
-		                                <div class="col-md-8">
-		                                    <label class="form-label">Forma de pagamento</label>
-		                                    <select name="metodo_pagamento" class="form-select" required>
-		                                        <option value="pix">Pix</option>
-		                                        <option value="cartao">Cartão</option>
-		                                        <option value="dinheiro">Dinheiro/presencial</option>
-		                                    </select>
-		                                </div>
-		                                <div class="col-md-4">
-		                                    <button class="btn btn-success w-100" onclick="return confirm('Confirmar pagamento da garantia?')">
-		                                        <i class="bi bi-credit-card me-1"></i>Confirmar pagamento
-		                                    </button>
-		                                </div>
-		                            </form>
-                                    <form method="POST" action="{{ route('garantias.recusar-oferta', $garantiaPagamento) }}" class="text-end mt-2">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button class="btn btn-outline-secondary" onclick="return confirm('Deseja cancelar a garantia e seguir pagando somente a OS?')">
-                                            <i class="bi bi-x-circle me-1"></i>Cancelar garantia e pagar somente a OS
-                                        </button>
-                                    </form>
-		                        @else
-		                            <p class="text-muted mb-0">Aguardando o cliente confirmar o pagamento da garantia.</p>
-		                        @endif
-		                    @elseif($garantiaAceita)
-		                        <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-		                            <div>
-	                                <div class="fw-semibold">{{ $garantiaAceita->descricao }}</div>
-	                                <div class="text-muted small">Garantia válida até {{ $garantiaAceita->data_fim->format('d/m/Y') }}</div>
-	                            </div>
-	                            <div class="font-mono">R$ {{ number_format($garantiaAceita->valor, 2, ',', '.') }}</div>
-	                        </div>
-	                    @else
-	                        <p class="text-muted mb-0">O cliente recusou a garantia adicional para esta OS.</p>
-	                    @endif
-	                </div>
-	            </div>
-	        </div>
-	    @endif
-	
 	</div>
 </div>
 	@endsection
@@ -1192,12 +973,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const metodoPagamento = document.getElementById('metodo-pagamento-os');
     const tipoCartao = document.getElementById('tipo-cartao-os');
     const cartaoOpcao = document.getElementById('cartao-opcao-os');
-    const garantiaOpcoes = document.querySelectorAll('input[name="garantia_opcao"]');
     if (metodoPagamento) {
         metodoPagamento.addEventListener('change', atualizarPagamentoOs);
         tipoCartao?.addEventListener('change', atualizarPagamentoOs);
         cartaoOpcao?.addEventListener('change', atualizarPagamentoOs);
-        garantiaOpcoes.forEach((opcao) => opcao.addEventListener('change', atualizarPagamentoOs));
         atualizarPagamentoOs();
     }
 
@@ -1276,32 +1055,6 @@ function atualizarPagamentoOs() {
         parcelas.required = usandoCredito;
     }
 
-    atualizarPixOs();
-}
-
-function atualizarPixOs() {
-    const garantia = document.querySelector('input[name="garantia_opcao"]:checked')?.value || 'sem';
-    const modo = garantia === 'com' ? 'com' : 'sem';
-    const qr = document.getElementById('pix-os-qrcode');
-    const total = document.getElementById('pix-os-total');
-    const copy = document.getElementById('pix-os-copy');
-    const code = document.getElementById('pix-os-code');
-
-    if (qr?.dataset[modo]) {
-        qr.src = qr.dataset[modo];
-    }
-
-    if (total?.dataset[modo]) {
-        total.textContent = total.dataset[modo];
-    }
-
-    if (copy?.dataset[modo]) {
-        copy.dataset.current = copy.dataset[modo];
-    }
-
-    if (code && copy?.dataset[modo]) {
-        code.value = copy.dataset[modo];
-    }
 }
 
 function editarSintomas() {

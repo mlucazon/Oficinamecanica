@@ -8,7 +8,6 @@ use App\Models\Veiculo;
 use App\Models\Mecanico;
 use App\Models\User;
 use App\Models\Notificacao;
-use App\Models\Garantia;
 use App\Support\CartoesClienteSchema;
 use App\Support\OrdemServicoSchema;
 use Illuminate\Http\Request;
@@ -42,10 +41,6 @@ class OrdemServicoController extends Controller
             $query->whereHas('cliente', fn($q) => $q->where('user_id', Auth::id()));
         }
 
-        if (Auth::user()->isMecanico()) {
-            $query->where('mecanico_id', Auth::user()->mecanico?->id);
-        }
-
         $ordens    = $query->paginate(20)->withQueryString();
         $mecanicos = Mecanico::where('ativo', true)->orderBy('nome')->get();
 
@@ -55,17 +50,24 @@ class OrdemServicoController extends Controller
     // UC003 — Formulário de abertura
     public function create()
     {
-        abort_unless(Auth::user()->isCliente(), 403);
+        $user = Auth::user();
 
-        $cliente = Auth::user()->cliente;
-        abort_unless($cliente, 403);
+        if ($user->isCliente()) {
+            $cliente = $user->cliente;
+            abort_unless($cliente, 403);
 
-        if (!$cliente->veiculos()->exists()) {
-            return redirect()->route('conta.veiculos')
-                ->with('error', 'Para abrir uma OS, primeiro cadastre um veiculo.');
+            if (!$cliente->veiculos()->exists()) {
+                return redirect()->route('conta.veiculos')
+                    ->with('error', 'Para abrir uma OS, primeiro cadastre um veiculo.');
+            }
+
+            $clientes = collect([$cliente]);
+        } elseif ($user->isAtendente() || $user->isGerente()) {
+            $clientes = Cliente::withCount('veiculos')->orderBy('nome')->get();
+        } else {
+            abort(403);
         }
 
-        $clientes  = collect([$cliente]);
         $mecanicos = Mecanico::where('ativo', true)->orderBy('nome')->get();
         return view('ordens-servico.create', compact('clientes', 'mecanicos'));
     }
@@ -73,23 +75,30 @@ class OrdemServicoController extends Controller
     // UC003 — Salvar nova OS
     public function store(Request $request)
     {
-        abort_unless(Auth::user()->isCliente(), 403);
+        $user = Auth::user();
+        $presencial = $user->isAtendente() || $user->isGerente();
 
-        $cliente = Auth::user()->cliente;
-        abort_unless($cliente, 403);
+        if ($user->isCliente()) {
+            $cliente = $user->cliente;
+            abort_unless($cliente, 403);
 
-        if (!$cliente->veiculos()->exists()) {
-            return redirect()->route('conta.veiculos')
-                ->with('error', 'Para abrir uma OS, primeiro cadastre um veiculo.');
+            if (!$cliente->veiculos()->exists()) {
+                return redirect()->route('conta.veiculos')
+                    ->with('error', 'Para abrir uma OS, primeiro cadastre um veiculo.');
+            }
+        } elseif ($presencial) {
+            $cliente = Cliente::findOrFail($request->integer('cliente_id'));
+        } else {
+            abort(403);
         }
 
         $data = $request->validate([
+            'cliente_id'  => [$presencial ? 'required' : 'nullable', 'exists:clientes,id'],
             'veiculo_id'  => 'required|exists:veiculos,id',
-            'mecanico_id' => 'nullable|exists:mecanicos,id',
             'sintomas'    => 'required|string|max:2000',
             'km_entrada'  => 'nullable|integer|min:0',
             // Mídia enviada na abertura da OS (UC003)
-            'foto_defeito' => 'required|image|mimes:jpeg,png,webp|max:5120',
+            'foto_defeito' => [$presencial ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
             'video_defeito' => 'nullable|file|max:102400',
         ], [
             'video_defeito.file' => 'Envie um arquivo de video valido.',
@@ -112,7 +121,7 @@ class OrdemServicoController extends Controller
 
         $data['cliente_id'] = $cliente->id;
         $data['numero'] = OrdemServico::gerarNumero();
-        $data['status'] = 'aguardando_aceitacao';
+        $data['status'] = $presencial ? 'em_diagnostico' : 'aguardando_aceitacao';
 
         $os = OrdemServico::create($data);
 
@@ -137,8 +146,20 @@ class OrdemServicoController extends Controller
             ]);
         }
 
-        // Criar notificações para todos os atendentes/gerentes
-        $garantiaUsada = $this->acionarGarantiaAtivaParaNovaOs($os);
+        if ($presencial) {
+            if ($os->cliente?->user_id) {
+                Notificacao::create([
+                    'user_id' => $os->cliente->user_id,
+                    'os_id'   => $os->id,
+                    'tipo'    => 'atualizacao',
+                    'status'  => 'pendente',
+                    'mensagem' => "A oficina abriu a OS presencial #{$os->numero} para o seu veiculo. Acompanhe o andamento pelo sistema.",
+                ]);
+            }
+
+            return redirect()->route('os.show', $os)
+                   ->with('success', "Atendimento presencial registrado. OS {$os->numero} aberta em diagnostico.");
+        }
 
         $atendentes = User::whereIn('role', ['atendente', 'gerente'])
             ->where('id', '!=', Auth::id())
@@ -150,67 +171,18 @@ class OrdemServicoController extends Controller
                 'os_id'   => $os->id,
                 'tipo'    => 'solicitacao_os',
                 'status'  => 'pendente',
-                'mensagem' => $garantiaUsada
-                    ? "Nova OS #{$os->numero} de {$os->cliente->nome} - garantia acionada automaticamente"
-                    : "Nova OS #{$os->numero} de {$os->cliente->nome}",
+                'mensagem' => "Nova OS #{$os->numero} de {$os->cliente->nome}",
             ]);
-        }
-
-        if ($garantiaUsada) {
-            return redirect()->route('os.show', $os)
-                ->with('success', "OS {$os->numero} aberta com sucesso usando a garantia ativa do veiculo.");
         }
 
         return redirect()->route('os.show', $os)
                ->with('success', "OS {$os->numero} aberta com sucesso! Aguardando aceitação do assistente.");
     }
 
-    private function acionarGarantiaAtivaParaNovaOs(OrdemServico $os): ?Garantia
-    {
-        $garantia = Garantia::where('status', 'aceita')
-            ->where('acionada', false)
-            ->whereDate('data_fim', '>=', today())
-            ->whereHas('ordemServico', function ($query) use ($os) {
-                $query->where('cliente_id', $os->cliente_id)
-                    ->where('veiculo_id', $os->veiculo_id)
-                    ->where('id', '!=', $os->id);
-            })
-            ->orderByDesc('data_fim')
-            ->first();
-
-        if (!$garantia) {
-            return null;
-        }
-
-        $observacaoGarantia = trim((string) $garantia->observacao);
-        $observacaoOs = trim((string) $os->observacoes);
-        $mensagem = "Garantia acionada automaticamente na OS {$os->numero} em " . now()->format('d/m/Y H:i') . ".";
-
-        $garantia->update([
-            'acionada' => true,
-            'data_acionamento' => now(),
-            'observacao' => $observacaoGarantia
-                ? $observacaoGarantia . "\n" . $mensagem
-                : $mensagem,
-        ]);
-
-        $os->update([
-            'observacoes' => $observacaoOs
-                ? $observacaoOs . "\n" . 'Esta OS foi aberta usando uma garantia ativa do veiculo.'
-                : 'Esta OS foi aberta usando uma garantia ativa do veiculo.',
-        ]);
-
-        return $garantia;
-    }
-
     // Ver OS completa
     public function show($id)
     {
         $ordemServico = OrdemServico::findOrFail($id);
-        if (Auth::user()->isMecanico() && $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
-            abort(403);
-        }
-
         if (Auth::user()->isCliente() && $ordemServico->cliente?->user_id !== Auth::id()) {
             abort(403);
         }
@@ -218,7 +190,7 @@ class OrdemServicoController extends Controller
         $ordemServico->load([
             'cliente','veiculo','mecanico.user',
             'itens.servico','itens.peca',
-            'fotos','garantias','avaliacao',
+            'fotos','avaliacao',
         ]);
 
         $servicos  = \App\Models\Servico::where('ativo', true)->orderBy('nome')->get();
@@ -269,10 +241,6 @@ class OrdemServicoController extends Controller
             abort(403);
         }
 
-        if (Auth::user()->isMecanico() && $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
-            abort(403);
-        }
-
         $data = $request->validate([
             'mecanico_id'   => 'nullable|exists:mecanicos,id',
             'diagnostico'   => 'nullable|string|max:5000',
@@ -288,47 +256,16 @@ class OrdemServicoController extends Controller
                ->with('success', 'OS atualizada!');
     }
 
-    public function enviarOrcamentoAtendente($id)
-    {
-        $ordemServico = OrdemServico::with(['cliente', 'mecanico.user'])->findOrFail($id);
-
-        if (!Auth::user()->isMecanico() || $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
-            abort(403);
-        }
-
-        if (!$ordemServico->diagnostico || $ordemServico->itens()->count() === 0) {
-            return back()->with('error', 'Informe o diagnostico e adicione pelo menos um item ao orcamento.');
-        }
-
-        $ordemServico->update(['status' => 'orcamento_enviado_atendente']);
-
-        Notificacao::where('user_id', Auth::id())
-            ->where('os_id', $ordemServico->id)
-            ->where('status', 'pendente')
-            ->update([
-                'status' => 'aceita',
-                'lida' => true,
-            ]);
-
-        User::whereIn('role', ['atendente', 'gerente'])->get()->each(function (User $user) use ($ordemServico) {
-            Notificacao::create([
-                'user_id' => $user->id,
-                'os_id' => $ordemServico->id,
-                'tipo' => 'atualizacao',
-                'status' => 'pendente',
-                'mensagem' => 'O mecanico ' . $ordemServico->mecanico->nome . ' enviou o orcamento da OS ' . $ordemServico->numero . ' para o cliente ' . $ordemServico->cliente->nome . '.',
-            ]);
-        });
-
-        return back()->with('success', 'Orcamento enviado para o atendente.');
-    }
-
     public function enviarOrcamentoCliente($id)
     {
         $ordemServico = OrdemServico::with(['cliente.user'])->findOrFail($id);
 
         if (!Auth::user()->isAtendente() && !Auth::user()->isGerente()) {
             abort(403);
+        }
+
+        if (!$ordemServico->diagnostico || $ordemServico->itens()->count() === 0) {
+            return back()->with('error', 'Informe o diagnostico e adicione pelo menos um item ao orcamento.');
         }
 
         $ordemServico->update(['status' => 'aguardando_aprovacao']);
@@ -339,9 +276,7 @@ class OrdemServicoController extends Controller
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => $ordemServico->usaGarantiaAtiva()
-                    ? 'Seu diagnostico da OS ' . $ordemServico->numero . ' esta pronto. Confirme o acionamento da garantia para a oficina finalizar o servico sem cobranca.'
-                    : 'Seu orcamento da OS ' . $ordemServico->numero . ' esta pronto. Aprove e confirme o pagamento para a oficina finalizar a OS, ou recuse o servico.',
+                'mensagem' => 'Seu orcamento da OS ' . $ordemServico->numero . ' esta pronto. Aprove e confirme o pagamento para a oficina finalizar a OS, ou recuse o servico.',
             ]);
         }
 
@@ -351,7 +286,6 @@ class OrdemServicoController extends Controller
     public function clienteAprovar(Request $request, $id)
     {
         $ordemServico = OrdemServico::with(['cliente', 'mecanico.user'])->findOrFail($id);
-        $usandoGarantiaAtiva = $ordemServico->usaGarantiaAtiva();
 
         if (!Auth::user()->isCliente() || $ordemServico->cliente?->user_id !== Auth::id()) {
             abort(403);
@@ -364,7 +298,6 @@ class OrdemServicoController extends Controller
 
         $request->validate([
             'metodo_pagamento' => 'required|in:pix,cartao,dinheiro',
-            'garantia_opcao' => 'required|in:sem,com',
             'cartao_opcao' => 'nullable|required_if:metodo_pagamento,cartao|in:salvo,novo',
             'cartao_salvo_id' => ['nullable', Rule::requiredIf($usandoCartaoSalvo), 'integer'],
             'tipo_cartao' => ['nullable', Rule::requiredIf($usandoCartaoNovo), 'in:debito,credito'],
@@ -392,14 +325,6 @@ class OrdemServicoController extends Controller
             'status' => 'aguardando_finalizacao',
         ]);
 
-        if (! $usandoGarantiaAtiva) {
-            $this->registrarEscolhaGarantiaNoPagamento(
-                $ordemServico,
-                $request->input('garantia_opcao'),
-                $request->input('metodo_pagamento')
-            );
-        }
-
         Notificacao::where('user_id', Auth::id())
             ->where('os_id', $ordemServico->id)
             ->where('status', 'pendente')
@@ -408,35 +333,17 @@ class OrdemServicoController extends Controller
                 'lida' => true,
             ]);
 
-        User::whereIn('role', ['atendente', 'gerente'])->get()->each(function (User $user) use ($ordemServico, $usandoGarantiaAtiva) {
+        User::whereIn('role', ['atendente', 'gerente'])->get()->each(function (User $user) use ($ordemServico) {
             Notificacao::create([
                 'user_id' => $user->id,
                 'os_id' => $ordemServico->id,
                 'tipo' => 'atualizacao',
                 'status' => 'pendente',
-                'mensagem' => $usandoGarantiaAtiva
-                    ? 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ' usando a garantia ativa do veiculo. Nao ha cobranca para esta OS.'
-                    : 'O cliente ' . $ordemServico->cliente->nome . ' realizou o pagamento da OS ' . $ordemServico->numero . ' e vai comparecer na oficina. A OS aguarda finalizacao.',
+                'mensagem' => 'O cliente ' . $ordemServico->cliente->nome . ' realizou o pagamento da OS ' . $ordemServico->numero . ' e vai comparecer na oficina. A OS aguarda finalizacao.',
             ]);
         });
 
-        $mecanico = $ordemServico->mecanico()->with('user')->first();
-
-        if ($mecanico?->user_id) {
-            Notificacao::create([
-                'user_id' => $mecanico->user_id,
-                'os_id' => $ordemServico->id,
-                'tipo' => 'atualizacao',
-                'status' => 'pendente',
-                'mensagem' => $usandoGarantiaAtiva
-                    ? 'O cliente ' . $ordemServico->cliente->nome . ' aceitou a OS ' . $ordemServico->numero . ' usando a garantia ativa do veiculo. Finalize o servico sem cobrar o cliente.'
-                    : 'O cliente ' . $ordemServico->cliente->nome . ' pagou a OS ' . $ordemServico->numero . ' e quer prosseguir com o servico. Finalize a OS quando o servico estiver pronto.',
-            ]);
-        }
-
-        return back()->with('success', $usandoGarantiaAtiva
-            ? 'Garantia acionada. A OS agora esta aguardando finalizacao pela oficina.'
-            : 'Pagamento confirmado. A OS agora esta aguardando finalizacao pela oficina.');
+        return back()->with('success', 'Pagamento confirmado. A OS agora esta aguardando finalizacao pela oficina.');
     }
 
     public function clienteRecusar(Request $request, $id)
@@ -475,16 +382,6 @@ class OrdemServicoController extends Controller
                 'mensagem' => 'O cliente recusou prosseguir com a OS ' . $ordemServico->numero . '.',
             ]);
         });
-
-        if ($ordemServico->mecanico?->user_id) {
-            Notificacao::create([
-                'user_id' => $ordemServico->mecanico->user_id,
-                'os_id' => $ordemServico->id,
-                'tipo' => 'atualizacao',
-                'status' => 'pendente',
-                'mensagem' => 'O cliente recusou a OS ' . $ordemServico->numero . '.',
-            ]);
-        }
 
         return back()->with('success', 'Orcamento recusado. A oficina foi avisada.');
     }
@@ -534,20 +431,9 @@ class OrdemServicoController extends Controller
 
         $ordemServico->update(['status' => $request->status]);
 
-        // RN001 — ao finalizar, cria garantia de 90 dias automaticamente
         if ($request->status === 'finalizada') {
             $ordemServico->update(['data_conclusao' => now()]);
-            if ($ordemServico->mecanico?->user_id) {
-                Notificacao::where('user_id', $ordemServico->mecanico->user_id)
-                    ->where('os_id', $ordemServico->id)
-                    ->where('status', 'pendente')
-                    ->update([
-                        'status' => 'aceita',
-                        'lida' => true,
-                    ]);
-            }
             $this->notificarClienteVeiculoPronto($ordemServico);
-            $this->criarOfertaGarantia($ordemServico);
         }
 
         return back()->with('success', 'Status atualizado para: ' . $ordemServico->statusLabel());
@@ -582,18 +468,7 @@ class OrdemServicoController extends Controller
             'data_conclusao' => now(),
         ]);
 
-        if ($ordemServico->mecanico?->user_id) {
-            Notificacao::where('user_id', $ordemServico->mecanico->user_id)
-                ->where('os_id', $ordemServico->id)
-                ->where('status', 'pendente')
-                ->update([
-                    'status' => 'aceita',
-                    'lida' => true,
-                ]);
-        }
-
         $this->notificarClienteVeiculoPronto($ordemServico);
-        $this->criarOfertaGarantia($ordemServico);
 
         return back()->with('success', 'Ordem de serviço finalizada com sucesso!');
     }
@@ -628,73 +503,7 @@ class OrdemServicoController extends Controller
         ]);
     }
 
-    private function criarOfertaGarantia(OrdemServico $ordemServico): void
-    {
-        $ordemServico->loadMissing(['cliente.user', 'itens', 'garantias']);
-
-        if ($ordemServico->usaGarantiaAtiva()) {
-            return;
-        }
-
-        if ($ordemServico->garantias()->exists()) {
-            return;
-        }
-
-        $valorGarantia = $ordemServico->valorGarantiaAdicional();
-
-        $garantia = $ordemServico->garantias()->create([
-            'descricao' => 'Oferta de garantia adicional de 60 dias para serviços e peças desta OS.',
-            'valor' => $valorGarantia,
-            'status' => 'pendente',
-            'data_inicio' => today(),
-            'data_fim' => today()->addDays(60),
-            'observacao' => 'Aguardando decisão do cliente.',
-        ]);
-
-        if ($ordemServico->cliente?->user_id) {
-            Notificacao::create([
-                'user_id' => $ordemServico->cliente->user_id,
-                'os_id' => $ordemServico->id,
-                'tipo' => 'atualizacao',
-                'status' => 'pendente',
-                'mensagem' => 'Sua OS ' . $ordemServico->numero . ' foi finalizada. Voce pode adicionar 60 dias de garantia por R$ ' . number_format($garantia->valor, 2, ',', '.') . ' ou recusar sem custo.',
-            ]);
-        }
-    }
-
     // Autorização do cliente via link/token (RF004)
-    private function registrarEscolhaGarantiaNoPagamento(OrdemServico $ordemServico, string $opcao, string $metodoPagamento): void
-    {
-        $garantia = $ordemServico->garantias()->firstOrNew([]);
-        $metodo = match ($metodoPagamento) {
-            'pix' => 'Pix',
-            'cartao' => 'Cartao',
-            default => 'Dinheiro/presencial',
-        };
-
-        if ($opcao === 'com') {
-            $garantia->fill([
-                'descricao' => 'Garantia adicional de 60 dias para servicos e pecas desta OS.',
-                'valor' => $ordemServico->valorGarantiaAdicional(),
-                'status' => 'aceita',
-                'data_inicio' => today(),
-                'data_fim' => today()->addDays(60),
-                'observacao' => 'Cliente escolheu e pagou a garantia junto com a OS via ' . $metodo . '.',
-            ])->save();
-
-            return;
-        }
-
-        $garantia->fill([
-            'descricao' => 'Garantia adicional de 60 dias para servicos e pecas desta OS.',
-            'valor' => $ordemServico->valorGarantiaAdicional(),
-            'status' => 'recusada',
-            'data_inicio' => today(),
-            'data_fim' => today()->addDays(60),
-            'observacao' => 'Cliente optou por pagar somente a OS, sem garantia adicional.',
-        ])->save();
-    }
-
     public function showAutorizacao(string $token)
     {
         $os = OrdemServico::where('numero', $token)
@@ -750,7 +559,7 @@ class OrdemServicoController extends Controller
     public function imprimir($id)
     {
         $ordemServico = OrdemServico::findOrFail($id);
-        $ordemServico->load(['cliente','veiculo','mecanico','itens.servico','itens.peca','garantias']);
+        $ordemServico->load(['cliente','veiculo','mecanico','itens.servico','itens.peca']);
         return view('ordens-servico.print', compact('ordemServico'));
     }
 }

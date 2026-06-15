@@ -29,7 +29,15 @@
                     <i class="bi bi-car-front me-1"></i>Meus veículos
                 </a>
             @else
-                <a href="{{ route('os.index') }}" class="btn btn-primary">
+                @if($user->isAtendente() || $user->isGerente())
+                    <a href="{{ route('os.create') }}" class="btn btn-primary">
+                        <i class="bi bi-person-workspace me-1"></i>Atendimento presencial
+                    </a>
+                    <a href="{{ route('clientes.create') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-person-plus me-1"></i>Cadastrar cliente
+                    </a>
+                @endif
+                <a href="{{ route('os.index') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-clipboard2-check me-1"></i>Ver ordens
                 </a>
                 @if($user->isGerente())

@@ -38,16 +38,30 @@ class ServiceHistoryReset
             'ordens_servico',
         ];
 
+        $usesMysql = DB::getDriverName() === 'mysql';
+
         try {
-            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            if ($usesMysql) {
+                DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            } else {
+                Schema::disableForeignKeyConstraints();
+            }
 
             foreach ($tables as $table) {
                 if (Schema::hasTable($table)) {
-                    DB::table($table)->truncate();
+                    if ($usesMysql) {
+                        DB::table($table)->truncate();
+                    } else {
+                        DB::table($table)->delete();
+                    }
                 }
             }
         } finally {
-            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            if ($usesMysql) {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            } else {
+                Schema::enableForeignKeyConstraints();
+            }
         }
 
         Storage::disk('public')->deleteDirectory('os');

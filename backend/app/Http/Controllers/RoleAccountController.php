@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ContaAcessoSolicitacao;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class RoleAccountController extends Controller
 {
@@ -39,26 +40,21 @@ class RoleAccountController extends Controller
             ]);
         }
 
-        $solicitacao = ContaAcessoSolicitacao::where('solicitante_id', $user->id)
-            ->latest()
-            ->first();
-
-        if ($solicitacao?->status === 'aprovada') {
+        if ($request->session()->get('conta_usuarios_acesso', false)) {
             return view('conta.usuarios', [
                 'gerente' => false,
                 'accessGranted' => true,
                 'users' => $this->buscarUsuarios($request),
                 'filterRole' => $request->role,
                 'filterSearch' => $request->search,
-                'solicitacao' => $solicitacao,
+                'accessError' => session('access_error'),
             ]);
         }
 
         return view('conta.usuarios', [
             'gerente' => false,
             'accessGranted' => false,
-            'solicitado' => $solicitacao?->status === 'pendente',
-            'solicitacao' => $solicitacao,
+            'accessError' => session('access_error'),
         ]);
     }
 
@@ -94,7 +90,9 @@ class RoleAccountController extends Controller
 
     public function aprovarSolicitacao(ContaAcessoSolicitacao $solicitacao)
     {
-        if (! auth()->user()->isGerente()) {
+        $user = auth()->user();
+
+        if (! $user->isGerente() && ! $user->isAtendente()) {
             abort(403);
         }
 
@@ -164,7 +162,9 @@ class RoleAccountController extends Controller
 
     public function autorizar(Request $request)
     {
-        if (! auth()->user()->isGerente()) {
+        $user = auth()->user();
+
+        if (! $user->isGerente() && ! $user->isAtendente()) {
             abort(403);
         }
 
@@ -172,7 +172,11 @@ class RoleAccountController extends Controller
             'senha' => 'required|string',
         ]);
 
-        if ($validated['senha'] !== '12345678') {
+        $senhaValida = $user->isGerente()
+            ? $validated['senha'] === '12345678'
+            : Hash::check($validated['senha'], $user->password);
+
+        if (! $senhaValida) {
             return redirect()->route('conta.usuarios')
                 ->with('access_error', 'Senha incorreta. Tente novamente.');
         }
@@ -194,23 +198,10 @@ class RoleAccountController extends Controller
         }
 
         if ($user->isAtendente()) {
-            $solicitacao = ContaAcessoSolicitacao::where('solicitante_id', $user->id)
-                ->where('status', 'aprovada')
-                ->latest()
-                ->first();
-
-            if (! $solicitacao) {
-                return redirect()->route('conta.usuarios')
-                    ->with('error', 'Nao existe acesso autorizado para fechar.');
-            }
-
-            $solicitacao->update([
-                'status' => 'recusada',
-                'respondido_em' => now(),
-            ]);
+            $request->session()->forget('conta_usuarios_acesso');
 
             return redirect()->route('conta.usuarios')
-                ->with('success', 'Acesso as contas fechado. Solicite autorizacao novamente quando precisar.');
+                ->with('success', 'Acesso as contas fechado. Informe sua senha novamente quando precisar.');
         }
 
         abort(403);
@@ -226,10 +217,6 @@ class RoleAccountController extends Controller
             'cliente.veiculos.ordens.mecanico',
             'cliente.ordens.veiculo',
             'cliente.ordens.itens',
-            'cliente.ordens.garantias',
-            'mecanico.ordens.cliente',
-            'mecanico.ordens.veiculo',
-            'mecanico.ordens.itens',
         ]);
 
         return view('conta.usuario-detalhes', compact('user'));
@@ -267,9 +254,9 @@ class RoleAccountController extends Controller
     private function buscarUsuarios(Request $request)
     {
         $query = User::with(['cliente', 'mecanico'])
-            ->whereIn('role', ['gerente', 'atendente', 'mecanico', 'cliente']);
+            ->whereIn('role', ['gerente', 'atendente', 'cliente']);
 
-        if ($request->filled('role') && in_array($request->role, ['gerente', 'atendente', 'mecanico', 'cliente'])) {
+        if ($request->filled('role') && in_array($request->role, ['gerente', 'atendente', 'cliente'])) {
             $query->where('role', $request->role);
         }
 
@@ -282,7 +269,7 @@ class RoleAccountController extends Controller
         }
 
         return $query
-            ->orderByRaw("FIELD(role, 'gerente', 'atendente', 'mecanico', 'cliente')")
+            ->orderByRaw("CASE role WHEN 'gerente' THEN 1 WHEN 'atendente' THEN 2 WHEN 'cliente' THEN 3 ELSE 4 END")
             ->orderBy('name')
             ->get();
     }
@@ -296,9 +283,7 @@ class RoleAccountController extends Controller
         }
 
         if ($user->isAtendente()) {
-            return ContaAcessoSolicitacao::where('solicitante_id', $user->id)
-                ->where('status', 'aprovada')
-                ->exists();
+            return $request->session()->get('conta_usuarios_acesso', false);
         }
 
         return false;

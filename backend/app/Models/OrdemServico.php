@@ -30,7 +30,6 @@ class OrdemServico extends Model
     public function mecanico() { return $this->belongsTo(Mecanico::class); }
     public function itens()    { return $this->hasMany(ItemOs::class, 'os_id'); }
     public function fotos()    { return $this->hasMany(FotoOs::class, 'os_id'); }
-    public function garantias(){ return $this->hasMany(Garantia::class, 'os_id'); }
     public function avaliacao(){ return $this->hasOne(AvaliacaoOs::class, 'os_id'); }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -64,24 +63,16 @@ class OrdemServico extends Model
         return (int) $primeiraOsId === (int) $this->id;
     }
 
-    public function valorGarantiaAdicional(): float
+    public static function statusOcupamMecanico(): array
     {
-        $base = (float) $this->valor_total;
-
-        if ($base <= 0 && $this->relationLoaded('itens')) {
-            $base = (float) $this->itens->sum('valor_total');
-        }
-
-        if ($base <= 0) {
-            $base = (float) $this->itens()->sum('valor_total');
-        }
-
-        return round(min(450, max(60, $base * 0.12)), 2);
-    }
-
-    public function usaGarantiaAtiva(): bool
-    {
-        return str_contains((string) $this->observacoes, 'garantia ativa do veiculo');
+        return [
+            'em_diagnostico',
+            'aguardando_aprovacao',
+            'aprovada',
+            'em_execucao',
+            'aguardando_finalizacao',
+            'aguardando_pecas',
+        ];
     }
 
     public function statusLabel(): string

@@ -10,7 +10,6 @@ use App\Http\Controllers\ServicoController;
 use App\Http\Controllers\PecaController;
 use App\Http\Controllers\OrdemServicoController;
 use App\Http\Controllers\ItemOsController;
-use App\Http\Controllers\GarantiaController;
 use App\Http\Controllers\FipeController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\NotificacaoController;
@@ -18,6 +17,7 @@ use App\Http\Controllers\RoleAccountController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AvaliacaoOsController;
 use App\Http\Controllers\CartaoClienteController;
+use App\Models\AvaliacaoOs;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/health', function () {
@@ -32,13 +32,37 @@ Route::get('/media/{path}', function (string $path) {
 
 // ── Rotas públicas ───────────────────────────────────────────────────────────
 Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('dashboard')
-        : redirect()->route('login');
+    $avaliacoesDestaque = AvaliacaoOs::with('cliente')
+        ->whereNotNull('comentario')
+        ->where('comentario', '<>', '')
+        ->orderByDesc('nota')
+        ->latest()
+        ->limit(6)
+        ->get();
+
+    $totalAvaliacoesPublicas = AvaliacaoOs::whereNotNull('comentario')
+        ->where('comentario', '<>', '')
+        ->count();
+
+    return view('layout.public', compact('avaliacoesDestaque', 'totalAvaliacoesPublicas'));
 });
+
+Route::get('/comentarios', function () {
+    $avaliacoesPorNota = AvaliacaoOs::with('cliente')
+        ->whereNotNull('comentario')
+        ->where('comentario', '<>', '')
+        ->orderByDesc('nota')
+        ->latest()
+        ->get()
+        ->groupBy('nota');
+
+    return view('layout.comentarios', compact('avaliacoesPorNota'));
+})->name('comentarios.public');
 
 Route::get ('/login',    [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login',    [AuthController::class, 'login'])->name('login.post');
+Route::get ('/auth/google', [AuthController::class, 'redirectGoogle'])->name('google.redirect');
+Route::get ('/auth/google/callback', [AuthController::class, 'callbackGoogle'])->name('google.callback');
 Route::get ('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout',   [AuthController::class, 'logout'])->name('logout');
@@ -96,7 +120,7 @@ Route::middleware(['auth'])->group(function () {
     // Ordens de Serviço
     // Ordens de Serviço - rotas com {id} em vez de implicit model binding
     Route::get('/ordens-servico', [OrdemServicoController::class, 'index'])->name('os.index');
-    Route::middleware('role:cliente')->group(function () {
+    Route::middleware('role:cliente,atendente,gerente')->group(function () {
         Route::get('/ordens-servico/create', [OrdemServicoController::class, 'create'])->name('os.create');
         Route::post('/ordens-servico', [OrdemServicoController::class, 'store'])->name('os.store');
     });
@@ -107,7 +131,6 @@ Route::middleware(['auth'])->group(function () {
     
     Route::patch('/ordens-servico/{id}/status',  [OrdemServicoController::class, 'atualizarStatus'])->name('os.status');
     Route::patch('/ordens-servico/{id}/aprovar', [OrdemServicoController::class, 'aprovar'])->name('os.aprovar');
-    Route::patch('/ordens-servico/{id}/enviar-orcamento-atendente', [OrdemServicoController::class, 'enviarOrcamentoAtendente'])->name('os.orcamento.atendente');
     Route::patch('/ordens-servico/{id}/enviar-orcamento-cliente', [OrdemServicoController::class, 'enviarOrcamentoCliente'])->name('os.orcamento.cliente');
     Route::patch('/ordens-servico/{id}/cliente-aprovar', [OrdemServicoController::class, 'clienteAprovar'])->name('os.cliente.aprovar');
     Route::patch('/ordens-servico/{id}/cliente-recusar', [OrdemServicoController::class, 'clienteRecusar'])->name('os.cliente.recusar');
@@ -122,9 +145,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/ordens-servico/{id}/itens/{item}', [ItemOsController::class, 'destroy'])->name('os.itens.destroy');
 
     // Notificações (Sistema de Comunicação) - Apenas para Atendentes e Gerentes
-    Route::middleware('role:atendente,gerente,mecanico,cliente')->prefix('notificacoes')->name('notificacoes.')->group(function () {
+    Route::middleware('role:atendente,gerente,cliente')->prefix('notificacoes')->name('notificacoes.')->group(function () {
         Route::get('/', [NotificacaoController::class, 'index'])->name('index');
         Route::post('/{notificacao}/aceitar', [NotificacaoController::class, 'aceitar'])->name('aceitar');
+        Route::post('/{notificacao}/sem-mecanico', [NotificacaoController::class, 'avisarSemMecanico'])->name('sem-mecanico');
 	    Route::post('/{notificacao}/recusar', [NotificacaoController::class, 'recusar'])->name('recusar');
 	    Route::post('/{notificacao}/confirmar', [NotificacaoController::class, 'confirmar'])->name('confirmar');
 	    Route::post('/{notificacao}/lida', [NotificacaoController::class, 'marcarLida'])->name('lida');
@@ -132,13 +156,6 @@ Route::middleware(['auth'])->group(function () {
 	    Route::delete('/limpar/todas', [NotificacaoController::class, 'limpar'])->name('limpar');
 	    Route::get('/contar/nao-lidas', [NotificacaoController::class, 'contarNaoLidas'])->name('contar');
 	});
-
-    // Garantias
-    Route::resource('garantias', GarantiaController::class)->only(['index','show','edit','update']);
-    Route::patch('/garantias/{garantia}/acionar', [GarantiaController::class, 'acionar'])->name('garantias.acionar');
-    Route::patch('/garantias/{garantia}/aceitar-oferta', [GarantiaController::class, 'aceitarOferta'])->name('garantias.aceitar-oferta');
-    Route::patch('/garantias/{garantia}/recusar-oferta', [GarantiaController::class, 'recusarOferta'])->name('garantias.recusar-oferta');
-    Route::patch('/garantias/{garantia}/pagar-oferta', [GarantiaController::class, 'pagarOferta'])->name('garantias.pagar-oferta');
 
     // FIPE (UC011)
     Route::prefix('fipe')->name('fipe.')->group(function () {
@@ -155,7 +172,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/faturamento',       [RelatorioController::class, 'faturamento'])->name('faturamento');
         Route::get('/produtividade',     [RelatorioController::class, 'produtividade'])->name('produtividade');
         Route::get('/pecas-usadas',      [RelatorioController::class, 'pecasMaisUsadas'])->name('pecas');
-        Route::get('/garantias',         [RelatorioController::class, 'garantias'])->name('garantias');
         Route::get('/tempo-reparo',      [RelatorioController::class, 'tempoReparo'])->name('tempo-reparo');
         Route::get('/clientes',          [RelatorioController::class, 'clientes'])->name('clientes');
         Route::get('/orcamentos',        [RelatorioController::class, 'orcamentos'])->name('orcamentos');
@@ -170,7 +186,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Área do atendente - Cadastros
-    Route::middleware('role:atendente,gerente,mecanico')->prefix('minha-conta')->name('conta.')->group(function () {
+    Route::middleware('role:atendente,gerente')->prefix('minha-conta')->name('conta.')->group(function () {
         Route::get('/clientes', [ClienteController::class, 'clientesLogados'])->name('clientes');
     });
 

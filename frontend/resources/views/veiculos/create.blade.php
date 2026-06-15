@@ -2,6 +2,15 @@
 @section('title', 'Novo Veículo')
 @section('breadcrumb', 'Novo Veículo')
 @section('content')
+@php
+    $voltarUrl = url()->previous();
+
+    if ($voltarUrl === url()->current()) {
+        $voltarUrl = auth()->user()?->isCliente()
+            ? route('conta.veiculos')
+            : route('veiculos.index');
+    }
+@endphp
 <div class="row justify-content-center vehicle-form-page"><div class="col-12 col-lg-7">
 <div class="card">
     <div class="card-header"><i class="bi bi-car-front me-2"></i>Novo Veículo</div>
@@ -73,7 +82,7 @@
 
             <div class="mt-4 d-flex flex-wrap gap-2 vehicle-form-actions">
                 <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Salvar</button>
-                <a href="{{ route('veiculos.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                <a href="{{ $voltarUrl }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
             </div>
         </form>
     </div>

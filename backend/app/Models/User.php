@@ -26,7 +26,6 @@ class User extends Authenticatable
 
     public function isGerente():   bool { return $this->role === 'gerente'; }
     public function isAtendente(): bool { return $this->role === 'atendente'; }
-    public function isMecanico():  bool { return $this->role === 'mecanico'; }
     public function isCliente():   bool { return $this->role === 'cliente'; }
 
     public function isOnline(): bool

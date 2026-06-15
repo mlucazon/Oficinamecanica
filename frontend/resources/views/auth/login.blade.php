@@ -48,7 +48,7 @@
                     <li><i class="bi bi-box-seam"></i> Controle de Estoque</li>
                     <li><i class="bi bi-people"></i> Gestão de Clientes</li>
                     <li><i class="bi bi-bar-chart-line"></i> Relatórios e Métricas</li>
-                    <li><i class="bi bi-shield-check"></i> Controle de Garantias</li>
+                    <li><i class="bi bi-tools"></i> Controle de Servicos</li>
                 </ul>
             </div>
 
@@ -70,11 +70,18 @@
             </div>
             @endif
 
+            <a href="{{ route('google.redirect') }}" class="btn-google-login">
+                <span class="google-mark">G</span>
+                <span>Continuar com Google</span>
+            </a>
+
+            <div class="divider"><span>ou entre com e-mail</span></div>
+
             <form method="POST" action="{{ route('login.post') }}" id="login-form">
                 @csrf
 
                 <div class="field-group">
-                    <label class="field-label" for="email">E-mail</label>
+                    <label class="field-label is-required" for="email">E-mail</label>
                     <div class="field-wrap">
                         <i class="bi bi-envelope field-icon"></i>
                         <input
@@ -92,7 +99,7 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="password">Senha</label>
+                    <label class="field-label is-required" for="password">Senha</label>
                     <div class="field-wrap">
                         <i class="bi bi-lock field-icon" id="lock-icon"></i>
                         <input
@@ -253,7 +260,7 @@ document.getElementById('btn-submit').addEventListener('click', function (e) {
 });
 
 (function () {
-    const els = document.querySelectorAll('.field-group, .row-bottom, .btn-entrar, .login-heading, .login-sub, .alert-box, .divider, .footer-note');
+    const els = document.querySelectorAll('.field-group, .row-bottom, .btn-entrar, .btn-google-login, .login-heading, .login-sub, .alert-box, .divider, .footer-note');
     els.forEach((el, i) => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(10px)';

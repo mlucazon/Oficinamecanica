@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\OrdemServico;
 use App\Models\Mecanico;
 use App\Models\ItemOs;
-use App\Models\Garantia;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
 
@@ -60,12 +59,6 @@ class RelatorioController extends Controller
             ->selectRaw('peca_id, SUM(quantidade) as total_qtd, SUM(valor_total) as total_valor')
             ->groupBy('peca_id')->orderByDesc('total_qtd')->limit(20)->get();
         return view('relatorios.pecas', compact('dados'));
-    }
-
-    public function garantias()
-    {
-        $dados = Garantia::with('ordemServico.cliente')->latest()->paginate(20);
-        return view('relatorios.garantias', compact('dados'));
     }
 
     public function tempoReparo()

@@ -144,20 +144,13 @@
                 'uso' => 'Entender conversao e ajustar valores, prazos ou comunicacao.',
             ],
         ],
-        'Estoque e Garantia' => [
+        'Estoque' => [
             [
                 'route' => 'relatorios.pecas',
                 'icon' => 'bi-box-seam',
                 'titulo' => 'Pecas Mais Usadas',
                 'mostra' => 'Pecas com maior saida nas ordens de servico.',
                 'uso' => 'Planejar compras e evitar falta de itens importantes.',
-            ],
-            [
-                'route' => 'relatorios.garantias',
-                'icon' => 'bi-shield-check',
-                'titulo' => 'Garantias Acionadas',
-                'mostra' => 'Garantias abertas, aceitas e recusadas.',
-                'uso' => 'Medir custos e recorrencia de problemas apos o reparo.',
             ],
         ],
         'Clientes' => [
@@ -175,7 +168,7 @@
 <div class="report-intro">
     <div>
         <h1>Relatorios da oficina</h1>
-        <p>Escolha um relatorio conforme a decisao que voce precisa tomar: operacao, faturamento, estoque, garantia ou relacionamento com clientes.</p>
+        <p>Escolha um relatorio conforme a decisao que voce precisa tomar: operacao, faturamento, estoque ou relacionamento com clientes.</p>
     </div>
 </div>
 

@@ -6,16 +6,13 @@ use App\Models\ItemOs;
 use App\Models\OrdemServico;
 use App\Models\Peca;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ItemOsController extends Controller
 {
     public function store(Request $request, $id)
     {
         $ordemServico = OrdemServico::findOrFail($id);
-        if (Auth::user()->isMecanico() && $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
-            abort(403);
-        }
+        abort_unless(auth()->user()->isAtendente() || auth()->user()->isGerente(), 403);
 
         $data = $request->validate([
             'tipo'           => 'required|in:servico,peca',
@@ -60,9 +57,7 @@ class ItemOsController extends Controller
     public function update(Request $request, $id, $itemId)
     {
         $ordemServico = OrdemServico::findOrFail($id);
-        if (Auth::user()->isMecanico() && $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
-            abort(403);
-        }
+        abort_unless(auth()->user()->isAtendente() || auth()->user()->isGerente(), 403);
 
         $item = ItemOs::findOrFail($itemId);
         $data = $request->validate([
@@ -77,9 +72,7 @@ class ItemOsController extends Controller
     public function destroy($id, $itemId)
     {
         $ordemServico = OrdemServico::findOrFail($id);
-        if (Auth::user()->isMecanico() && $ordemServico->mecanico_id !== Auth::user()->mecanico?->id) {
-            abort(403);
-        }
+        abort_unless(auth()->user()->isAtendente() || auth()->user()->isGerente(), 403);
 
         $item = ItemOs::findOrFail($itemId);
         $item->delete();

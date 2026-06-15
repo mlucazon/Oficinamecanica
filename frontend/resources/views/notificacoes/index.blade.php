@@ -180,139 +180,7 @@
     </form>
 </div>
 
-@if(auth()->user()->isMecanico())
-	<div class="row g-3">
-	    <div class="col-lg-7">
-	        <div class="card h-100">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-person-lines-fill me-2 text-warning"></i>Avisos da oficina</span>
-                @if($notificacoes_pendentes->count() > 0)
-                    <span class="badge bg-danger">{{ $notificacoes_pendentes->count() }}</span>
-                @endif
-            </div>
-            <div class="card-body p-0">
-                @forelse($notificacoes_pendentes as $notif)
-                    <div class="notification-list">
-                        <div class="notification-card {{ $notif->os->status === 'aguardando_finalizacao' ? 'is-payment' : '' }}">
-                            <div class="notification-main">
-                                <div class="notification-icon">
-                                    @if($notif->os->status === 'aguardando_finalizacao')
-                                        <i class="bi bi-flag-fill"></i>
-                                    @else
-                                        <i class="bi bi-tools"></i>
-                                    @endif
-                                </div>
-                                <div>
-                                    <span class="notification-kicker">OS</span>
-                                    <strong class="notification-title">{{ $notif->os->numero }}</strong>
-                                    <div class="notification-meta">
-                                        <span class="badge badge-{{ $notif->os->status }}">{{ $notif->os->statusLabel() }}</span>
-                                        <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ $notif->created_at->format('d/m H:i') }}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <span class="notification-kicker">Cliente</span>
-                                    <strong class="notification-value">{{ $notif->os->cliente->nome }}</strong>
-                                </div>
-                                <div class="notification-message">
-                                    {{ $notif->mensagem ?: 'Nova atualizacao de OS.' }}
-                                </div>
-                            </div>
-                            <div class="notification-actions">
-                                <a href="{{ route('os.show', $notif->os_id) }}" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-eye me-1"></i>Ver OS
-                                </a>
-                                @if($notif->os->status === 'aguardando_finalizacao' && $notif->os->mecanico_id === auth()->user()->mecanico?->id)
-                                    <form method="POST" action="{{ route('os.fechar', $notif->os_id) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button class="btn btn-sm btn-primary" onclick="return confirm('Finalizar esta OS?')">
-                                            <i class="bi bi-flag-fill me-1"></i>Finalizar OS
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @empty
-	                    <p class="notification-empty">Nenhum aviso da oficina no momento.</p>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-5">
-        <div class="card h-100">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>Avisos de estoque</span>
-                @if($pecas_criticas->count() > 0)
-                    <span class="badge bg-danger">{{ $pecas_criticas->count() }}</span>
-                @endif
-            </div>
-            <div class="card-body">
-                @forelse($pecas_criticas as $peca)
-                    <div class="d-flex align-items-center justify-content-between gap-3 border-bottom py-3">
-                        <div>
-                            <div class="fw-semibold">{{ $peca->nome }}</div>
-	                            <div class="small" style="color: var(--text2);">{{ $peca->codigo ?: 'Sem codigo' }} - minimo {{ $peca->estoque_minimo }} {{ $peca->unidade }}</div>
-                        </div>
-                        <span class="badge bg-danger">{{ $peca->estoque }} {{ $peca->unidade }}</span>
-                    </div>
-                @empty
-	                    <p class="mb-0" style="color: var(--text2);">Nenhuma peca com estoque critico.</p>
-                @endforelse
-            </div>
-	        </div>
-	    </div>
-
-	    <div class="col-12">
-	        <div class="card">
-	            <div class="card-header">
-	                <i class="bi bi-clock-history me-2"></i>Histórico de notificações
-	            </div>
-	            <div class="card-body p-0">
-	                @if($notificacoes_respondidas->isEmpty())
-		                    <p class="text-center py-4" style="color: var(--text2);">Nenhum histórico para exibir.</p>
-	                @else
-	                    <div class="table-responsive">
-	                        <table class="table table-sm mb-0">
-	                            <thead class="table-light">
-	                                <tr>
-	                                    <th>OS</th>
-	                                    <th>Cliente</th>
-	                                    <th>Aviso</th>
-	                                    <th>Data</th>
-	                                    <th></th>
-	                                </tr>
-	                            </thead>
-	                            <tbody>
-	                                @foreach($notificacoes_respondidas as $notif)
-	                                    <tr>
-	                                        <td><span class="font-mono small">{{ $notif->os?->numero ?? '-' }}</span></td>
-	                                        <td>{{ $notif->os?->cliente?->nome ?? '-' }}</td>
-	                                        <td>
-	                                            <span class="badge bg-success me-2">Concluído</span>
-		                                            <small style="color: var(--text2);">{{ $notif->mensagem ?: 'Aviso concluído.' }}</small>
-	                                        </td>
-	                                        <td><small>{{ $notif->updated_at->format('d/m H:i') }}</small></td>
-	                                        <td>
-	                                            @if($notif->os)
-	                                                <a href="{{ route('os.show', $notif->os) }}" class="btn btn-sm btn-outline-secondary">
-	                                                    <i class="bi bi-eye"></i>
-	                                                </a>
-	                                            @endif
-	                                        </td>
-	                                    </tr>
-	                                @endforeach
-	                            </tbody>
-	                        </table>
-	                    </div>
-	                @endif
-	            </div>
-	        </div>
-	    </div>
-	</div>
-	@elseif(auth()->user()->isCliente())
+@if(auth()->user()->isCliente())
 <div class="row g-3">
     <div class="col-12">
         <div class="card">
@@ -479,9 +347,18 @@
                                         <i class="bi bi-eye me-1"></i>Ver OS
                                     </a>
                                     @if($notif->tipo === 'solicitacao_os')
-                                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#aceitarModal{{ $notif->id }}">
-                                            <i class="bi bi-check-circle me-1"></i>Aceitar
-                                        </button>
+                                        @if($mecanicos->isNotEmpty())
+                                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#aceitarModal{{ $notif->id }}">
+                                                <i class="bi bi-check-circle me-1"></i>Aceitar
+                                            </button>
+                                        @else
+                                            <form method="POST" action="{{ route('notificacoes.sem-mecanico', $notif) }}">
+                                                @csrf
+                                                <button class="btn btn-warning btn-sm" onclick="return confirm('Avisar o cliente que nao temos mecanico livre agora?')">
+                                                    <i class="bi bi-clock-history me-1"></i>Avisar cliente
+                                                </button>
+                                            </form>
+                                        @endif
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#recusarModal{{ $notif->id }}">
                                             <i class="bi bi-x-circle me-1"></i>Recusar
                                         </button>
@@ -582,6 +459,7 @@
                     @csrf
                     <div class="modal-body">
                         <label for="mecanico{{ $notif->id }}" class="form-label">Mecanico responsavel *</label>
+                        <div class="form-text mb-2">A lista mostra apenas mecanicos livres no momento.</div>
                         <select class="form-select" id="mecanico{{ $notif->id }}" name="mecanico_id" required>
                             <option value="">Selecione...</option>
                             @forelse($mecanicos as $mecanico)

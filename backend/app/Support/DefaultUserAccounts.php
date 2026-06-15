@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use App\Models\Mecanico;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,18 +17,6 @@ class DefaultUserAccounts
         'antonio@autotech.com' => [
             'name' => 'Antonio Gerente',
             'role' => 'gerente',
-        ],
-        'mecanico@autotech.com' => [
-            'name' => 'Carlos Mecanico',
-            'role' => 'mecanico',
-            'cpf' => '000.000.000-01',
-            'telefone' => '(00) 00000-0001',
-        ],
-        'jose@autotech.com' => [
-            'name' => 'Jose Mecanico',
-            'role' => 'mecanico',
-            'cpf' => '000.000.000-02',
-            'telefone' => '(00) 00000-0002',
         ],
         'cliente@autotech.com' => [
             'name' => 'Pedro Cliente',
@@ -56,22 +43,5 @@ class DefaultUserAccounts
             ]
         );
 
-        if ($data['role'] === 'mecanico') {
-            $mecanico = Mecanico::where('user_id', $user->id)
-                ->orWhere('cpf', $data['cpf'])
-                ->first();
-
-            if (! $mecanico) {
-                $mecanico = new Mecanico();
-            }
-
-            $mecanico->fill([
-                'user_id' => $user->id,
-                'nome' => $data['name'],
-                'cpf' => $data['cpf'],
-                'telefone' => $data['telefone'],
-                'ativo' => true,
-            ])->save();
-        }
     }
 }

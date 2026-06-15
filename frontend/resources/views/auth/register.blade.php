@@ -6,6 +6,12 @@
     <title>Criar Conta — AutoTech Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            const theme = localStorage.getItem('autotech-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,6 +29,21 @@
             --text:      #F0F0F0;
             --text2:     #BBBBBB;
             --text3:     #666;
+        }
+
+        :root[data-theme="light"] {
+            --red:       #B00000;
+            --red-h:     #D00000;
+            --red-dim:   rgba(176,0,0,.10);
+            --red-glow:  rgba(176,0,0,.16);
+            --bg:        #F4F1EC;
+            --surface:   #FFFAF5;
+            --surface2:  #F3ECE4;
+            --border:    rgba(31,25,20,.10);
+            --border2:   rgba(31,25,20,.16);
+            --text:      #17130F;
+            --text2:     #4F4840;
+            --text3:     #7D7469;
         }
 
         html, body {
@@ -50,6 +71,12 @@
             background-size: 52px 52px;
             mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
             pointer-events: none;
+        }
+
+        :root[data-theme="light"] .bg-grid {
+            background-image:
+                linear-gradient(rgba(31,25,20,.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(31,25,20,.045) 1px, transparent 1px);
         }
 
         .bg-glow {
@@ -101,6 +128,13 @@
                 0 32px 80px rgba(0,0,0,.7),
                 0 0 120px rgba(196,0,0,.06);
             animation: cardIn .6s cubic-bezier(.34,1.4,.64,1) both;
+        }
+
+        :root[data-theme="light"] .login-split {
+            box-shadow:
+                0 0 0 1px rgba(176,0,0,.08),
+                0 32px 80px rgba(66,45,25,.18),
+                0 0 120px rgba(176,0,0,.06);
         }
 
         @keyframes cardIn {
@@ -223,7 +257,34 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
         }
+
+        .login-theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border2);
+            background: var(--surface2);
+            color: var(--text2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background .2s, color .2s, border-color .2s;
+        }
+
+        .login-theme-toggle:hover {
+            color: var(--text);
+            border-color: rgba(196,0,0,.28);
+        }
+
+        .login-theme-toggle .theme-light-icon { display: none; }
+        :root[data-theme="light"] .login-theme-toggle .theme-dark-icon { display: none; }
+        :root[data-theme="light"] .login-theme-toggle .theme-light-icon { display: inline-block; }
 
         .login-heading {
             font-family: 'Syne', sans-serif;
@@ -231,6 +292,10 @@
             font-weight: 800;
             color: #fff;
             margin-bottom: 4px;
+        }
+
+        :root[data-theme="light"] .login-heading {
+            color: var(--text);
         }
         .login-sub {
             font-size: 13px;
@@ -268,6 +333,12 @@
             letter-spacing: .1em;
             margin-bottom: 7px;
             display: block;
+        }
+
+        .field-label.is-required::after {
+            content: ' *';
+            color: var(--red-h);
+            font-weight: 900;
         }
         .field-wrap {
             position: relative;
@@ -426,6 +497,42 @@
             .login-split { max-width: 400px; }
             .panel-right { padding: 2rem 1.6rem; }
         }
+
+        @media (max-width: 520px) {
+            html, body {
+                overflow-x: hidden;
+            }
+
+            .page-wrap {
+                align-items: flex-start;
+                padding: 10px;
+            }
+
+            .login-split {
+                max-width: none;
+                width: 100%;
+                border-radius: 16px;
+            }
+
+            .panel-right {
+                padding: 3.2rem 1rem 1.15rem;
+            }
+
+            .login-heading {
+                font-size: 1.28rem;
+            }
+
+            .field-input,
+            .btn-entrar {
+                min-height: 48px;
+                font-size: 16px;
+                border-radius: 12px;
+            }
+
+            .divider {
+                margin: 1rem 0 .25rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -458,7 +565,7 @@
                 <ul class="panel-features">
                     <li><i class="bi bi-clipboard2-check"></i> Solicitar Ordens de Serviço</li>
                     <li><i class="bi bi-car-front"></i> Gerenciar seus Veículos</li>
-                    <li><i class="bi bi-shield-check"></i> Acompanhar Garantias</li>
+                    <li><i class="bi bi-cash-coin"></i> Aprovar Orcamentos</li>
                     <li><i class="bi bi-file-earmark-text"></i> Ver Histórico de Serviços</li>
                     <li><i class="bi bi-bell"></i> Receber Atualizações</li>
                 </ul>
@@ -468,6 +575,10 @@
         </div>
 
         <div class="panel-right">
+            <button type="button" class="login-theme-toggle" id="theme-toggle" title="Alternar modo claro/escuro">
+                <i class="bi bi-sun theme-dark-icon"></i>
+                <i class="bi bi-moon-stars theme-light-icon"></i>
+            </button>
             <div class="login-heading">Criar Conta</div>
             <div class="login-sub">Preencha os dados abaixo para se cadastrar</div>
 
@@ -485,11 +596,18 @@
             </div>
             @endif
 
+            @if(session('google_notice'))
+            <div class="alert-box success-message">
+                <i class="bi bi-google"></i>
+                <span>{{ session('google_notice') }}</span>
+            </div>
+            @endif
+
             <form method="POST" action="{{ route('register.post') }}" id="register-form">
                 @csrf
 
                 <div class="field-group">
-                    <label class="field-label" for="name">Nome Completo</label>
+                    <label class="field-label is-required" for="name">Nome Completo</label>
                     <div class="field-wrap">
                         <i class="bi bi-person field-icon"></i>
                         <input
@@ -497,8 +615,10 @@
                             type="text"
                             id="name"
                             name="name"
-                            value="{{ old('name') }}"
+                            value="{{ old('name', session('google_prefill.name')) }}"
                             placeholder="Seu nome completo"
+                            pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+"
+                            title="Use apenas letras e espacos."
                             required
                             autofocus
                             autocomplete="name"
@@ -510,7 +630,7 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="email">E-mail</label>
+                    <label class="field-label is-required" for="email">E-mail</label>
                     <div class="field-wrap">
                         <i class="bi bi-envelope field-icon"></i>
                         <input
@@ -518,7 +638,7 @@
                             type="email"
                             id="email"
                             name="email"
-                            value="{{ old('email') }}"
+                            value="{{ old('email', session('google_prefill.email')) }}"
                             placeholder="seu@email.com"
                             required
                             autocomplete="email"
@@ -530,7 +650,7 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="password">Senha</label>
+                    <label class="field-label is-required" for="password">Senha</label>
                     <div class="field-wrap">
                         <i class="bi bi-lock field-icon" id="lock-icon"></i>
                         <input
@@ -553,27 +673,24 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="cpf">CPF</label>
+                    <label class="field-label is-required" for="password_confirmation">Confirmar Senha</label>
                     <div class="field-wrap">
-                        <i class="bi bi-person-badge field-icon"></i>
+                        <i class="bi bi-lock field-icon"></i>
                         <input
                             class="field-input"
-                            type="text"
-                            id="cpf"
-                            name="cpf"
-                            value="{{ old('cpf') }}"
-                            placeholder="00000000000"
+                            type="password"
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            placeholder="••••••••"
                             required
-                            autocomplete="off"
+                            autocomplete="new-password"
+                            style="padding-right: 42px"
                         >
                     </div>
-                    @error('cpf')
-                    <small style="color: #E06060; font-size: 11px; margin-top: 4px; display: block;">{{ $message }}</small>
-                    @enderror
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="telefone">Telefone</label>
+                    <label class="field-label is-required" for="telefone">Telefone</label>
                     <div class="field-wrap">
                         <i class="bi bi-telephone field-icon"></i>
                         <input
@@ -593,22 +710,24 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="password_confirmation">Confirmar Senha</label>
+                    <label class="field-label is-required" for="cpf">CPF</label>
                     <div class="field-wrap">
-                        <i class="bi bi-lock field-icon"></i>
+                        <i class="bi bi-person-badge field-icon"></i>
                         <input
                             class="field-input"
-                            type="password"
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            placeholder="••••••••"
+                            type="text"
+                            id="cpf"
+                            name="cpf"
+                            value="{{ old('cpf') }}"
+                            placeholder="00000000000"
                             required
-                            autocomplete="new-password"
-                            style="padding-right: 42px"
+                            autocomplete="off"
                         >
                     </div>
+                    @error('cpf')
+                    <small style="color: #E06060; font-size: 11px; margin-top: 4px; display: block;">{{ $message }}</small>
+                    @enderror
                 </div>
-
                 <button type="submit" class="btn-entrar" id="btn-submit">
 
                     <i class="bi bi-person-plus"></i>
@@ -629,6 +748,16 @@
 </div>
 
 <script>
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('autotech-theme', theme);
+}
+
+document.getElementById('theme-toggle')?.addEventListener('click', function () {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    setTheme(current === 'dark' ? 'light' : 'dark');
+});
+
 (function () {
     const canvas = document.getElementById('particles-canvas');
     const ctx    = canvas.getContext('2d');
@@ -738,6 +867,29 @@ function formatPhone(value) {
 
 const cpfInput = document.getElementById('cpf');
 const phoneInput = document.getElementById('telefone');
+const nameInput = document.getElementById('name');
+
+function formatName(value) {
+    return value
+        .replace(/[^\p{L}\s]/gu, '')
+        .replace(/\s+/g, ' ')
+        .toLocaleLowerCase('pt-BR')
+        .replace(/(^|\s)(\p{L})/gu, function (_, space, letter) {
+            return space + letter.toLocaleUpperCase('pt-BR');
+        });
+}
+
+if (nameInput) {
+    nameInput.addEventListener('input', function () {
+        const cursor = this.selectionStart;
+        this.value = formatName(this.value);
+        this.setSelectionRange(cursor, cursor);
+    });
+
+    nameInput.addEventListener('blur', function () {
+        this.value = formatName(this.value.trim());
+    });
+}
 
 if (cpfInput) {
     cpfInput.addEventListener('input', function (event) {
