@@ -216,6 +216,16 @@
     }
 }
 
+@keyframes mobileBrandSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mobile-sidebar-brand-icon .bi {
+        animation: none !important;
+    }
+}
+
 :root[data-theme="light"] #mobile-sidebar-panel {
     background: #fffaf5 !important;
     color: #2c241e !important;

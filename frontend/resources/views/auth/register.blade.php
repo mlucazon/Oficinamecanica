@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Conta — AutoTech Pro</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=5">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
@@ -195,15 +195,15 @@
         }
 
         .brand-gear::before {
-            content: 'AT';
+            content: '\F3E5';
             position: relative;
             z-index: 1;
-            font-family: 'Syne', sans-serif;
-            font-size: 16px;
-            font-weight: 900;
-            letter-spacing: -.15em;
+            font-family: "bootstrap-icons";
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: 0;
             color: #fff;
-            transform: skewX(-8deg);
+            animation: spin 7s linear infinite;
             text-shadow: 0 2px 10px rgba(0,0,0,.24);
         }
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoTech Pro</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=5">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800;900&family=DM+Sans:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
@@ -146,14 +146,14 @@
 
         .brand-mark::before,
         .page-loader-mark::before {
-            content: 'AT';
+            content: '\F3E5';
             position: relative;
             z-index: 1;
-            font-family: 'Syne', sans-serif;
-            font-weight: 900;
-            letter-spacing: -.15em;
+            font-family: "bootstrap-icons";
+            font-weight: 400;
+            letter-spacing: 0;
             color: #fff;
-            transform: skewX(-8deg);
+            animation: brandGearSpin 7s linear infinite;
             text-shadow: 0 2px 10px rgba(0,0,0,.24);
         }
 
@@ -174,6 +174,10 @@
 
         .brand-mark i,
         .page-loader-mark i { display: none; }
+
+        @keyframes brandGearSpin {
+            to { transform: rotate(360deg); }
+        }
 
         .brand-text strong {
             display: block;
@@ -846,6 +850,11 @@
             .ui-ripple {
                 display: none !important;
             }
+
+            .brand-mark::before,
+            .page-loader-mark::before {
+                animation: none !important;
+            }
         }
 
         .page-loader {
@@ -970,18 +979,27 @@
 
         @media (max-width: 680px) {
             .topbar {
-                position: static;
-                align-items: flex-start;
-                flex-direction: column;
-                background: #050505;
+                position: sticky;
+                top: 0;
+                align-items: center;
+                flex-direction: row;
+                background: rgba(5,5,5,.96);
             }
 
-            .actions,
-            .actions .btn,
             .hero-actions .btn,
-            .theme-toggle,
             .footer-inner .btn {
                 width: 100%;
+            }
+
+            .actions {
+                width: auto;
+                flex: 0 0 auto;
+                gap: .5rem;
+            }
+
+            .actions .btn {
+                min-height: 44px;
+                padding-inline: .85rem;
             }
 
             .hero {
@@ -1032,7 +1050,7 @@
             }
 
             .brand {
-                width: 100%;
+                flex: 1 1 auto;
                 min-width: 0;
             }
 
@@ -1045,16 +1063,29 @@
             }
 
             .actions {
-                width: 100%;
                 display: grid;
-                grid-template-columns: 46px 1fr 1fr;
-                gap: .55rem;
+                grid-template-columns: 44px 46px;
+                gap: .5rem;
             }
 
             .actions .btn {
-                min-height: 46px;
+                min-height: 44px;
                 justify-content: center;
                 padding-inline: .75rem;
+            }
+
+            .actions .btn-login-top {
+                width: 46px;
+                padding-inline: 0;
+            }
+
+            .actions .btn-login-top span {
+                display: none;
+            }
+
+            .theme-toggle {
+                width: 44px;
+                min-width: 44px;
             }
 
             .hero {
@@ -1066,6 +1097,10 @@
             .workflow-title {
                 overflow-wrap: anywhere;
                 hyphens: auto;
+            }
+
+            .hero h1 {
+                line-height: .92;
             }
 
             .hero-actions,
@@ -1143,8 +1178,10 @@
                     <i class="bi bi-sun theme-dark-icon"></i>
                     <i class="bi bi-moon-stars theme-light-icon"></i>
                 </button>
-                <a href="{{ route('login') }}" class="btn btn-line"><i class="bi bi-box-arrow-in-right"></i>Entrar</a>
-                <a href="{{ route('register') }}" class="btn btn-red"><i class="bi bi-person-plus"></i>Cadastrar</a>
+                <a href="{{ route('login') }}" class="btn btn-red btn-login-top" aria-label="Entrar no AutoTech">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Entrar</span>
+                </a>
             </div>
         </header>
 

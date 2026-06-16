@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avaliacoes dos clientes - AutoTech Pro</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=5">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800;900&family=DM+Sans:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script>
@@ -126,14 +126,14 @@
 
         .brand-mark::before,
         .page-loader-mark::before {
-            content: 'AT';
+            content: '\F3E5';
             position: relative;
             z-index: 1;
-            font-family: 'Syne', sans-serif;
-            font-weight: 900;
-            letter-spacing: -.15em;
+            font-family: "bootstrap-icons";
+            font-weight: 400;
+            letter-spacing: 0;
             color: #fff;
-            transform: skewX(-8deg);
+            animation: brandGearSpin 7s linear infinite;
             text-shadow: 0 2px 10px rgba(0,0,0,.24);
         }
 
@@ -154,6 +154,10 @@
 
         .brand-mark i,
         .page-loader-mark i { display: none; }
+
+        @keyframes brandGearSpin {
+            to { transform: rotate(360deg); }
+        }
 
         .brand-text strong {
             display: block;

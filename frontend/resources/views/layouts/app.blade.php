@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'AutoTech Pro') — AutoTech</title>
 
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=5">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 	    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -152,15 +152,15 @@
         }
 
         .brand-icon-wrap::before {
-            content: 'AT';
+            content: '\F3E5';
             position: relative;
             z-index: 1;
-            font-family: 'Syne', sans-serif;
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: -.15em;
+            font-family: "bootstrap-icons";
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 0;
             color: #fff;
-            transform: skewX(-8deg);
+            animation: brandGearSpin 7s linear infinite;
             text-shadow: 0 2px 10px rgba(0,0,0,.24);
         }
 
@@ -177,6 +177,10 @@
         }
 
         .brand-icon-wrap i { display: none; }
+
+        @keyframes brandGearSpin {
+            to { transform: rotate(360deg); }
+        }
 
         .brand-name {
             font-family: 'Syne', sans-serif;
@@ -4576,15 +4580,15 @@
             }
 
             .page-loader-mark::before {
-                content: 'AT';
+                content: '\F3E5';
                 position: relative;
                 z-index: 1;
-                font-family: 'Syne', sans-serif;
-                font-size: 18px;
-                font-weight: 900;
-                letter-spacing: -.15em;
+                font-family: "bootstrap-icons";
+                font-size: 22px;
+                font-weight: 400;
+                letter-spacing: 0;
                 color: #fff;
-                transform: skewX(-8deg);
+                animation: brandGearSpin 7s linear infinite;
                 text-shadow: 0 2px 10px rgba(0,0,0,.24);
             }
 
@@ -4772,6 +4776,71 @@
                 .page-loader-bar span {
                     animation: none !important;
                     transition: none !important;
+                }
+
+                .brand-icon-wrap::before,
+                .page-loader-mark::before {
+                    animation: none !important;
+                }
+            }
+
+            @media (max-width: 760px) {
+                #content {
+                    overflow-x: hidden !important;
+                }
+
+                #content :where(.card-header, .card-footer, .modal-header, .modal-footer, .d-flex.justify-content-between, .d-flex.align-items-center) {
+                    gap: .65rem !important;
+                }
+
+                #content :where(.card-header .btn, .card-footer .btn, .modal-footer .btn, .d-flex.justify-content-end > .btn, .d-flex.justify-content-between > .btn) {
+                    min-width: min(100%, 150px);
+                    flex: 1 1 auto;
+                }
+
+                #content :where(.form-control, .form-select, textarea) {
+                    font-size: 16px !important;
+                }
+
+                #content :where(.table-responsive, .card-body.p-0) {
+                    overflow-x: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
+                }
+
+                #content :where(.table) {
+                    min-width: 640px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                #topbar {
+                    padding-inline: .55rem !important;
+                }
+
+                #topbar .topbar-btn,
+                #topbar .btn-logout,
+                .sidebar-toggle {
+                    width: 40px !important;
+                    height: 40px !important;
+                    min-width: 40px !important;
+                }
+
+                #content {
+                    padding-inline: .5rem !important;
+                }
+
+                #content :where(.card, .alert, .info-block, .notification-card, .profile-card, .report-card, .metric-card, .os-index-card, .dashboard-card) {
+                    border-radius: 12px !important;
+                }
+
+                #content :where(.btn, button.btn) {
+                    min-height: 44px !important;
+                    white-space: normal !important;
+                }
+
+                #content :where(.badge) {
+                    white-space: normal !important;
+                    text-align: center;
                 }
             }
         </style>

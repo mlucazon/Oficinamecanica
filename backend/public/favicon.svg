@@ -6,15 +6,16 @@
       <stop offset="1" stop-color="#650000"/>
     </linearGradient>
     <radialGradient id="shine" cx="18" cy="12" r="48" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#ffffff" stop-opacity=".32"/>
-      <stop offset=".42" stop-color="#ffffff" stop-opacity=".08"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      <stop stop-color="#fff" stop-opacity=".34"/>
+      <stop offset=".42" stop-color="#fff" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
   </defs>
   <rect x="4" y="4" width="56" height="56" rx="15" fill="url(#bg)"/>
   <rect x="5" y="5" width="54" height="54" rx="14" fill="url(#shine)"/>
-  <path fill="#fff" d="M13.8 44 24.9 17.8h7.3L43.2 44h-7.4l-1.7-4.7H22.8L21.1 44h-7.3Zm11.1-10.5h7.1l-3.5-9.4-3.6 9.4Z"/>
-  <path fill="#fff" opacity=".96" d="M38 17.8h13.2v6.1H47V44h-6.8V23.9H38v-6.1Z"/>
-  <circle cx="47" cy="47" r="6.2" fill="#fff" opacity=".96"/>
-  <circle cx="47" cy="47" r="2.5" fill="#c40000"/>
+  <g transform-origin="32 32">
+    <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="5s" repeatCount="indefinite"/>
+    <path fill="#fff" d="m35.4 10 1.7 6.6c1.4.4 2.7.9 3.9 1.6l5.9-3.5 4.4 4.4-3.5 5.9c.7 1.2 1.2 2.5 1.6 3.9l6.6 1.7v6.8l-6.6 1.7a18 18 0 0 1-1.6 3.9l3.5 5.9-4.4 4.4-5.9-3.5c-1.2.7-2.5 1.2-3.9 1.6L35.4 58h-6.8l-1.7-6.6A18 18 0 0 1 23 49.8l-5.9 3.5-4.4-4.4 3.5-5.9a18 18 0 0 1-1.6-3.9L8 37.4v-6.8l6.6-1.7c.4-1.4.9-2.7 1.6-3.9l-3.5-5.9 4.4-4.4 5.9 3.5c1.2-.7 2.5-1.2 3.9-1.6l1.7-6.6h6.8ZM32 24.2a7.8 7.8 0 1 0 0 15.6 7.8 7.8 0 0 0 0-15.6Z"/>
+    <circle cx="32" cy="32" r="3.5" fill="#c40000"/>
+  </g>
 </svg>
