@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'AutoTech Pro') — AutoTech</title>
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 	    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -138,23 +139,44 @@
         }
 
         .brand-icon-wrap {
-            width: 36px; height: 36px;
-            background: var(--red);
-            border-radius: 8px;
+            width: 42px; height: 42px;
+            background:
+                radial-gradient(circle at 22% 16%, rgba(255,255,255,.32), transparent 34%),
+                linear-gradient(135deg, #ff2424 0%, var(--red) 48%, #650000 100%);
+            border-radius: 13px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 14px 34px rgba(196,0,0,.32), inset 0 1px 0 rgba(255,255,255,.20);
+        }
+
+        .brand-icon-wrap::before {
+            content: 'AT';
+            position: relative;
+            z-index: 1;
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: -.15em;
+            color: #fff;
+            transform: skewX(-8deg);
+            text-shadow: 0 2px 10px rgba(0,0,0,.24);
         }
 
         .brand-icon-wrap::after {
             content: '';
             position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 60%);
+            right: 7px;
+            bottom: 7px;
+            width: 8px;
+            height: 8px;
+            border: 2px solid rgba(255,255,255,.94);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(255,255,255,.10);
         }
 
-        .brand-icon-wrap i { font-size: 17px; color: #fff; position: relative; z-index: 1; }
+        .brand-icon-wrap i { display: none; }
 
         .brand-name {
             font-family: 'Syne', sans-serif;
@@ -4541,18 +4563,44 @@
             .page-loader-mark {
                 width: 54px;
                 height: 54px;
+                position: relative;
+                overflow: hidden;
                 display: grid;
                 place-items: center;
                 border-radius: 16px;
-                background: linear-gradient(135deg, #ff1f1f, #9e0000);
-                box-shadow: 0 18px 42px rgba(196, 0, 0, .34);
+                background:
+                    radial-gradient(circle at 22% 16%, rgba(255,255,255,.32), transparent 34%),
+                    linear-gradient(135deg, #ff2424 0%, var(--red) 48%, #650000 100%);
+                box-shadow: 0 18px 42px rgba(196, 0, 0, .34), inset 0 1px 0 rgba(255,255,255,.20);
                 animation: loaderPulse 1.1s ease-in-out infinite;
             }
 
-            .page-loader-mark i {
-                font-size: 24px;
-                animation: loaderSpin 1.2s linear infinite;
+            .page-loader-mark::before {
+                content: 'AT';
+                position: relative;
+                z-index: 1;
+                font-family: 'Syne', sans-serif;
+                font-size: 18px;
+                font-weight: 900;
+                letter-spacing: -.15em;
+                color: #fff;
+                transform: skewX(-8deg);
+                text-shadow: 0 2px 10px rgba(0,0,0,.24);
             }
+
+            .page-loader-mark::after {
+                content: '';
+                position: absolute;
+                right: 8px;
+                bottom: 8px;
+                width: 9px;
+                height: 9px;
+                border: 2px solid rgba(255,255,255,.94);
+                border-radius: 50%;
+                box-shadow: 0 0 0 3px rgba(255,255,255,.10);
+            }
+
+            .page-loader-mark i { display: none; }
 
             .page-loader-text strong {
                 display: block;

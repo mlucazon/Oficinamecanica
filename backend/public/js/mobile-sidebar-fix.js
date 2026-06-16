@@ -16,7 +16,7 @@
 
         const brand = document.createElement('div');
         brand.className = 'mobile-sidebar-brand';
-        brand.innerHTML = '<span class="mobile-sidebar-brand-icon"><i class="bi bi-gear-wide-connected"></i></span><span><strong>AutoTech</strong><small>Oficina Pro</small></span>';
+        brand.innerHTML = '<span class="mobile-sidebar-brand-icon" aria-hidden="true"></span><span><strong>AutoTech</strong><small>Oficina Pro</small></span>';
 
         const list = document.createElement('div');
         list.className = 'mobile-sidebar-list';
@@ -76,16 +76,20 @@
         const icon = panel.querySelector('.mobile-sidebar-brand-icon');
         if (icon) {
             Object.assign(icon.style, {
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                background: '#c40000',
+                width: '42px',
+                height: '42px',
+                borderRadius: '13px',
+                background: 'radial-gradient(circle at 22% 16%, rgba(255,255,255,.32), transparent 34%), linear-gradient(135deg, #ff2424 0%, #c40000 48%, #650000 100%)',
                 color: '#fff',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flex: '0 0 38px'
+                flex: '0 0 42px',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 14px 34px rgba(196,0,0,.32), inset 0 1px 0 rgba(255,255,255,.20)'
             });
+            icon.innerHTML = '<span style="position:relative;z-index:1;font-family:Syne,Arial,sans-serif;font-size:15px;font-weight:900;letter-spacing:-.15em;color:#fff;transform:skewX(-8deg);text-shadow:0 2px 10px rgba(0,0,0,.24);">AT</span><span style="position:absolute;right:7px;bottom:7px;width:8px;height:8px;border:2px solid rgba(255,255,255,.94);border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.10);"></span>';
         }
 
         const strong = panel.querySelector('.mobile-sidebar-brand strong');

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avaliacoes dos clientes - AutoTech Pro</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=3">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800;900&family=DM+Sans:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script>
@@ -106,15 +106,54 @@
             text-decoration: none;
         }
 
+        .brand-mark,
+        .page-loader-mark {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 22% 16%, rgba(255,255,255,.32), transparent 34%),
+                linear-gradient(135deg, #ff2424 0%, var(--red) 48%, #650000 100%);
+            box-shadow: 0 16px 38px rgba(196,0,0,.28), inset 0 1px 0 rgba(255,255,255,.20);
+        }
+
         .brand-mark {
             width: 46px;
             height: 46px;
-            border-radius: var(--radius-sm);
-            display: grid;
-            place-items: center;
-            background: var(--red);
-            box-shadow: none;
+            border-radius: 14px;
         }
+
+        .brand-mark::before,
+        .page-loader-mark::before {
+            content: 'AT';
+            position: relative;
+            z-index: 1;
+            font-family: 'Syne', sans-serif;
+            font-weight: 900;
+            letter-spacing: -.15em;
+            color: #fff;
+            transform: skewX(-8deg);
+            text-shadow: 0 2px 10px rgba(0,0,0,.24);
+        }
+
+        .brand-mark::before { font-size: 16px; }
+
+        .brand-mark::after,
+        .page-loader-mark::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            width: 9px;
+            height: 9px;
+            border: 2px solid rgba(255,255,255,.94);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(255,255,255,.10);
+        }
+
+        .brand-mark i,
+        .page-loader-mark i { display: none; }
 
         .brand-text strong {
             display: block;
@@ -405,18 +444,11 @@
         .page-loader-mark {
             width: 54px;
             height: 54px;
-            display: grid;
-            place-items: center;
             border-radius: 16px;
-            background: linear-gradient(135deg, #ff1f1f, #9e0000);
-            box-shadow: 0 18px 42px rgba(196,0,0,.34);
             animation: loaderPulse 1.1s ease-in-out infinite;
         }
 
-        .page-loader-mark i {
-            font-size: 24px;
-            animation: loaderSpin 1.2s linear infinite;
-        }
+        .page-loader-mark::before { font-size: 18px; }
 
         .page-loader-text strong {
             display: block;

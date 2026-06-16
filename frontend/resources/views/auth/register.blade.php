@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Conta — AutoTech Pro</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
@@ -181,13 +182,44 @@
         }
         .brand-gear {
             width: 44px; height: 44px;
-            background: rgba(0,0,0,.2);
-            border-radius: 12px;
+            background:
+                radial-gradient(circle at 22% 16%, rgba(255,255,255,.32), transparent 34%),
+                linear-gradient(135deg, #ff2424 0%, #c40000 48%, #650000 100%);
+            border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,.15);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 14px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.20);
         }
-        .brand-gear i { font-size: 22px; color: #fff; animation: spin 12s linear infinite; }
+
+        .brand-gear::before {
+            content: 'AT';
+            position: relative;
+            z-index: 1;
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: -.15em;
+            color: #fff;
+            transform: skewX(-8deg);
+            text-shadow: 0 2px 10px rgba(0,0,0,.24);
+        }
+
+        .brand-gear::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            width: 8px;
+            height: 8px;
+            border: 2px solid rgba(255,255,255,.94);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(255,255,255,.10);
+        }
+
+        .brand-gear i { display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .brand-name-left {
