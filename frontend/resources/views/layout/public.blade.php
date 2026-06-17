@@ -994,13 +994,14 @@
 
             .hero {
                 min-height: auto;
-                padding-top: 2rem;
+                padding-top: 1.6rem;
                 background-position: center;
             }
 
             .hero h1 {
                 max-width: 100%;
-                font-size: clamp(2rem, 12vw, 3.25rem);
+                font-size: clamp(1.9rem, 8.6vw, 2.75rem);
+                line-height: 1;
             }
 
             .hero-stats,
@@ -1015,8 +1016,10 @@
             }
 
             .dynamic-wrap {
-                display: flex;
-                width: 100%;
+                display: inline-flex;
+                width: auto;
+                max-width: 100%;
+                white-space: normal;
             }
 
             .section-head {
@@ -1029,24 +1032,52 @@
         }
 
         @media (max-width: 520px) {
+            html,
+            body {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
             .site-shell {
-                padding-inline: .8rem;
+                width: 100%;
+                max-width: 100vw;
+                padding-inline: .55rem;
+                overflow-x: hidden;
             }
 
             .topbar {
-                gap: .85rem;
-                padding: .85rem;
+                width: 100%;
+                max-width: 100%;
+                gap: .55rem;
+                padding: .72rem;
                 border-radius: 0 0 16px 16px;
             }
 
             .brand {
                 flex: 1 1 auto;
                 min-width: 0;
+                gap: .6rem;
+            }
+
+            .brand-mark {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+            }
+
+            .brand-text strong {
+                font-size: .98rem;
+            }
+
+            .brand-text span {
+                font-size: .68rem;
+                letter-spacing: .14em;
             }
 
             .brand-text strong,
             .brand-text span {
-                max-width: calc(100vw - 120px);
+                max-width: calc(100vw - 145px);
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -1079,18 +1110,123 @@
             }
 
             .hero {
-                padding: 1.4rem 0 2.4rem;
+                padding: 1.15rem 0 2rem;
             }
 
             .hero h1,
             .section-title,
             .workflow-title {
                 overflow-wrap: anywhere;
+                word-break: normal;
                 hyphens: auto;
             }
 
             .hero h1 {
-                line-height: .92;
+                max-width: 13ch;
+                font-size: clamp(1.85rem, 8.8vw, 2.35rem);
+                line-height: 1.02;
+            }
+
+            .dynamic-wrap {
+                display: inline;
+            }
+
+            .dynamic-word {
+                display: inline;
+                min-width: 0;
+            }
+
+            .hero-copy {
+                max-width: 28rem;
+                font-size: .96rem;
+                line-height: 1.5;
+            }
+
+            .hero-stats {
+                gap: .55rem;
+                margin-top: 1.2rem;
+            }
+
+            .stat {
+                min-height: 86px;
+                padding: .85rem;
+            }
+
+            .stat strong {
+                font-size: 1.38rem;
+            }
+
+            .stat span {
+                font-size: .72rem;
+                letter-spacing: .06em;
+            }
+
+            .section {
+                padding: 1.8rem 0;
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            .section-head,
+            .ecosystem,
+            .services-showcase,
+            .testimonial-grid,
+            .footer-inner {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .section-head h2,
+            .service-intro h3,
+            .footer-inner h2 {
+                max-width: 100%;
+                font-size: clamp(1.45rem, 8.6vw, 2.15rem);
+                line-height: 1.02;
+                overflow-wrap: anywhere;
+                word-break: normal;
+            }
+
+            .section-head p,
+            .service-intro p,
+            .eco-card p,
+            .service-item p {
+                font-size: .95rem;
+            }
+
+            .eco-card,
+            .service-intro,
+            .service-item,
+            .testimonial-card {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .eco-card {
+                min-height: auto;
+                padding: .95rem;
+            }
+
+            .service-intro {
+                grid-template-columns: 1fr;
+                align-items: start;
+            }
+
+            .service-list {
+                grid-template-columns: 1fr;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .service-item {
+                min-height: auto;
+            }
+
+            .service-item strong {
+                font-size: .98rem;
+                overflow-wrap: anywhere;
             }
 
             .hero-actions,
@@ -1130,6 +1266,58 @@
 
             .stat-item {
                 min-height: 92px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .site-shell {
+                padding-inline: .45rem;
+            }
+
+            .topbar {
+                padding-inline: .55rem;
+            }
+
+            .brand-mark {
+                width: 40px;
+                height: 40px;
+            }
+
+            .brand-text strong {
+                font-size: .9rem;
+            }
+
+            .brand-text span {
+                font-size: .62rem;
+                letter-spacing: .12em;
+            }
+
+            .brand-text strong,
+            .brand-text span {
+                max-width: calc(100vw - 138px);
+            }
+
+            .hero h1 {
+                max-width: 12ch;
+                font-size: clamp(1.62rem, 8.4vw, 2.05rem);
+            }
+
+            .section-head h2,
+            .service-intro h3,
+            .footer-inner h2 {
+                font-size: clamp(1.28rem, 7.8vw, 1.85rem);
+            }
+
+            .section,
+            .section-pad,
+            .section-card,
+            .workflow-card,
+            .service-card,
+            .testimonial-card,
+            .service-intro,
+            .eco-card,
+            .service-item {
+                padding-inline: .85rem;
             }
         }
     </style>
