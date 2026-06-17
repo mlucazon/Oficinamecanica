@@ -89,7 +89,7 @@
                 overflow: 'hidden',
                 boxShadow: '0 14px 34px rgba(196,0,0,.32), inset 0 1px 0 rgba(255,255,255,.20)'
             });
-            icon.innerHTML = '<i class="bi bi-gear-wide-connected" style="position:relative;z-index:1;font-size:19px;color:#fff;animation:mobileBrandSpin 7s linear infinite;"></i><span style="position:absolute;right:7px;bottom:7px;width:8px;height:8px;border:2px solid rgba(255,255,255,.94);border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.10);"></span>';
+            icon.innerHTML = '<i class="bi bi-gear-wide-connected" style="position:relative;z-index:1;font-size:19px;color:#fff;animation:mobileBrandSpin 7s linear infinite;"></i>';
         }
 
         const strong = panel.querySelector('.mobile-sidebar-brand strong');

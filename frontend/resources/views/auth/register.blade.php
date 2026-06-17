@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Conta — AutoTech Pro</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=5">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=6">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
@@ -207,17 +207,7 @@
             text-shadow: 0 2px 10px rgba(0,0,0,.24);
         }
 
-        .brand-gear::after {
-            content: '';
-            position: absolute;
-            right: 8px;
-            bottom: 8px;
-            width: 8px;
-            height: 8px;
-            border: 2px solid rgba(255,255,255,.94);
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(255,255,255,.10);
-        }
+        .brand-gear::after { display: none; }
 
         .brand-gear i { display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
