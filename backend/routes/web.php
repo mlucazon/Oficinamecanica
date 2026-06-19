@@ -25,6 +25,19 @@ Route::get('/health', function () {
     return response()->json(['status' => 'ok']);
 });
 
+Route::get('/debug-servicos', function () {
+    $servicos = Servico::where('ativo', true)->get();
+    return response()->json([
+        'total_servicos' => $servicos->count(),
+        'servicos' => $servicos->map(fn($s) => [
+            'id' => $s->id,
+            'nome' => $s->nome,
+            'categoria' => $s->categoria,
+            'ativo' => $s->ativo
+        ])
+    ]);
+})->name('debug.servicos');
+
 Route::get('/media/{path}', function (string $path) {
     abort_unless(Storage::disk('public')->exists($path), 404);
 
