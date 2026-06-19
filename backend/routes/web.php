@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AvaliacaoOsController;
 use App\Http\Controllers\CartaoClienteController;
 use App\Models\AvaliacaoOs;
+use App\Models\Servico;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/health', function () {
@@ -44,7 +45,26 @@ Route::get('/', function () {
         ->where('comentario', '<>', '')
         ->count();
 
-    return view('layout.public', compact('avaliacoesDestaque', 'totalAvaliacoesPublicas'));
+    // Busca serviços agrupados por categoria
+    $servicosPorCategoria = Servico::where('ativo', true)
+        ->get()
+        ->groupBy('categoria')
+        ->map(function ($servicos, $categoria) {
+            return [
+                'categoria' => $categoria,
+                'nome_display' => ucfirst($categoria),
+                'servicos' => $servicos->take(3), // Limita a 3 serviços por categoria
+                'total' => $servicos->count(),
+                'icone' => match($categoria) {
+                    'mecanica' => 'bi-tools',
+                    'eletrica' => 'bi-lightning-charge',
+                    'funilaria' => 'bi-hammer',
+                    default => 'bi-wrench',
+                }
+            ];
+        });
+
+    return view('layout.public', compact('avaliacoesDestaque', 'totalAvaliacoesPublicas', 'servicosPorCategoria'));
 });
 
 Route::get('/comentarios', function () {

@@ -1389,38 +1389,57 @@
                 </div>
 
                 <div class="ecosystem">
-                    <article class="eco-card">
-                        <div>
-                            <span class="eco-icon"><i class="bi bi-search-heart"></i></span>
-                            <h3>Diagnostico</h3>
-                            <p>Analise da queixa do cliente, sintomas do veiculo e primeiras verificacoes da oficina.</p>
-                        </div>
-                        <a href="{{ route('register') }}">Solicitar <i class="bi bi-arrow-right"></i></a>
-                    </article>
-                    <article class="eco-card">
-                        <div>
-                            <span class="eco-icon"><i class="bi bi-tools"></i></span>
-                            <h3>Manutencao</h3>
-                            <p>Servicos preventivos e corretivos para manter o carro seguro e confiavel.</p>
-                        </div>
-                        <a href="{{ route('register') }}">Cadastrar <i class="bi bi-arrow-right"></i></a>
-                    </article>
-                    <article class="eco-card">
-                        <div>
-                            <span class="eco-icon"><i class="bi bi-car-front"></i></span>
-                            <h3>Veiculos</h3>
-                            <p>Cadastro do seu carro para acompanhar historico, placa, modelo e ordens abertas.</p>
-                        </div>
-                        <a href="{{ route('register') }}">Adicionar <i class="bi bi-arrow-right"></i></a>
-                    </article>
-                    <article class="eco-card">
-                        <div>
-                            <span class="eco-icon"><i class="bi bi-receipt"></i></span>
-                            <h3>Orcamento</h3>
-                            <p>Receba valores, aprove o servico e acompanhe o andamento da OS pelo sistema.</p>
-                        </div>
-                        <a href="{{ route('login') }}">Acompanhar <i class="bi bi-arrow-right"></i></a>
-                    </article>
+                    @forelse($servicosPorCategoria ?? [] as $categoria => $dados)
+                        <article class="eco-card">
+                            <div>
+                                <span class="eco-icon"><i class="bi {{ $dados['icone'] }}"></i></span>
+                                <h3>{{ $dados['nome_display'] }}</h3>
+                                <p>
+                                    @if($dados['categoria'] === 'mecanica')
+                                        Servicos preventivos e corretivos: {{ $dados['servicos']->pluck('nome')->implode(', ') }}
+                                    @elseif($dados['categoria'] === 'eletrica')
+                                        Sistemas eletricos e diagnosticos: {{ $dados['servicos']->pluck('nome')->implode(', ') }}
+                                    @elseif($dados['categoria'] === 'funilaria')
+                                        Trabalhos em carroceria e pintura: {{ $dados['servicos']->pluck('nome')->implode(', ') }}
+                                    @endif
+                                </p>
+                            </div>
+                            <a href="{{ route('register') }}">Solicitar <i class="bi bi-arrow-right"></i></a>
+                        </article>
+                    @empty
+                        <article class="eco-card">
+                            <div>
+                                <span class="eco-icon"><i class="bi bi-tools"></i></span>
+                                <h3>Diagnostico</h3>
+                                <p>Analise da queixa do cliente, sintomas do veiculo e primeiras verificacoes da oficina.</p>
+                            </div>
+                            <a href="{{ route('register') }}">Solicitar <i class="bi bi-arrow-right"></i></a>
+                        </article>
+                        <article class="eco-card">
+                            <div>
+                                <span class="eco-icon"><i class="bi bi-tools"></i></span>
+                                <h3>Manutencao</h3>
+                                <p>Servicos preventivos e corretivos para manter o carro seguro e confiavel.</p>
+                            </div>
+                            <a href="{{ route('register') }}">Cadastrar <i class="bi bi-arrow-right"></i></a>
+                        </article>
+                        <article class="eco-card">
+                            <div>
+                                <span class="eco-icon"><i class="bi bi-car-front"></i></span>
+                                <h3>Veiculos</h3>
+                                <p>Cadastro do seu carro para acompanhar historico, placa, modelo e ordens abertas.</p>
+                            </div>
+                            <a href="{{ route('register') }}">Adicionar <i class="bi bi-arrow-right"></i></a>
+                        </article>
+                        <article class="eco-card">
+                            <div>
+                                <span class="eco-icon"><i class="bi bi-receipt"></i></span>
+                                <h3>Orcamento</h3>
+                                <p>Receba valores, aprove o servico e acompanhe o andamento da OS pelo sistema.</p>
+                            </div>
+                            <a href="{{ route('login') }}">Acompanhar <i class="bi bi-arrow-right"></i></a>
+                        </article>
+                    @endforelse
                 </div>
             </section>
 
